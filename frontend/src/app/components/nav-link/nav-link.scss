@@ -1,0 +1,24 @@
+@use "../../../theme" as theme;
+
+.nav-link
+{
+	padding: theme.$spacing-small;
+	border-radius: theme.$spacing-small;
+
+	a
+	{
+		text-decoration: none;
+		color: theme.$colour-gray;
+	}
+
+	&:hover
+	{
+		color: theme.$colour-primary;
+	}
+
+	&.active
+	{
+		background-color: theme.$colour-primary;
+		color: white;
+	}
+}

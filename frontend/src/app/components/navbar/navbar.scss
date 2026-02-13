@@ -1,0 +1,27 @@
+@use "../../../theme" as theme;
+
+:host
+{
+	grid-area: nav;
+}
+
+aside
+{
+	padding: theme.$spacing-large;
+
+	h1
+	{
+		margin-top: unset;
+	}
+}
+
+.nav-list
+{
+	list-style: none;
+	margin: unset;
+	padding: unset;
+	
+	display: flex;
+	flex-direction: column;
+	gap: theme.$spacing-xsmall;
+}
