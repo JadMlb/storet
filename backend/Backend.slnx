@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Storet.API/Storet.API.csproj" />
+  <Project Path="Storet.Tests/Storet.Tests.csproj" />
+</Solution>
