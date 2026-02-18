@@ -1,0 +1,29 @@
+@use "../../../theme" as theme;
+
+:host
+{
+	grid-area: expand;
+	cursor: pointer;
+}
+
+.category-toggle-expand-button
+{
+	all: unset;
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 100px;
+	
+	&:hover
+	{
+		background-color: theme.$colour-primary;
+	}
+}
+
+.category-toggle-expand-button > svg
+{
+	width: 15px;
+	height: 15px;
+}

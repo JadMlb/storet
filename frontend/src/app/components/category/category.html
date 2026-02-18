@@ -1,0 +1,24 @@
+<div
+	[id] = "label"
+	class = "category-header"
+	[style] = "styleMargin()"
+	(click) = "propagateClick ($event)"
+>
+	@if (hasChildren())
+	{
+		<category-toggle-expand-button (onToggle) = "handleToggleChange ($event)"/>
+	}
+	<span class = "category-title">{{label}}</span>
+</div>
+@if (isExpanded())
+{
+	@for (category of children; track category.id)
+	{
+		<category
+			[label] = "category.label"
+			[children] = "category.children"
+			[depth] = "depth + 1"
+			(onClick) = "propagateClick ($event)"
+		/>
+	}
+}

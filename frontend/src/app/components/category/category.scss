@@ -1,0 +1,33 @@
+@use "../../../theme" as theme;
+
+:host, .category-header
+{
+	gap: theme.$spacing-small;
+}
+
+:host
+{
+	display: flex;
+	flex-direction: column;
+	cursor: pointer;
+}
+
+.category-header
+{
+	display: grid;
+	grid-template-areas: "expand label";
+	grid-template-columns: 20px 1fr;
+
+	padding: theme.$spacing-small;
+	border-radius: theme.$spacing-small;
+
+	&:hover
+	{
+		background-color: theme.$colour-primary;
+	}
+}
+
+.category-header > .category-title
+{
+	grid-area: label;
+}
