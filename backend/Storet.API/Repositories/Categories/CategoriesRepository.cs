@@ -11,13 +11,23 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 
 	public async Task<IEnumerable<Category>> GetAllAsync ()
 	{
-		return await context.Categories.AsNoTracking().ToListAsync();
+		return await context.Categories
+							.AsNoTracking()
+							.ToListAsync();
+	}
+
+	public async Task<IEnumerable<CategoryHierarchy>> GetAllWithDepthAsync ()
+	{
+		return await context.CategoryHierarchies
+							.AsNoTracking()
+							.ToListAsync();
 	}
 
 	public async Task<Category?> GetOneAsync (int key)
 	{
 		return await context.Categories
 							.AsNoTracking()
+							.Include (c => c.ParentCategory)
 							.FirstOrDefaultAsync (c => c.Id == key);
 	}
 
@@ -27,7 +37,10 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 		try
 		{
 			await context.SaveChangesAsync();
-			return model;
+			return await context.Categories
+								.AsNoTracking()
+								.Include (c => c.ParentCategory)
+								.FirstOrDefaultAsync (c => c.Id == model.Id);
 		}
 		catch (Exception)
 		{
@@ -40,8 +53,10 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 		var old = await context.Categories.FirstOrDefaultAsync (c => c.Id == key);
 		if (old == null)
 			return null;
+		
 		old.Label = model.Label;
 		old.ParentCategoryId = model.ParentCategoryId;
+		
 		try
 		{
 			await context.SaveChangesAsync();
@@ -53,20 +68,27 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 		}
 	}
 
-	public async Task<Category?> DeleteAsync (int key)
+	public async Task<bool> DeleteAsync (int key)
 	{
-		var old = await context.Categories.FirstOrDefaultAsync (c => c.Id == key);
+		var old = await context.Categories
+								.Include (c => c.SubCategories)
+								.FirstOrDefaultAsync (c => c.Id == key);
+		
 		if (old == null)
-			return null;
+			return false;
+
+		if (old.SubCategories.Any())
+			throw new InvalidOperationException ("Cannot delete category with subcategories");
+		
 		try
 		{
 			context.Categories.Remove (old);
 			await context.SaveChangesAsync();
-			return old;
+			return true;
 		}
 		catch (Exception)
 		{
-			return null;
+			return false;
 		}
 	}
 }

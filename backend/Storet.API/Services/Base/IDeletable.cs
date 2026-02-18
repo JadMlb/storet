@@ -1,6 +1,6 @@
 namespace Storet.API.Services.Base;
 
-public interface IDeletable<TModel, TKey>
+public interface IDeletable<TKey>
 {
-	public Task<TModel?> DeleteAsync (TKey key);
+	public Task<bool> DeleteAsync (TKey key);
 }

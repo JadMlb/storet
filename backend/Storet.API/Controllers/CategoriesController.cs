@@ -16,13 +16,13 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<IActionResult> GetAll ()
+	public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetAll ()
 	{
 		return Ok (await categories.GetAllAsync());
 	}
 
 	[HttpGet ("{id:int}")]
-	public async Task<IActionResult> GetOne (int id)
+	public async Task<ActionResult<CategoryResponse>> GetOne (int id)
 	{
 		var category = await categories.GetOneAsync (id);
 		if (category == null)
@@ -31,7 +31,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> Create ([FromBody] CategoryInsertRequest category)
+	public async Task<ActionResult<CategoryResponse>> Create ([FromBody] CategoryInsertRequest category)
 	{
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
@@ -39,11 +39,11 @@ public class CategoriesController : ControllerBase
 		var inserted = await categories.InsertAsync (category);
 		if (inserted == null)
 			return Problem ("Something went wrong while inserting the category");
-		return CreatedAtAction (nameof (Create), new {inserted.Id}, inserted);
+		return CreatedAtAction (nameof (GetOne), new {inserted.Id}, inserted);
 	}
 	
 	[HttpPut ("{id:int}")]
-	public async Task<IActionResult> Update ([FromRoute] int id,[FromBody] CategoryUpdateRequest category)
+	public async Task<ActionResult<CategoryResponse>> Update ([FromRoute] int id,[FromBody] CategoryUpdateRequest category)
 	{
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
@@ -55,11 +55,18 @@ public class CategoriesController : ControllerBase
 	}
 	
 	[HttpDelete ("{id:int}")]
-	public async Task<IActionResult> Delete ([FromRoute] int id)
+	public async Task<ActionResult> Delete ([FromRoute] int id)
 	{
-		var deleted = await categories.DeleteAsync (id);
-		if (deleted == null)
-			return NotFound();
-		return NoContent();
+		try
+		{
+			var deleted = await categories.DeleteAsync (id);
+			if (!deleted)
+				return NotFound();
+			return NoContent();
+		}
+		catch (Exception)
+		{
+			return BadRequest();
+		}
 	}
 }

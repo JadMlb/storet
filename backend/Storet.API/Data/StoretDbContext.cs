@@ -8,7 +8,8 @@ public class StoretDbContext : DbContext
 {
 	public StoretDbContext (DbContextOptions<StoretDbContext> options) : base (options) {}
 
-	public DbSet<Category> Categories;
+	public DbSet<Category> Categories { get; set; }
+	public DbSet<CategoryHierarchy> CategoryHierarchies { get; set; }
 
 	protected override void OnModelCreating (ModelBuilder modelBuilder)
 	{

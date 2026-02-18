@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Storet.API.Data;
+using Storet.API.Repositories.Categories;
+using Storet.API.Services.Categories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,13 @@ var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") 
 builder.Services.AddDbContext<StoretDbContext> (
 	options => options.UseNpgsql (connectionString)
 );
+
+#region DI
+#region Categories
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+builder.Services.AddScoped<ICategoriesService, CategoriesService>();
+#endregion Categories
+#endregion DI
 
 var app = builder.Build();
 

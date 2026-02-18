@@ -1,9 +1,9 @@
 namespace Storet.API.Contracts.Categories;
 
-public class CategoryRequest
+public class CategoryResponse
 {
 	public int Id { get; set; }
 	public string Label { get; set; } = string.Empty;
-	public CategoryRequest? ParentCategory { get; set; }
-	public IEnumerable<CategoryRequest> SubCategories { get; set; } = [];
+	public CategoryResponse? ParentCategory { get; set; }
+	public ICollection<CategoryResponse> SubCategories { get; set; } = [];
 }
