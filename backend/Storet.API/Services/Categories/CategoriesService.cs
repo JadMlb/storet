@@ -44,24 +44,24 @@ public class CategoriesService : ICategoriesService
 			{
 				roots.Add (category);
 			}
-			else if (childrenDict.TryGetValue (categoryHierarchy.ParentCategoryId, out var childrenForParentCategory))
+			else if (childrenDict.TryGetValue (categoryHierarchy.ParentCategoryId!.Value, out var childrenForParentCategory))
 			{
 				childrenForParentCategory.Add (category);
 			}
 			else
-				childrenDict[categoryHierarchy.ParentCategoryId] = [category];
+				childrenDict[categoryHierarchy.ParentCategoryId!.Value] = [category];
 		}
 		
 		return roots.Select (mapper.Map<CategoryResponse>);
 	}
 
-	public async Task<CategoryResponse?> GetOneAsync (int key)
+	public async Task<CategoryResponseWithParent?> GetOneAsync (int key)
 	{
 		var category = await repository.GetOneAsync (key);
-		return mapper.Map<CategoryResponse> (category);
+		return mapper.Map<CategoryResponseWithParent> (category);
 	}
 
-	public async Task<CategoryResponse?> InsertAsync (CategoryInsertRequest model)
+	public async Task<CategoryResponseWithParent?> InsertAsync (CategoryInsertRequest model)
 	{
 		if (model.ParentCategoryId.HasValue)
 		{
@@ -70,10 +70,10 @@ public class CategoriesService : ICategoriesService
 		}
 
 		var category = await repository.InsertAsync (mapper.Map<Category> (model));
-		return mapper.Map<CategoryResponse> (category);
+		return mapper.Map<CategoryResponseWithParent> (category);
 	}
 
-	public async Task<CategoryResponse?> UpdateAsync (int key, CategoryUpdateRequest model)
+	public async Task<CategoryResponseWithParent?> UpdateAsync (int key, CategoryUpdateRequest model)
 	{
 		var existingCategory = await repository.GetOneAsync (key);
 		if (existingCategory == null)
@@ -89,7 +89,7 @@ public class CategoriesService : ICategoriesService
 		existingCategory.ParentCategoryId = model.ParentCategoryId ?? existingCategory.ParentCategoryId;
 
 		var updatedCategory = await repository.UpdateAsync (key, existingCategory);
-		return mapper.Map<CategoryResponse> (updatedCategory);
+		return mapper.Map<CategoryResponseWithParent> (updatedCategory);
 	}
 
 	public async Task<bool> DeleteAsync (int key)

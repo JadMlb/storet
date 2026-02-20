@@ -14,7 +14,7 @@ public class CategoryHierarchyConfiguration : IEntityTypeConfiguration<CategoryH
 		builder.Property (c => c.Id)
 				.HasColumnName ("id");
 		builder.Property (c => c.Label)
-				.HasColumnName ("text");
+				.HasColumnName ("label");
 		builder.Property (c => c.ParentCategoryId)
 				.HasColumnName ("parent_id");
 		builder.Property (c => c.Level)

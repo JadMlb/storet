@@ -13,6 +13,13 @@ public class MappingProfile : Profile
 			.ForMember (
 				dest => dest.SubCategories,
 				opt => opt.MapFrom (src => src.SubCategories)
+			)
+			.ForSourceMember (c => c.ParentCategory, opt => opt.DoNotValidate());
+		
+		CreateMap<Category, CategoryResponseWithParent>()
+			.ForMember (
+				dest => dest.SubCategories,
+				opt => opt.MapFrom (src => src.SubCategories)
 			);
 
 		CreateMap<CategoryInsertRequest, Category>()
