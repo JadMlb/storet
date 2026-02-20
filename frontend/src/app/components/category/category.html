@@ -1,4 +1,4 @@
-<div
+<section
 	[id] = "label"
 	class = "category-header"
 	[style] = "styleMargin()"
@@ -9,7 +9,7 @@
 		<category-toggle-expand-button (onToggle) = "handleToggleChange ($event)"/>
 	}
 	<span class = "category-title">{{label}}</span>
-</div>
+</section>
 @if (isExpanded())
 {
 	@for (category of children; track category.id)

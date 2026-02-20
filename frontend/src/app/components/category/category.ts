@@ -1,6 +1,6 @@
 import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CategoryToggleExpandButton } from '../category-toggle-expand-button/category-toggle-expand-button';
-import type { CategoryType } from "./CategoryType";
+import type { CategoryType } from "../../types/CategoryType";
 
 @Component ({
   selector: 'category',
