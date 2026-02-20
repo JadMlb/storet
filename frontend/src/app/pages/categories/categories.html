@@ -1,0 +1,12 @@
+<article>
+	<h1>Categories</h1>
+	<suspense [loading] = "state() == 'loading'">
+		@for (category of categoriesStore.data(); track category.id)
+		{
+			<category
+				[label] = "category.label"
+				[children] = "category.children"
+			/>
+		}
+	</suspense>
+</article>
