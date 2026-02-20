@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Storet.API.Data;
+using Storet.API.Mappers;
 using Storet.API.Repositories.Categories;
 using Storet.API.Services.Categories;
 
@@ -11,6 +12,24 @@ DotNetEnv.Env.Load();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddCors (
+	options =>
+	{
+		options.AddPolicy (
+			"AllowFrontend",
+			policy =>
+			{
+				policy.WithOrigins (builder.Configuration.GetValue<string> ("FrontendUrl") ?? "")
+						.AllowAnyHeader()
+						.AllowAnyMethod();
+			}
+		);
+	}
+);
+
 var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") ??
 						throw new InvalidOperationException ("Connection string is not configured");
 
@@ -19,6 +38,9 @@ builder.Services.AddDbContext<StoretDbContext> (
 );
 
 #region DI
+#region Automapper
+builder.Services.AddAutoMapper (cfg => cfg.AddProfile<MappingProfile>());
+#endregion Automapper
 #region Categories
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
@@ -33,4 +55,8 @@ if (app.Environment.IsDevelopment())
 	app.MapOpenApi();
 }
 
+app.UseCors ("AllowFrontend");
+
 app.UseHttpsRedirection();
+app.MapControllers();
+app.Run();
