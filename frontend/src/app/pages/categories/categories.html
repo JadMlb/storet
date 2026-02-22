@@ -1,11 +1,13 @@
 <article>
 	<h1>Categories</h1>
-	<suspense [loading] = "state() == 'loading'">
+	<suspense [loading] = "categoriesStore.state() == 'loading'">
 		@for (category of categoriesStore.data(); track category.id)
 		{
 			<category
+				[id] = "category.id"
 				[label] = "category.label"
 				[children] = "category.children"
+				(onClick) = "navigateToDetails ($event)"
 			/>
 		}
 	</suspense>

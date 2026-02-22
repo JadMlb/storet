@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, Input, numberAttribute, Output, signal } from '@angular/core';
 import { CategoryToggleExpandButton } from '../category-toggle-expand-button/category-toggle-expand-button';
 import type { CategoryType } from "../../types/CategoryType";
 
@@ -10,6 +10,7 @@ import type { CategoryType } from "../../types/CategoryType";
 })
 export class Category
 {
+  @Input ({transform: numberAttribute}) id!: number;
   @Input() label!: string;
   @Input() children: CategoryType[] | undefined = [];
   @Input() depth: number = 0;

@@ -1,5 +1,5 @@
 <section
-	[id] = "label"
+	[id] = "id"
 	class = "category-header"
 	[style] = "styleMargin()"
 	(click) = "propagateClick ($event)"
@@ -15,6 +15,7 @@
 	@for (category of children; track category.id)
 	{
 		<category
+			[id] = "category.id"
 			[label] = "category.label"
 			[children] = "category.children"
 			[depth] = "depth + 1"

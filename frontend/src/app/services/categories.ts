@@ -5,7 +5,7 @@ import { Service } from './service';
 @Injectable ({
   providedIn: 'root',
 })
-export class CategoriesService extends Service<CategoryType>
+export class CategoriesService extends Service<CategoryType[]>
 {
   constructor ()
   {
@@ -21,13 +21,9 @@ export class CategoriesService extends Service<CategoryType>
     };
   }
 
-  override handleSuccess (data: CategoryType | CategoryType[])
+  override handleSuccess (data: CategoryType[])
   {
-    let categories;
-    if (Array.isArray (data))
-      categories = data.map (CategoriesService.mapToCategoryType);
-    else
-      categories = [CategoriesService.mapToCategoryType (data)];
+    let categories = data.map (CategoriesService.mapToCategoryType);
     super.handleSuccess (categories);
   }
 }

@@ -14,50 +14,37 @@ export abstract class Service<TData>
 	protected http = inject (HttpClient);
 	protected apiPath: string;
 	
-	protected dataSignal = signal<TData[]> ([]);
-	protected state = signal<ServiceStateType> ("idle");
-	protected error = signal<ErrorType | null> (null);
+	protected dataSignal = signal<TData | null> (null);
+	protected stateSignal = signal<ServiceStateType> ("idle");
+	protected errorSignal = signal<ErrorType | null> (null);
 
 	constructor (controllerName: string)
 	{
 		this.apiPath = `${environment.backendServerUrl}/api/${controllerName}`;
 	}
 
-	public getData ()
-	{
-		return this.dataSignal.asReadonly();
-	}
-
-	public data = this.dataSignal.asReadonly();
-	
-	public getState ()
-	{
-		return this.state.asReadonly();
-	}
-	
-	public getError ()
-	{
-		return this.error.asReadonly();
-	}
+	public readonly data = this.dataSignal.asReadonly();
+	public readonly state = this.stateSignal.asReadonly();
+	public readonly error = this.errorSignal.asReadonly();
 
 	public beforeRequest ()
 	{
-		this.state.set ("loading");
+		this.stateSignal.set ("loading");
 	}
 
-	public handleSuccess (response: TData | TData[])
+	public handleSuccess (response: TData)
 	{
-		this.dataSignal.set (Array.isArray (response) ? response : [response]);
+		this.dataSignal.set (response);
 	}
 
-	public afterSuccess (_: TData | TData[])
+	public afterSuccess (_: TData)
 	{
-		this.state.set ("idle");
+		this.stateSignal.set ("idle");
 	}
 
 	public handleError (error: any)
 	{
-		this.error.set ({
+		this.errorSignal.set ({
 			statusCode: 500,
 			message: `${error}`
 		});
@@ -65,23 +52,23 @@ export abstract class Service<TData>
 
 	public afterError (_: any)
 	{
-		this.state.set ("idle");
+		this.stateSignal.set ("idle");
 	}
 
-	private appendToPath (path?: string)
+	private appendToPath (path?: string | null)
 	{
 		if (!path)
 			return this.apiPath;
 		return `${this.apiPath}/${path}`;
 	}
 
-	public get (props?: {path?: string, params?: Record<string, string>})
+	public get (props?: {path?: string | null, params?: Record<string, string>})
 	{
 		const path = props?.path;
 		const params = props?.params;
 		
 		this.beforeRequest();
-		this.http.get<TData | TData[]> (this.appendToPath (path), {params})
+		this.http.get<TData> (this.appendToPath (path), {params})
 					.subscribe ({
 						next: (response) =>
 						{
