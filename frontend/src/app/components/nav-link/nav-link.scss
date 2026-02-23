@@ -19,6 +19,6 @@
 	&.active
 	{
 		background-color: theme.$colour-primary;
-		color: white;
+		color: theme.$colour-white;
 	}
 }

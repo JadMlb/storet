@@ -21,7 +21,7 @@
 
 	width: 50dvh;
 
-	background-color: white;
+	background-color: theme.$colour-white;
 	border-radius: theme.$spacing-medium;
 
 	display: grid;
@@ -63,7 +63,7 @@
 			display: block;
 			width: $width;
 			height: 12px;
-			background-color: black;
+			background-color: theme.$colour-black;
 		}
 
 		&::before
