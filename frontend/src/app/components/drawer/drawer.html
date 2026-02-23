@@ -1,0 +1,17 @@
+@if (open)
+{
+	<div class = "backdrop" (click) = "handleClose()">
+		<article class = "drawer" (click) = "blockPropagate ($event)">
+			<section class = "header">
+				<ng-content select = "[header]"/>
+				<button class = "close-button" (click) = "handleClose()"></button>
+			</section>
+			<section class = "body">
+				<ng-content select = "[body]"/>
+			</section>
+			<section class = "footer">
+				<ng-content select = "[footer]"/>
+			</section>
+		</article>
+	</div>
+}
