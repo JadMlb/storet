@@ -1,0 +1,92 @@
+@use "../../../theme" as theme;
+
+.combobox-wrapper
+{
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	label
+	{
+		font-size: 0.8em;
+		font-weight: bold;
+		color: theme.$colour-gray;
+		margin-left: theme.$spacing-xsmall + 1px;
+	}
+
+	.combobox-select
+	{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		padding: theme.$spacing-xsmall;
+		border-radius: theme.$spacing-small;
+		border: 1px solid theme.$colour-gray;
+		
+		cursor: pointer;
+
+		&.open
+		{
+			outline: 2px solid theme.$colour-primary;
+		}
+
+		.combobox-trailing
+		{
+			display: flex;
+			align-items: center;
+			gap: theme.$spacing-small;
+		}
+
+		.combobox-clear-button
+		{
+			all: unset;
+			font: inherit;
+			width: 20px;
+			height: 20px;
+			text-align: center;
+		}
+	}
+
+	.combobox-dropdown
+	{
+		display: flex;
+		flex-direction: column;
+		gap: theme.$spacing-xsmall;
+		position: absolute;
+		z-index: 100;
+		top: calc(100% + 1px);
+		width: calc(100% - 2 * theme.$spacing-small);
+		padding: theme.$spacing-small;
+		border-radius: theme.$spacing-small;
+		border: 1px solid #e5e5e5;
+		box-shadow: 0 2px 7px #e5e5e5;
+		background-color: white;
+
+		.combobox-search
+		{
+			font: inherit;
+			font-size: 0.8em;
+			border-radius: theme.$spacing-small - theme.$spacing-xsmall;
+			border: 1px solid theme.$colour-gray;
+			padding: theme.$spacing-xsmall;
+		}
+
+		.combobox-option
+		{
+			cursor: pointer;
+			border-radius: theme.$spacing-small - theme.$spacing-xsmall;
+			padding-inline: theme.$spacing-xsmall;
+			
+			&:hover
+			{
+				background-color: color(from theme.$colour-primary srgb r g b / 0.3);
+			}
+
+			&.combobox-option-selected
+			{
+				background-color: color(from theme.$colour-primary srgb r g b / 0.5);
+			}
+		}
+	}
+}

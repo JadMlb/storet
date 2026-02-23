@@ -1,0 +1,57 @@
+<div class = "combobox-wrapper">
+	@if (label)
+	{
+		<label>{{label}}</label>
+	}
+
+	<div
+		class = "combobox-select"
+		[class.open] = "isOpen()"
+		(click) = "toggleDropdown()"
+	>
+		<div class = "combobox-value">
+			@if (showPlaceholder())
+			{
+				<span>{{placeholder}}</span>
+			}
+			@else
+			{
+				<span>{{displayText()}}</span>
+			}
+		</div>
+		<div class = "combobox-trailing">
+			@if (!required)
+			{
+				<button
+					class = "combobox-clear-button"
+					(click) = "clearSelection ($event)"
+				>
+				✕
+				</button>
+			}
+			<chevron [rotation] = "chevronRotation()"/>
+		</div>
+	</div>
+	@if (isOpen())
+	{
+		<div class = "combobox-dropdown">
+			<input
+				class = "combobox-search"
+				type = "text"
+				[value] = "searchTerm()"
+				(input) = "search ($event)"
+				placeholder = "Search..."
+			/>
+			@for (option of filteredOptions(); track option.value)
+			{
+				<div
+					class = "combobox-option"
+					[class.combobox-option-selected] = "isSelected (option)"
+					(click) = "selectOption (option)"
+				>
+					{{option.display}}
+				</div>
+			}
+		</div>
+	}
+</div>
