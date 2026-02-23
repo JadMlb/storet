@@ -1,0 +1,14 @@
+<button
+	class = "button"
+	[class.primary] = "role === 'primary'"
+	[class.normal] = "role === 'normal'"
+	[class.warn] = "role === 'warn'"
+	[class.disabled] = "disabled"
+	[ngClass] = "className"
+	[attr.form] = "form"
+	[disabled] = "disabled"
+	[type] = "type"
+	(click) = "handleClick ($event)"
+>
+	<ng-content/>
+</button>

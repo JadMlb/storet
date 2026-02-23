@@ -1,0 +1,58 @@
+@use "../../../theme" as theme;
+
+.button
+{
+	all: unset;
+	font: inherit;
+
+	border-radius: theme.$spacing-small;
+	padding: theme.$spacing-small;
+
+	&.normal
+	{
+		color: theme.$colour-white;
+		background-color: theme.$colour-black;
+
+		&:hover
+		{
+			background-color: theme.$colour-secondary-dark;
+		}
+	}
+
+	&.primary
+	{
+		color: theme.$colour-white;
+		background-color: theme.$colour-primary;
+		
+		&:hover
+		{
+			background-color: theme.$colour-primary-light;
+			color: theme.$colour-black;
+		}
+	}
+	
+	&.warn
+	{
+		color: theme.$colour-black;
+		border: 1px solid theme.$colour-error;
+		
+		&:hover
+		{
+			background-color: theme.$colour-error-dark;
+			color: theme.$colour-white;
+			border-color: transparent;
+		}
+	}
+
+	&.disabled
+	{
+		color: theme.$colour-white;
+		background-color: theme.$colour-gray;
+		
+		&:hover
+		{
+			color: theme.$colour-white;
+			background-color: theme.$colour-gray;
+		}
+	}
+}
