@@ -1,8 +1,9 @@
 import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Chevron } from '../chevron/chevron';
 
 @Component ({
   selector: 'category-toggle-expand-button',
-  imports: [],
+  imports: [Chevron],
   templateUrl: './category-toggle-expand-button.html',
   styleUrl: './category-toggle-expand-button.scss',
 })
@@ -11,10 +12,8 @@ export class CategoryToggleExpandButton
   @Output() onToggle = new EventEmitter<boolean>();
   isExpanded = signal (false);
   
-  style = computed (
-    () => ({
-      transform: `rotate(${this.isExpanded() ? 270 : 90}deg)`
-    })
+  chevronRotation = computed (
+    () => this.isExpanded() ? "top" : "bottom"
   );
 
   handleToggle (e: MouseEvent)
