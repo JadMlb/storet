@@ -1,0 +1,115 @@
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Drawer } from '../drawer/drawer';
+import { Suspense } from '../suspense/suspense';
+import { CategoryDetailsService } from '../../services/category-details';
+import { TextInput } from '../input/input';
+import { Combobox } from '../combobox/combobox';
+import { CategoriesService } from '../../services/categories';
+import { Option } from '../../types/Option';
+import { CategoryType } from '../../types/CategoryType';
+import { Button } from '../button/button';
+
+@Component ({
+  selector: 'category-details',
+  imports: [Drawer, Suspense, ReactiveFormsModule, TextInput, Combobox, Button],
+  templateUrl: './category-details.html',
+  styleUrl: './category-details.scss',
+})
+export class CategoryDetails implements OnInit
+{
+  private readonly activatedRoute = inject (ActivatedRoute);
+  private readonly router = inject (Router);
+  readonly categoriesDetailsStore = inject (CategoryDetailsService);
+  readonly categoriesStore = inject (CategoriesService);
+  
+  editing = signal (false);
+  editsHappened = false;
+
+  form = new FormGroup ({
+    label: new FormControl (""),
+    parentCategoryId: new FormControl<number | null> (null)
+  });
+
+  private static mapCategoryToOption (category: CategoryType): Option[]
+  {
+    return [
+      {value: `${category.id}`, display: category.label},
+      ...category.children?.flatMap (CategoryDetails.mapCategoryToOption) ?? []
+    ];
+  }
+
+  id = this.activatedRoute.snapshot.paramMap.get ("id");
+
+  options = computed (
+    () => (this.categoriesStore.data()?.flatMap (CategoryDetails.mapCategoryToOption) ?? [])
+            .filter (o => o.value !== this.id)
+  );
+
+  ngOnInit ()
+  {
+    this.categoriesDetailsStore
+        .setForm (this.form)
+        .get ({path: this.id});
+    this.categoriesStore.get();
+    this.subscribeToFormChanges();
+    this.form.disable();
+  }
+
+  navBack (): void
+  {
+    this.router.navigate (
+      ["../"],
+      {
+        relativeTo: this.activatedRoute,
+        state: {refresh: this.editsHappened, timestamp: Date.now()}
+      }
+    );
+  }
+
+  onSubmit (): void
+  {
+    if (!this.form.valid)
+      return;
+
+    this.categoriesDetailsStore.put ({path: this.id, body: this.form.value});
+  }
+
+  deleteCategory (): void
+  {
+    this.categoriesDetailsStore
+        .setRouting (this.router, this.activatedRoute)
+        .delete ({path: this.id});
+  }
+
+  private subscribeToFormChanges (): void
+  {
+    this.form.valueChanges
+              .subscribe (
+                value =>
+                {
+                  const apiData = this.categoriesDetailsStore.data();
+                  if (value.label === apiData?.label && value.parentCategoryId == (apiData?.parentCategory?.id ?? null))
+                  {
+                    this.form.markAsPristine();
+                    this.editsHappened = false;
+                  }
+                  else
+                    this.editsHappened = true;
+                }
+              );
+  }
+
+  enableEditing ()
+  {
+    this.form.enable();
+    this.editing.set (true);
+  }
+  
+  disableEditing ()
+  {
+    this.form.disable();
+    this.editing.set (false);
+  }
+}

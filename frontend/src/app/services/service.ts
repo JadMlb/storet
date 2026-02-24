@@ -9,6 +9,18 @@ export type ErrorType = {
 	message: string;
 };
 
+type PathProps = {
+	path?: string | null;
+};
+
+type GetPathProps = PathProps & {
+	params?: Record<string, string>;
+};
+
+type PostPathProps = PathProps & {
+	body: any;
+};
+
 export abstract class Service<TData>
 {
 	protected http = inject (HttpClient);
@@ -32,12 +44,12 @@ export abstract class Service<TData>
 		this.stateSignal.set ("loading");
 	}
 
-	public handleSuccess (response: TData)
+	public handleSuccess (response: TData | null)
 	{
 		this.dataSignal.set (response);
 	}
 
-	public afterSuccess (_: TData)
+	public afterSuccess (_: TData | null)
 	{
 		this.stateSignal.set ("idle");
 	}
@@ -62,7 +74,7 @@ export abstract class Service<TData>
 		return `${this.apiPath}/${path}`;
 	}
 
-	public get (props?: {path?: string | null, params?: Record<string, string>})
+	public get (props?: GetPathProps)
 	{
 		const path = props?.path;
 		const params = props?.params;
@@ -74,6 +86,60 @@ export abstract class Service<TData>
 						{
 							this.handleSuccess (response);
 							this.afterSuccess (response);
+						},
+						error: (error) =>
+						{
+							this.handleError (error);
+							this.afterError (error);
+						}
+					});
+	}
+
+	public post ({path, body}: PostPathProps)
+	{
+		this.beforeRequest();
+		this.http.post<TData> (this.appendToPath (path), body)
+					.subscribe ({
+						next: response =>
+						{
+							this.handleSuccess (response);
+							this.afterSuccess (response);
+						},
+						error: (error) =>
+						{
+							this.handleError (error);
+							this.afterError (error);
+						}
+					});
+	}
+	
+	public put ({path, body}: PostPathProps)
+	{
+		this.beforeRequest();
+		this.http.put<TData> (this.appendToPath (path), body)
+					.subscribe ({
+						next: response =>
+						{
+							this.handleSuccess (response);
+							this.afterSuccess (response);
+						},
+						error: (error) =>
+						{
+							this.handleError (error);
+							this.afterError (error);
+						}
+					});
+	}
+
+	public delete ({path}: PathProps)
+	{
+		this.beforeRequest();
+		this.http.delete (this.appendToPath (path))
+					.subscribe ({
+						next: () =>
+						{
+							this.handleSuccess (null);
+							this.afterSuccess (null);
 						},
 						error: (error) =>
 						{
