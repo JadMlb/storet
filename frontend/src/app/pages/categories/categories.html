@@ -18,6 +18,16 @@
 				(onClick) = "navigateToDetails ($event)"
 			/>
 		}
+		@empty
+		{
+			<p>Looks like you don't have any category defined. Categories are essential to organize your items.</p>
+			<styled-button
+				role = "primary"
+				(onClick) = "navigateToNew()"
+			>
+				Start by adding a new category
+			</styled-button>
+		}
 	</suspense>
 </article>
 <router-outlet/>
