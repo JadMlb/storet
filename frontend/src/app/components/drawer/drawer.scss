@@ -1,4 +1,5 @@
 @use "../../../theme" as theme;
+@use "sass:math";
 
 .backdrop
 {
@@ -68,12 +69,12 @@
 
 		&::before
 		{
-			transform: rotate(45deg) translateY(- $width / 2);
+			transform: rotate(45deg) translateY(math.div(-$width, 2));
 		}
 
 		&::after
 		{
-			transform: rotate(-45deg) translateY(- $width / 2);
+			transform: rotate(-45deg) translateY(math.div(-$width, 2));
 		}
 	}
 }

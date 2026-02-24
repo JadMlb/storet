@@ -7,6 +7,7 @@
 	<div
 		class = "combobox-select"
 		[class.open] = "isOpen()"
+		[class.disabled] = "disabled"
 		(click) = "toggleDropdown()"
 	>
 		<div class = "combobox-value">
@@ -19,18 +20,21 @@
 				<span>{{displayText()}}</span>
 			}
 		</div>
-		<div class = "combobox-trailing">
-			@if (!required)
-			{
-				<button
-					class = "combobox-clear-button"
-					(click) = "clearSelection ($event)"
-				>
-				✕
-				</button>
-			}
-			<chevron [rotation] = "chevronRotation()"/>
-		</div>
+		@if (!disabled)
+		{
+			<div class = "combobox-trailing">
+				@if (!required)
+				{
+					<button
+						class = "combobox-clear-button"
+						(click) = "clearSelection ($event)"
+					>
+					✕
+					</button>
+				}
+				<chevron [rotation] = "chevronRotation()"/>
+			</div>
+		}
 	</div>
 	@if (isOpen())
 	{

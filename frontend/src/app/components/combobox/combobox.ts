@@ -125,6 +125,9 @@ export class Combobox implements ControlValueAccessor, OnInit
   {
     event.stopPropagation();
 
+    if (this.disabled)
+      return;
+
     const newValue = null;
     this.selectedId.set (newValue);
     this.onChange (newValue);
