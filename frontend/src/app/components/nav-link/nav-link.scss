@@ -2,23 +2,25 @@
 
 .nav-link
 {
-	padding: theme.$spacing-small;
-	border-radius: theme.$spacing-small;
-
 	a
 	{
+		display: inline-block;
+		width: 100%;
+		padding: theme.$spacing-small;
+		border-radius: theme.$spacing-small;
 		text-decoration: none;
 		color: theme.$colour-gray;
+		
+		&:hover
+		{
+			color: theme.$colour-primary;
+		}
+	
+		&.active
+		{
+			background-color: theme.$colour-primary;
+			color: theme.$colour-white;
+		}
 	}
 
-	&:hover
-	{
-		color: theme.$colour-primary;
-	}
-
-	&.active
-	{
-		background-color: theme.$colour-primary;
-		color: theme.$colour-white;
-	}
 }
