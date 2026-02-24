@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Service } from './service';
+import { ActionType, Service } from './service';
 import { CategoryWithParentType } from '../types/CategoryType';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,10 +31,10 @@ export class CategoryDetailsService extends Service<CategoryWithParentType>
     return this;
   }
 
-  override handleSuccess (response: CategoryWithParentType | null): void
+  override handleSuccess (actionType: ActionType, response: CategoryWithParentType | null): void
   {
-    super.handleSuccess (response);
-    if (this.form && response)
+    super.handleSuccess (actionType, response);
+    if (this.form && response && actionType === "GET")
     {
       this.form.patchValue ({label: response.label, parentCategoryId: response.parentCategory?.id ?? null});
       this.form.markAsPristine();

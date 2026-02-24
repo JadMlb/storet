@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CategoryType } from '../types/CategoryType';
-import { Service } from './service';
+import { ActionType, Service } from './service';
 
 @Injectable ({
   providedIn: 'root',
@@ -21,9 +21,9 @@ export class CategoriesService extends Service<CategoryType[]>
     };
   }
 
-  override handleSuccess (data: CategoryType[])
+  override handleSuccess (actionType: ActionType, data: CategoryType[])
   {
     let categories = data.map (CategoriesService.mapToCategoryType);
-    super.handleSuccess (categories);
+    super.handleSuccess (actionType, categories);
   }
 }

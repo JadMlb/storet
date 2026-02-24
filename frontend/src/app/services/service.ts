@@ -21,6 +21,8 @@ type PostPathProps = PathProps & {
 	body: any;
 };
 
+export type ActionType = "GET" | "POST" | "PUT" | "DELETE";
+
 export abstract class Service<TData>
 {
 	protected http = inject (HttpClient);
@@ -44,17 +46,17 @@ export abstract class Service<TData>
 		this.stateSignal.set ("loading");
 	}
 
-	public handleSuccess (response: TData | null)
+	public handleSuccess (_: ActionType, response: TData | null)
 	{
 		this.dataSignal.set (response);
 	}
 
-	public afterSuccess (_: TData | null)
+	public afterSuccess (_: ActionType, __: TData | null)
 	{
 		this.stateSignal.set ("idle");
 	}
 
-	public handleError (error: any)
+	public handleError (_: ActionType, error: any)
 	{
 		this.errorSignal.set ({
 			statusCode: 500,
@@ -62,7 +64,7 @@ export abstract class Service<TData>
 		});
 	}
 
-	public afterError (_: any)
+	public afterError (_: ActionType, __: any)
 	{
 		this.stateSignal.set ("idle");
 	}
@@ -84,13 +86,13 @@ export abstract class Service<TData>
 					.subscribe ({
 						next: (response) =>
 						{
-							this.handleSuccess (response);
-							this.afterSuccess (response);
+							this.handleSuccess ("GET", response);
+							this.afterSuccess ("GET", response);
 						},
 						error: (error) =>
 						{
-							this.handleError (error);
-							this.afterError (error);
+							this.handleError ("GET", error);
+							this.afterError ("GET", error);
 						}
 					});
 	}
@@ -102,13 +104,13 @@ export abstract class Service<TData>
 					.subscribe ({
 						next: response =>
 						{
-							this.handleSuccess (response);
-							this.afterSuccess (response);
+							this.handleSuccess ("POST", response);
+							this.afterSuccess ("POST", response);
 						},
 						error: (error) =>
 						{
-							this.handleError (error);
-							this.afterError (error);
+							this.handleError ("POST", error);
+							this.afterError ("POST", error);
 						}
 					});
 	}
@@ -120,13 +122,13 @@ export abstract class Service<TData>
 					.subscribe ({
 						next: response =>
 						{
-							this.handleSuccess (response);
-							this.afterSuccess (response);
+							this.handleSuccess ("PUT", response);
+							this.afterSuccess ("PUT", response);
 						},
 						error: (error) =>
 						{
-							this.handleError (error);
-							this.afterError (error);
+							this.handleError ("PUT", error);
+							this.afterError ("PUT", error);
 						}
 					});
 	}
@@ -138,13 +140,13 @@ export abstract class Service<TData>
 					.subscribe ({
 						next: () =>
 						{
-							this.handleSuccess (null);
-							this.afterSuccess (null);
+							this.handleSuccess ("DELETE", null);
+							this.afterSuccess ("DELETE", null);
 						},
 						error: (error) =>
 						{
-							this.handleError (error);
-							this.afterError (error);
+							this.handleError ("DELETE", error);
+							this.afterError ("DELETE", error);
 						}
 					});
 	}
