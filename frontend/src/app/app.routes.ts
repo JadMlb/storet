@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Categories } from './pages/categories/categories';
-import { CategoryDetails } from './components/category-details/category-details';
+import { CategoryDetails } from './pages/category-details/category-details';
 
 export const routes: Routes = [
 	{

@@ -1,15 +1,15 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Drawer } from '../drawer/drawer';
-import { Suspense } from '../suspense/suspense';
+import { Drawer } from '../../components/drawer/drawer';
+import { Suspense } from '../../components/suspense/suspense';
 import { CategoryDetailsService } from '../../services/category-details';
-import { TextInput } from '../input/input';
-import { Combobox } from '../combobox/combobox';
+import { TextInput } from '../../components/input/input';
+import { Combobox } from '../../components/combobox/combobox';
 import { CategoriesService } from '../../services/categories';
 import { Option } from '../../types/Option';
 import { CategoryType } from '../../types/CategoryType';
-import { Button } from '../button/button';
+import { Button } from '../../components//button/button';
 
 @Component ({
   selector: 'category-details',
