@@ -5,10 +5,11 @@ import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Category } from '../../components/category/category';
 import { CategoriesService } from '../../services/categories';
+import { Button } from '../../components/button/button';
 
 @Component ({
   selector: 'categories',
-  imports: [Category, Suspense, RouterOutlet],
+  imports: [Category, Suspense, RouterOutlet, Button],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })
@@ -21,14 +22,14 @@ export class Categories implements OnInit
 
   drawerOpen = signal (false);
 
-  private refreshIfNeeded ()
+  private refreshIfNeeded (): void
   {
     const navigation = this.router.currentNavigation();
     if (navigation?.extras?.state?.["refresh"])
       this.categoriesStore.get();
   }
 
-  ngOnInit ()
+  ngOnInit (): void
   {
     this.categoriesStore.get();
 
@@ -47,18 +48,23 @@ export class Categories implements OnInit
                 );
   }
 
-  open ()
+  open (): void
   {
     this.drawerOpen.set (true);
   }
 
-  closeDrawer ()
+  closeDrawer (): void
   {
     this.drawerOpen.set (false);
   }
 
-  navigateToDetails (e: MouseEvent)
+  navigateToDetails (e: MouseEvent): void
   {
     this.router.navigate ([(e.currentTarget as Element).id], {relativeTo: this.route});
+  }
+  
+  navigateToNew (): void
+  {
+    this.router.navigate (["new"], {relativeTo: this.route});
   }
 }

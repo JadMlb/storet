@@ -10,6 +10,10 @@ export const routes: Routes = [
 			{
 				path: ":id",
 				component: CategoryDetails
+			},
+			{
+				path: "new",
+				component: CategoryDetails
 			}
 		]
 	}

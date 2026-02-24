@@ -1,5 +1,15 @@
 <drawer open = "true" (onClose) = "navBack()">
-	<h1 class = "category-details-header" header>Edit category</h1>
+	<h1 class = "category-details-header" header>
+		@if (creating())
+		{
+			New
+		}
+		@else
+		{
+			Edit
+		}
+		category
+	</h1>
 	<form id = "edit-category-form" body [formGroup] = "form" (ngSubmit) = "onSubmit()">
 		<suspense [loading] = "categoriesDetailsStore.state() == 'loading'">
 			<text-input formControlName = "label" label = "Label"/>
@@ -14,7 +24,7 @@
 		@if (editing())
 		{
 			<styled-button
-				(onClick) = "disableEditing()"
+				(onClick) = "onCancel()"
 				role = "warn"
 			>
 				Cancel
@@ -22,7 +32,7 @@
 			<styled-button
 				type = "submit"
 				form = "edit-category-form"
-				[disabled] = "!form.dirty"
+				[disabled] = "!form.valid || !form.dirty"
 				role = "primary"
 			>
 				Done

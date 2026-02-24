@@ -39,7 +39,7 @@ export class CategoryDetailsService extends Service<CategoryWithParentType>
       this.form.patchValue ({label: response.label, parentCategoryId: response.parentCategory?.id ?? null});
       this.form.markAsPristine();
     }
-    else if (response === null)
+    else if (actionType === "POST" || actionType === "DELETE" && response === null)
     {
       this.router?.navigate (
         ["../"],

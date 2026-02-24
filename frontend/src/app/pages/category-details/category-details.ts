@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Drawer } from '../../components/drawer/drawer';
 import { Suspense } from '../../components/suspense/suspense';
 import { CategoryDetailsService } from '../../services/category-details';
@@ -24,11 +24,12 @@ export class CategoryDetails implements OnInit
   readonly categoriesDetailsStore = inject (CategoryDetailsService);
   readonly categoriesStore = inject (CategoriesService);
   
+  creating = signal (false);
   editing = signal (false);
-  editsHappened = false;
+  private editsHappened = false;
 
   form = new FormGroup ({
-    label: new FormControl (""),
+    label: new FormControl ("", [Validators.required]),
     parentCategoryId: new FormControl<number | null> (null)
   });
 
@@ -40,7 +41,7 @@ export class CategoryDetails implements OnInit
     ];
   }
 
-  id = this.activatedRoute.snapshot.paramMap.get ("id");
+  private id = this.activatedRoute.snapshot.paramMap.get ("id");
 
   options = computed (
     () => (this.categoriesStore.data()?.flatMap (CategoryDetails.mapCategoryToOption) ?? [])
@@ -49,12 +50,20 @@ export class CategoryDetails implements OnInit
 
   ngOnInit ()
   {
-    this.categoriesDetailsStore
-        .setForm (this.form)
-        .get ({path: this.id});
-    this.categoriesStore.get();
+    this.creating.set (this.activatedRoute.snapshot.url[0].path === "new");
+    if (this.creating())
+    {
+      this.editing.set (true);
+    }
+    else
+    {
+      this.categoriesDetailsStore
+          .setForm (this.form)
+          .get ({path: this.id});
+      this.categoriesStore.get();
+      this.form.disable();
+    }
     this.subscribeToFormChanges();
-    this.form.disable();
   }
 
   navBack (): void
@@ -73,6 +82,14 @@ export class CategoryDetails implements OnInit
     if (!this.form.valid)
       return;
 
+    if (this.creating())
+    {
+      this.categoriesDetailsStore
+          .setRouting (this.router, this.activatedRoute)
+          .post ({body: this.form.value});
+      return;
+    }
+
     this.categoriesDetailsStore.put ({path: this.id, body: this.form.value});
   }
 
@@ -90,7 +107,19 @@ export class CategoryDetails implements OnInit
                 value =>
                 {
                   const apiData = this.categoriesDetailsStore.data();
-                  if (value.label === apiData?.label && value.parentCategoryId == (apiData?.parentCategory?.id ?? null))
+                  if (
+                    (
+                      this.creating()
+                      && value.label === ""
+                      && value.parentCategoryId == null
+                    )
+                    ||
+                    (
+                      !this.creating()
+                      && value.label === apiData?.label
+                      && value.parentCategoryId == (apiData?.parentCategory?.id ?? null)
+                    )
+                  )
                   {
                     this.form.markAsPristine();
                     this.editsHappened = false;
@@ -107,8 +136,14 @@ export class CategoryDetails implements OnInit
     this.editing.set (true);
   }
   
-  disableEditing ()
+  onCancel () : void
   {
+    if (this.creating())
+    {
+      this.navBack();
+      return;
+    }
+
     this.form.disable();
     this.editing.set (false);
   }

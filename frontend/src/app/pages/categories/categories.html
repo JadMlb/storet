@@ -1,5 +1,13 @@
 <article>
-	<h1>Categories</h1>
+	<header class = "categories-header">
+		<h1>Categories</h1>
+		<styled-button
+			role = "primary"
+			(onClick) = "navigateToNew()"
+		>
+			+ New Category
+		</styled-button>
+	</header>
 	<suspense [loading] = "categoriesStore.state() == 'loading'">
 		@for (category of categoriesStore.data(); track category.id)
 		{
