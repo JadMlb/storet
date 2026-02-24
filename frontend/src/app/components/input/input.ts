@@ -1,18 +1,12 @@
-import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, Input, Optional, Self } from '@angular/core';
+import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
 
 @Component ({
   selector: 'text-input',
   imports: [],
   templateUrl: './input.html',
   styleUrl: './input.scss',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef (() => TextInput),
-      multi: true
-    }
-  ]
+  providers: []
 })
 export class TextInput implements ControlValueAccessor
 {
@@ -27,6 +21,17 @@ export class TextInput implements ControlValueAccessor
   disabled = false;
 
   value: string = "";
+
+  constructor (@Self() @Optional() private parent?: NgControl)
+  {
+    if (this.parent)
+      this.parent.valueAccessor = this;
+  }
+
+  public get isRequired (): boolean
+  {
+    return Boolean (this.parent?.control?.hasValidator (Validators.required));
+  }
 
   writeValue (value: string): void
   {

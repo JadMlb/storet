@@ -1,5 +1,5 @@
-import { Component, computed, forwardRef, Input, OnInit, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, SelectControlValueAccessor } from '@angular/forms';
+import { Component, computed, Input, OnInit, Optional, Self, signal } from '@angular/core';
+import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
 import { Option } from '../../types/Option';
 import { Chevron } from '../chevron/chevron';
 
@@ -8,13 +8,7 @@ import { Chevron } from '../chevron/chevron';
   imports: [Chevron],
   templateUrl: './combobox.html',
   styleUrl: './combobox.scss',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef (() => Combobox),
-      multi: true
-    }
-  ]
+  providers: []
 })
 export class Combobox implements ControlValueAccessor, OnInit
 {
@@ -58,6 +52,17 @@ export class Combobox implements ControlValueAccessor, OnInit
 
   private onChange: any = () => {};
   private onTouched: any = () => {};
+
+  constructor (@Self() @Optional() private parent?: NgControl)
+  {
+    if (this.parent)
+      this.parent.valueAccessor = this;
+  }
+
+  public get isRequired (): boolean
+  {
+    return Boolean (this.parent?.control?.hasValidator (Validators.required));
+  }
 
   private updateSelected ()
   {

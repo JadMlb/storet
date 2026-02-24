@@ -12,6 +12,15 @@
 		font-weight: bold;
 		color: theme.$colour-gray;
 		margin-left: theme.$spacing-xsmall + 1px;
+
+		&.required
+		{
+			&::after
+			{
+				content: " *";
+				color: theme.$colour-error;
+			}
+		}
 	}
 
 	.combobox-select

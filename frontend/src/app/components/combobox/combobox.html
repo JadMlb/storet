@@ -1,7 +1,7 @@
 <div class = "combobox-wrapper">
 	@if (label)
 	{
-		<label>{{label}}</label>
+		<label [class.required] = "isRequired">{{label}}</label>
 	}
 
 	<div

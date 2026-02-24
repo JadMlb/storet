@@ -1,7 +1,7 @@
 <div class = "input-wrapper">
 	@if (label)
 	{
-		<label>{{label}}</label>
+		<label [class.required] = "isRequired">{{label}}</label>
 	}
 	<input
 		[class.disabled] = "disabled"
