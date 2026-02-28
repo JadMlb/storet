@@ -9,7 +9,7 @@ public class MappingProfile : Profile
 	public MappingProfile ()
 	{
 		#region Categories
-		CreateMap<Category, CategoryResponse>()
+		CreateMap<Category, CategoryResponseWithSubCategories>()
 			.ForMember (
 				dest => dest.SubCategories,
 				opt => opt.MapFrom (src => src.SubCategories)

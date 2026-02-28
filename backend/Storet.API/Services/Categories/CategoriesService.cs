@@ -16,7 +16,7 @@ public class CategoriesService : ICategoriesService
 		this.mapper = mapper;
 	}
 
-	public async Task<IEnumerable<CategoryResponse>> GetAllAsync ()
+	public async Task<IEnumerable<CategoryResponseWithSubCategories>> GetAllAsync ()
 	{
 		var categoriesWithLevels = await repository.GetAllWithDepthAsync();
 
@@ -52,7 +52,7 @@ public class CategoriesService : ICategoriesService
 				childrenDict[categoryHierarchy.ParentCategoryId!.Value] = [category];
 		}
 		
-		return roots.Select (mapper.Map<CategoryResponse>);
+		return roots.Select (mapper.Map<CategoryResponseWithSubCategories>);
 	}
 
 	public async Task<CategoryResponseWithParent?> GetOneAsync (int key)

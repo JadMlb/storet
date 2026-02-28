@@ -21,7 +21,7 @@ public class CategoriesControllerTests
 	[Fact]
 	public async Task GetAllShouldReturnOkWithCategories ()
 	{
-		var categories = new List<CategoryResponse>
+		var categories = new List<CategoryResponseWithSubCategories>
 		{
 			new () {Id = 1, Label = "Electronics"}
 		};
@@ -35,14 +35,14 @@ public class CategoriesControllerTests
 		okResult.Should().NotBeNull();
 		okResult.StatusCode.Should().Be (200);
 
-		var returnedCategories = okResult.Value as IEnumerable<CategoryResponse>;
+		var returnedCategories = okResult.Value as IEnumerable<CategoryResponseWithSubCategories>;
 		returnedCategories.Should().HaveCount (1);
 	}
 	
 	[Fact]
 	public async Task GetByIdWithExistingIdShouldReturnOkWithCategory ()
 	{
-		var category = new CategoryResponse {Id = 1, Label = "Electronics"};
+		var category = new CategoryResponseWithParent {Id = 1, Label = "Electronics"};
 
 		mockService.Setup (s => s.GetOneAsync (1))
 					.ReturnsAsync (category);
@@ -53,7 +53,7 @@ public class CategoriesControllerTests
 		okResult.Should().NotBeNull();
 		okResult.StatusCode.Should().Be (200);
 
-		var returnedCategory = okResult.Value as CategoryResponse;
+		var returnedCategory = okResult.Value as CategoryResponseWithParent;
 		returnedCategory.Should().NotBeNull();
 		returnedCategory.Id.Should().Be (1);
 	}
@@ -62,7 +62,7 @@ public class CategoriesControllerTests
 	public async Task GetByIdWithNonExistingIdShouldReturnNotFound ()
 	{
 		mockService.Setup (s => s.GetOneAsync (999))
-					.ReturnsAsync ((CategoryResponse?) null);
+					.ReturnsAsync ((CategoryResponseWithParent?) null);
 
 		var result = await controller.GetOne (999);
 		var notFoundResult = result.Result;
@@ -77,7 +77,7 @@ public class CategoriesControllerTests
 			Label = "Electronics"
 		};
 
-		var created = new CategoryResponse
+		var created = new CategoryResponseWithParent
 		{
 			Id = 1,
 			Label = "Electronics"
@@ -103,7 +103,7 @@ public class CategoriesControllerTests
 		{
 			Label = "Updated Electronics"
 		};
-		var updated = new CategoryResponse
+		var updated = new CategoryResponseWithParent
 		{
 			Id = 1,
 			Label = "Updated Electronics"
@@ -118,7 +118,7 @@ public class CategoriesControllerTests
 		okResult.Should().NotBeNull();
 		okResult.StatusCode.Should().Be (200);
 
-		var returnedCategory = okResult.Value as CategoryResponse;
+		var returnedCategory = okResult.Value as CategoryResponseWithSubCategories;
 		returnedCategory.Should().NotBeNull();
 		returnedCategory.Label.Should().Be ("Updated Electronics");
 	}

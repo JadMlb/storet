@@ -16,13 +16,13 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetAll ()
+	public async Task<ActionResult<IEnumerable<CategoryResponseWithSubCategories>>> GetAll ()
 	{
 		return Ok (await categories.GetAllAsync());
 	}
 
 	[HttpGet ("{id:int}")]
-	public async Task<ActionResult<CategoryResponse>> GetOne (int id)
+	public async Task<ActionResult<CategoryResponseWithSubCategories>> GetOne (int id)
 	{
 		var category = await categories.GetOneAsync (id);
 		if (category == null)
@@ -31,7 +31,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<ActionResult<CategoryResponse>> Create ([FromBody] CategoryInsertRequest category)
+	public async Task<ActionResult<CategoryResponseWithSubCategories>> Create ([FromBody] CategoryInsertRequest category)
 	{
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
@@ -43,7 +43,7 @@ public class CategoriesController : ControllerBase
 	}
 	
 	[HttpPut ("{id:int}")]
-	public async Task<ActionResult<CategoryResponse>> Update ([FromRoute] int id,[FromBody] CategoryUpdateRequest category)
+	public async Task<ActionResult<CategoryResponseWithSubCategories>> Update ([FromRoute] int id,[FromBody] CategoryUpdateRequest category)
 	{
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);

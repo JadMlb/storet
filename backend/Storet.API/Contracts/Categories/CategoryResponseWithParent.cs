@@ -1,6 +1,6 @@
 namespace Storet.API.Contracts.Categories;
 
-public class CategoryResponseWithParent : CategoryResponse
+public class CategoryResponseWithParent : CategoryResponseWithSubCategories
 {
-	public CategoryResponse? ParentCategory { get; set; }
+	public CategoryResponseWithSubCategories? ParentCategory { get; set; }
 }
