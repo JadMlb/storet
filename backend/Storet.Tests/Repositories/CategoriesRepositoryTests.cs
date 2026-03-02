@@ -92,6 +92,29 @@ public class CategoriesRepositoryTests : IDisposable
 	}
 	
 	[Fact]
+	public async Task ExistsAsyncWithExistingIdShouldReturnTrue ()
+	{
+		var category = new Category
+		{
+			Label = "Electronics"
+		};
+		await context.Categories.AddAsync (category);
+		await context.SaveChangesAsync();
+		
+		var result = await repository.ExistsAsync (category.Id);
+		
+		result.Should().BeTrue();
+	}
+	
+	[Fact]
+	public async Task ExistsAsyncWithNonExistingIdShouldReturnFalse ()
+	{
+		var result = await repository.ExistsAsync (999);
+		
+		result.Should().BeFalse();
+	}
+	
+	[Fact]
 	public async Task GetAllShouldReturnFlatList ()
 	{
 		var electronics = new Category {Id = 1, Label = "Electronics"};
@@ -146,14 +169,14 @@ public class CategoriesRepositoryTests : IDisposable
 	}
 	
 	[Fact]
-	public async Task DeletAsyncWithNonExistsingIdShouldReturnFalse ()
+	public async Task DeleteAsyncWithNonExistsingIdShouldReturnFalse ()
 	{
 		var result = await repository.DeleteAsync (999);
 		result.Should().BeFalse();
 	}
 	
 	[Fact]
-	public async Task DeletAsyncWithParentCategoryShouldThrowWhenHasChildren ()
+	public async Task DeleteAsyncWithParentCategoryShouldThrowWhenHasChildren ()
 	{
 		var parent = new Category {Id = 1, Label = "Electronics"};
 		var child = new Category {Id = 2, Label = "Phones", ParentCategoryId = parent.Id};

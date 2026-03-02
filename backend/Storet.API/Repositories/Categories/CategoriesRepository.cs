@@ -30,6 +30,13 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 							.Include (c => c.ParentCategory)
 							.FirstOrDefaultAsync (c => c.Id == key);
 	}
+	
+	public async Task<bool> ExistsAsync (int key)
+	{
+		return await context.Categories
+							.AsNoTracking()
+							.AnyAsync (c => c.Id == key);
+	}
 
 	public async Task<Category?> InsertAsync (Category model)
 	{
