@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Storet.API.Models;
+namespace Storet.API.Contracts.Items;
 
-public class Item
+public class ItemInsertRequest
 {
-	public Guid Id { get; set; }
 	[Required (AllowEmptyStrings = false)]
 	public string Name { get; set; } = string.Empty;
 	public string? Description { get; set; }
-	public ICollection<ItemCategory> ItemCategories { get; set; } = null!;
+	[MinLength (1)]
+	public List<int> Categories { get; set; } = [];
 }

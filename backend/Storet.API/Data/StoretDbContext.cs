@@ -10,6 +10,8 @@ public class StoretDbContext : DbContext
 
 	public DbSet<Category> Categories { get; set; }
 	public DbSet<CategoryHierarchy> CategoryHierarchies { get; set; }
+	public DbSet<Item> Items { get; set; }
+	public DbSet<ItemCategory> ItemsCategories { get; set; }
 
 	protected override void OnModelCreating (ModelBuilder modelBuilder)
 	{

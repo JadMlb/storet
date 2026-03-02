@@ -1,5 +1,6 @@
 using AutoMapper;
 using Storet.API.Contracts.Categories;
+using Storet.API.Contracts.Items;
 using Storet.API.Models;
 
 namespace Storet.API.Mappers;
@@ -37,5 +38,16 @@ public class MappingProfile : Profile
 			.ForSourceMember (h => h.Level, opt => opt.DoNotValidate())
 			.ForMember (c => c.SubCategories, opt => opt.Ignore());
 		#endregion
+		
+		#region Items
+		CreateMap<Item, ItemResponse>();
+		
+		CreateMap<ItemInsertRequest, Item>()
+			.ForMember (i => i.Id, opt => opt.Ignore());
+		
+		CreateMap<ItemUpdateRequest, Item>()
+			.ForMember (i => i.Id, opt => opt.Ignore())
+			.ForAllMembers (opts => opts.Condition ((src, dest, srcMember) => srcMember != null));
+		#endregion Items
 	}
 }
