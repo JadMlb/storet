@@ -22,6 +22,8 @@ public class ItemsRepository : BaseRepository, IItemsRepository
 	{
 		return await context.Items
 							.AsNoTracking()
+							.Include (i => i.ItemCategories)
+							.ThenInclude (i => i.Category)
 							.FirstOrDefaultAsync (i => i.Id == key);
 	}
 	

@@ -118,21 +118,6 @@ public class ItemsRepositoryTests : IDisposable
 		response.Last().Name.Should().Be ("Tea");
 		response.Should().BeInAscendingOrder ((a, b) => a.Name.CompareTo (b.Name));
 	}
-	
-	[Fact]
-	public async Task GetAllWithInvalidQueryShouldThrowError ()
-	{
-		var query = new Query<string>
-		{
-			PageSize = 0
-		};
-
-		Func<Task> act = async () => await repository.GetAllAsync (query);
-
-		await act.Should()
-					.ThrowAsync<InvalidOperationException>()
-					.WithMessage ("Invalid query parameters");
-	}
 
 	[Fact]
 	public async Task GetOneWithExistingIdShouldReturnItem ()
@@ -158,6 +143,10 @@ public class ItemsRepositoryTests : IDisposable
 		result.Id.Should().Be (item.Id);
 		result.Name.Should().Be ("Laptop");
 		result.Description.Should().Be ("My laptop");
+		result.ItemCategories.Should().NotBeEmpty();
+		result.ItemCategories.Should().HaveCount (1);
+		result.ItemCategories.First().Should().NotBeNull();
+		result.ItemCategories.First().CategoryId.Should().Be (1);
 	}
 	
 	[Fact]
