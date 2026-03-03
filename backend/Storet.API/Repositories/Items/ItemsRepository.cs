@@ -18,6 +18,20 @@ public class ItemsRepository : BaseRepository, IItemsRepository
 							.ToListAsync();
 	}
 	
+	public async Task<string?> GetPreviousKeyAsync (Query<string> query)
+	{
+		if (query.Key == null)
+			return null;
+			
+		var previousCursorItem = await context.Items
+												.AsNoTracking()
+												.Where (i => String.Compare (i.Name, query.Key) < 0)
+												.OrderByDescending (i => i.Name)
+												.Take (query.PageSize + 1)
+												.FirstOrDefaultAsync();
+		return previousCursorItem?.Name;
+	}
+	
 	public async Task<Item?> GetOneAsync (Guid key)
 	{
 		return await context.Items
