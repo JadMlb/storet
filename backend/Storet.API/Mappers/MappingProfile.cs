@@ -45,7 +45,10 @@ public class MappingProfile : Profile
 		#endregion
 		
 		#region Items
-		CreateMap<Item, ItemResponse>();
+		CreateMap<Item, ItemResponse>()
+			.ForSourceMember (i => i.ItemCategories, opt => opt.DoNotValidate());
+		CreateMap<Item, ItemResponseWithCategories>()
+			.ForMember (i => i.Categories, opt => opt.MapFrom (i => i.ItemCategories.Select (i => i.Category)));
 		
 		CreateMap<ItemInsertRequest, Item>()
 			.ForMember (i => i.Id, opt => opt.Ignore());
