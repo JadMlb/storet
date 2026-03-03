@@ -250,19 +250,19 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 		
 		await context.SaveChangesAsync();
 		
-		var toBeDeleted = new List<(Guid itemId, int categoryId)>
+		var toBeDeleted = new List<int>
 		{
-			(laptop.Id, electronics.Id),
-			(phone.Id, electronics.Id)
+			electronics.Id
 		};
 		
-		var result = await repository.BulkDeleteAsync (toBeDeleted);
+		var result = await repository.BulkDeleteForItemAsync (laptop.Id, toBeDeleted);
 		
-		result.Should().Be (2);
+		result.Should().Be (1);
 		
 		var left = await context.ItemsCategories.AsNoTracking().ToListAsync();
-		left.Should().HaveCount (1);
+		left.Should().HaveCount (2);
 		left.Should().Contain (i => i.ItemId == laptop.Id && i.CategoryId == deskEssentials.Id);
+		left.Should().Contain (i => i.ItemId == phone.Id && i.CategoryId == electronics.Id);
 	}
 	
 	[Fact]
@@ -299,19 +299,19 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 		await context.SaveChangesAsync();
 		
 		var nonExistingId = Guid.NewGuid();
-		var toBeDeleted = new List<(Guid itemId, int categoryId)>
+		var toBeDeleted = new List<int >
 		{
-			(laptop.Id, deskEssentials.Id),
-			(nonExistingId, electronics.Id)
+			electronics.Id
 		};
 		
-		var result = await repository.BulkDeleteAsync (toBeDeleted);
+		var result = await repository.BulkDeleteForItemAsync (nonExistingId, toBeDeleted);
 		
-		result.Should().Be (1);
+		result.Should().Be (0);
 		
 		var left = await context.ItemsCategories.AsNoTracking().ToListAsync();
-		left.Should().HaveCount (2);
+		left.Should().HaveCount (3);
 		left.Should().Contain (i => i.ItemId == laptop.Id && i.CategoryId == electronics.Id);
+		left.Should().Contain (i => i.ItemId == laptop.Id && i.CategoryId == deskEssentials.Id);
 		left.Should().Contain (i => i.ItemId == phone.Id && i.CategoryId == electronics.Id);
 	}
 	

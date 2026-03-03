@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Storet.API.Data;
 using Storet.API.Models;
 using Storet.API.Repositories.Base;
-using Storet.API.Utils;
 
 namespace Storet.API.Repositories.ItemsCategories;
 
@@ -25,10 +24,10 @@ public class ItemsCategoriesRepository : BaseRepository, IItemsCategoriesReposit
 		return await context.SaveChangesAsync();
 	}
 	
-	public async Task<int> BulkDeleteAsync (IEnumerable<(Guid itemId, int categoryId)> itemCategories)
+	public async Task<int> BulkDeleteForItemAsync (Guid itemId, IEnumerable<int> categoryIds)
 	{
 		return await context.ItemsCategories
-							.WhereComposite (itemCategories, ["ItemId", "CategoryId"])
+							.Where (i => i.ItemId == itemId && categoryIds.Contains (i.CategoryId))
 							.ExecuteDeleteAsync();
 	}
 
