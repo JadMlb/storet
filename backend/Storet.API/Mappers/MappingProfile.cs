@@ -22,6 +22,11 @@ public class MappingProfile : Profile
 				dest => dest.SubCategories,
 				opt => opt.MapFrom (src => src.SubCategories)
 			);
+		
+		CreateMap<Category, CategoryResponse>()
+			.ForSourceMember (c => c.SubCategories, opt => opt.DoNotValidate())
+			.ForSourceMember (c => c.ParentCategory, opt => opt.DoNotValidate())
+			.ForSourceMember (c => c.ParentCategoryId, opt => opt.DoNotValidate());
 
 		CreateMap<CategoryInsertRequest, Category>()
 			.ForMember (dest => dest.Id, opt => opt.Ignore())

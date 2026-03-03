@@ -3,7 +3,7 @@ using Storet.API.Repositories.Base;
 
 namespace Storet.API.Repositories.Categories;
 
-public interface ICategoriesRepository : ICrudRepository<Category, int>, IExistenceCheckable<int>
+public interface ICategoriesRepository : ICrudRepository<Category, int>, IBulkExistenceCheckable<int>
 {
 	public Task<IEnumerable<CategoryHierarchy>> GetAllWithDepthAsync ();
 }

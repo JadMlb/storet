@@ -31,11 +31,11 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 							.FirstOrDefaultAsync (c => c.Id == key);
 	}
 	
-	public async Task<bool> ExistsAsync (int key)
+	public async Task<bool> AllExistAsync (IEnumerable<int> keys)
 	{
 		return await context.Categories
 							.AsNoTracking()
-							.AnyAsync (c => c.Id == key);
+							.AllAsync (c => keys.Contains (c.Id));
 	}
 
 	public async Task<Category?> InsertAsync (Category model)

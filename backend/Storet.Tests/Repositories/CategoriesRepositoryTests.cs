@@ -101,7 +101,7 @@ public class CategoriesRepositoryTests : IDisposable
 		await context.Categories.AddAsync (category);
 		await context.SaveChangesAsync();
 		
-		var result = await repository.ExistsAsync (category.Id);
+		var result = await repository.AllExistAsync ([category.Id]);
 		
 		result.Should().BeTrue();
 	}
@@ -109,7 +109,14 @@ public class CategoriesRepositoryTests : IDisposable
 	[Fact]
 	public async Task ExistsAsyncWithNonExistingIdShouldReturnFalse ()
 	{
-		var result = await repository.ExistsAsync (999);
+		var category = new Category
+		{
+			Label = "Electronics"
+		};
+		await context.Categories.AddAsync (category);
+		await context.SaveChangesAsync();
+		
+		var result = await repository.AllExistAsync ([category.Id, 999]);
 		
 		result.Should().BeFalse();
 	}
