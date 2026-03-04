@@ -2,7 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Storet.API.Data;
 using Storet.API.Mappers;
 using Storet.API.Repositories.Categories;
+using Storet.API.Repositories.Items;
+using Storet.API.Repositories.ItemsCategories;
 using Storet.API.Services.Categories;
+using Storet.API.Services.Items;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +48,11 @@ builder.Services.AddAutoMapper (cfg => cfg.AddProfile<MappingProfile>());
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<ICategoriesService, CategoriesService>();
 #endregion Categories
+#region Items
+builder.Services.AddScoped<IItemsCategoriesRepository, ItemsCategoriesRepository>();
+builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
+builder.Services.AddScoped<IItemsService, ItemsService>();
+#endregion Items
 #endregion DI
 
 var app = builder.Build();
