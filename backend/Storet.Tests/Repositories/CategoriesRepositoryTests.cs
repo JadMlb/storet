@@ -1,26 +1,18 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Storet.API.Data;
 using Storet.API.Models;
 using Storet.API.Repositories.Categories;
+using Storet.Tests.Repositories.Config;
 
 namespace Storet.Tests.Repositories;
 
-public class CategoriesRepositoryTests : IDisposable
+public class CategoriesRepositoryTests : InMemoryRepositoryTestsBase<CategoriesRepository>
 {
-	private readonly StoretDbContext context;
-	private readonly CategoriesRepository repository;
-
-	public CategoriesRepositoryTests ()
+	protected override CategoriesRepository InitRepository ()
 	{
-		var options = new DbContextOptionsBuilder<StoretDbContext>()
-							.UseInMemoryDatabase (databaseName: Guid.NewGuid().ToString())
-							.Options;
-		
-		context = new StoretDbContext (options);
-		repository = new CategoriesRepository (context);
+		return new CategoriesRepository (context);
 	}
-
+	
 	[Fact]
 	public async Task InsertAsyncWithValidCategoryShouldAddToDatabase ()
 	{
@@ -202,11 +194,5 @@ public class CategoriesRepositoryTests : IDisposable
 		
 		var childStillExists = await context.Categories.FindAsync (child.Id);
 		childStillExists.Should().NotBeNull();
-	}
-
-	public void Dispose ()
-	{
-		context.Database.EnsureDeleted();
-		context.Dispose();
 	}
 }

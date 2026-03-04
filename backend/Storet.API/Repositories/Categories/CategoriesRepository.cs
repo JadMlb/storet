@@ -33,9 +33,11 @@ public class CategoriesRepository : BaseRepository, ICategoriesRepository
 	
 	public async Task<bool> AllExistAsync (IEnumerable<int> keys)
 	{
-		return await context.Categories
-							.AsNoTracking()
-							.AllAsync (c => keys.Contains (c.Id));
+		var keysSet = keys.ToHashSet();
+		var numberOfExistsingIdsInDb = await context.Categories
+													.AsNoTracking()
+													.CountAsync (c => keysSet.Contains (c.Id));
+		return keysSet.Count == numberOfExistsingIdsInDb;
 	}
 
 	public async Task<Category?> InsertAsync (Category model)

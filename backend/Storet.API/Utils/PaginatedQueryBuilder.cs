@@ -9,7 +9,18 @@ public static class PaginatedQueryBuilder
 		var param = Expression.Parameter (typeof (T), "e");
 		var prop = Expression.PropertyOrField (param, propertyName);
 		var constant = Expression.Constant (value);
-		var body = Expression.GreaterThanOrEqual (prop, constant);
+		var body = value switch
+		{
+			string s => Expression.GreaterThanOrEqual (
+				Expression.Call (
+					prop,
+					typeof(string).GetMethod ("CompareTo", [typeof (string)])!,
+					constant
+				),
+				Expression.Constant (0)
+			),
+			_ => Expression.GreaterThanOrEqual (prop, constant)
+		};
 		return Expression.Lambda<Func<T, bool>> (body, param);
 	}
 

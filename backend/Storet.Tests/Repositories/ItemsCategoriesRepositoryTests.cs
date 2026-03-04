@@ -1,24 +1,16 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Storet.API.Data;
 using Storet.API.Models;
 using Storet.API.Repositories.ItemsCategories;
+using Storet.Tests.Repositories.Config;
 
 namespace Storet.Tests.Repositories;
 
-public class ItemsCategoriesRepositoryTests : IDisposable
+public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<IItemsCategoriesRepository>
 {
-	private readonly StoretDbContext context;
-	private readonly ItemsCategoriesRepository repository;
-
-	public ItemsCategoriesRepositoryTests ()
+	protected override ItemsCategoriesRepository InitRepository ()
 	{
-		var options = new DbContextOptionsBuilder<StoretDbContext>()
-							.UseInMemoryDatabase (Guid.NewGuid().ToString())
-							.Options;
-
-		context = new StoretDbContext (options);
-		repository = new ItemsCategoriesRepository (context);
+		return new ItemsCategoriesRepository (context);
 	}
 
 	[Fact]
@@ -121,6 +113,7 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			Name = "Laptop"
 		};
 		await context.Items.AddAsync (laptop);
+		await context.SaveChangesAsync();
 		
 		var laptopIsElectronics = new ItemCategory
 		{
@@ -154,6 +147,7 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			Name = "Laptop"
 		};
 		await context.Items.AddAsync (laptop);
+		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
@@ -161,7 +155,6 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
-		
 		await context.SaveChangesAsync();
 
 		var result = await repository.DeleteAllForItemAsync (laptop.Id);
@@ -194,6 +187,7 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			Name = "Laptop"
 		};
 		await context.Items.AddAsync (laptop);
+		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
@@ -201,7 +195,6 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
-		
 		await context.SaveChangesAsync();
 		
 		var nonExistingId = Guid.NewGuid();
@@ -239,6 +232,7 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			Name = "Phone"
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
+		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
@@ -247,7 +241,6 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			new () {ItemId = phone.Id, CategoryId = electronics.Id}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
-		
 		await context.SaveChangesAsync();
 		
 		var toBeDeleted = new List<int>
@@ -287,6 +280,7 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			Name = "Phone"
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
+		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
@@ -295,7 +289,6 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			new () {ItemId = phone.Id, CategoryId = electronics.Id}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
-		
 		await context.SaveChangesAsync();
 		
 		var nonExistingId = Guid.NewGuid();
@@ -333,6 +326,7 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			Name = "Laptop"
 		};
 		await context.Items.AddAsync (laptop);
+		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
@@ -340,7 +334,6 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
-		
 		await context.SaveChangesAsync();
 		
 		var result = await repository.GetAllForItemAsync (laptop.Id);
@@ -360,11 +353,5 @@ public class ItemsCategoriesRepositoryTests : IDisposable
 		
 		result.Should().NotBeNull();
 		result.Should().BeEmpty();
-	}
-	
-	public void Dispose()
-	{
-		context.Database.EnsureDeleted();
-		context.Dispose();
 	}
 }

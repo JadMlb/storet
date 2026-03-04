@@ -69,19 +69,18 @@ public class ItemsServiceTests
 									);
 		mockItemsRepository.Setup (i => i.GetOneAsync (generatedItemId))
 							.ReturnsAsync (
-								(Item i) =>
+								new Item
 								{
-									i.Id = generatedItemId;
-									i.ItemCategories = [
+									Id = generatedItemId,
+									ItemCategories = [
 										new ()
 										{
 											CategoryId = 1,
 											Category = category,
 											ItemId = generatedItemId
 										}
-									];
-									i.Name = "Steak";
-									return i;
+									],
+									Name = "Steak"
 								}
 							);
 		
@@ -231,7 +230,7 @@ public class ItemsServiceTests
 		var query = new Query<string>
 		{
 			PageSize = 5,
-			Key = "Lemon"
+			Key = "Orange"
 		};
 		
 		var items = new List<Item>
@@ -264,11 +263,11 @@ public class ItemsServiceTests
 		result.Data.Should().BeInAscendingOrder (i => i.Name);
 		
 		mockItemsRepository.Verify (
-			i => i.GetAllAsync (It.Is<Query<string>> (q => q.Key == null && q.PageSize == 5)),
+			i => i.GetAllAsync (It.Is<Query<string>> (q => q.Key == "Orange" && q.PageSize == 5)),
 			Times.Once()
 		);
 		mockItemsRepository.Verify (
-			i => i.GetPreviousKeyAsync (It.Is<Query<string>> (q => q.Key == null && q.PageSize == 5)),
+			i => i.GetPreviousKeyAsync (It.Is<Query<string>> (q => q.Key == "Orange" && q.PageSize == 5)),
 			Times.Once()
 		);
 		mockItemsRepository.VerifyNoOtherCalls();
@@ -428,11 +427,6 @@ public class ItemsServiceTests
 		};
 		
 		var newCategoriesIds = new List<int> {2, 3};
-		var newCategories = new List<ItemCategory>
-		{
-			new () {ItemId = itemId, CategoryId = 2},
-			new () {ItemId = itemId, CategoryId = 3}
-		};
 		var oldCategoriesIds = new List<int> {1};
 		
 		mockItemsRepository.Setup (c => c.ExistsAsync (itemId))
@@ -460,17 +454,16 @@ public class ItemsServiceTests
 										]);
 		mockItemsCategoriesRepository.Setup (ic => ic.BulkDeleteForItemAsync (itemId, oldCategoriesIds))
 										.ReturnsAsync (1);
-		mockItemsCategoriesRepository.Setup (ic => ic.BulkInsertAsync (newCategories))
+		mockItemsCategoriesRepository.Setup (ic => ic.BulkInsertAsync (It.IsAny<IEnumerable<ItemCategory>>()))
 										.ReturnsAsync (2);
 		mockItemsRepository.Setup (i => i.GetOneAsync (itemId))
 							.ReturnsAsync (
-								(Item item) =>
+								new Item
 								{
-									item.Id = itemId;
-									item.Name = "Laptop";
-									item.Name = "New Laptop";
-									item.Description = "My new laptop";
-									item.ItemCategories = [
+									Id = itemId,
+									Name = "New Laptop",
+									Description = "My new laptop",
+									ItemCategories = [
 										new ()
 										{
 											ItemId = itemId,
@@ -483,8 +476,7 @@ public class ItemsServiceTests
 											CategoryId = 3,
 											Category = electronics
 										}
-									];
-									return item;
+									]
 								}
 							);
 							
@@ -507,7 +499,16 @@ public class ItemsServiceTests
 		);
 		mockItemsCategoriesRepository.Verify (ic => ic.GetAllForItemAsync (itemId), Times.Once());
 		mockItemsCategoriesRepository.Verify (ic => ic.BulkDeleteForItemAsync (itemId, oldCategoriesIds), Times.Once());
-		mockItemsCategoriesRepository.Verify (ic => ic.BulkInsertAsync (newCategories), Times.Once());
+		mockItemsCategoriesRepository.Verify (
+			ic => ic.BulkInsertAsync (
+				It.Is<IEnumerable<ItemCategory>> (
+					categories => categories.Count() == 2
+									&& categories.Any (c => c.ItemId == itemId && c.CategoryId == 2)
+									&& categories.Any (c => c.ItemId == itemId && c.CategoryId == 3)
+				)
+			),
+			Times.Once()
+		);
 		mockItemsRepository.Verify (i => i.GetOneAsync (itemId), Times.Once());
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();

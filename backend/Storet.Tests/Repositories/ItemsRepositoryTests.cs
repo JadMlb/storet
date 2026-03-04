@@ -1,26 +1,18 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Storet.API.Data;
 using Storet.API.Models;
 using Storet.API.Repositories.Items;
 using Storet.API.Utils;
+using Storet.Tests.Repositories.Config;
 
 namespace Storet.Tests.Repositories;
 
-public class ItemsRepositoryTests : IDisposable
+public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<ItemsRepository>
 {
-	private readonly StoretDbContext context;
-	private readonly ItemsRepository repository;
-
-	public ItemsRepositoryTests ()
+	protected override ItemsRepository InitRepository ()
 	{
-		var options = new DbContextOptionsBuilder<StoretDbContext>()
-							.UseInMemoryDatabase (databaseName: Guid.NewGuid().ToString())
-							.Options;
-		context = new StoretDbContext (options);
-		repository = new ItemsRepository (context);
+		return new ItemsRepository (context);
 	}
-
+	
 	[Fact]
 	public async Task InsertAsyncWithValidItemShouldAddToDatabase ()
 	{
@@ -137,6 +129,13 @@ public class ItemsRepositoryTests : IDisposable
 		await context.Items.AddAsync (item);
 		await context.SaveChangesAsync();
 
+		var itemsCategories = new List<ItemCategory>
+		{
+			new () {ItemId = item.Id, CategoryId = category.Id}
+		};
+		await context.ItemsCategories.AddRangeAsync (itemsCategories);
+		await context.SaveChangesAsync();
+
 		var result = await repository.GetOneAsync (item.Id);
 
 		result.Should().NotBeNull();
@@ -239,11 +238,5 @@ public class ItemsRepositoryTests : IDisposable
 		var result = await repository.DeleteAsync (Guid.NewGuid());
 		
 		result.Should().BeFalse();
-	}
-
-	public void Dispose ()
-	{
-		context.Database.EnsureDeleted();
-		context.Dispose();
 	}
 }
