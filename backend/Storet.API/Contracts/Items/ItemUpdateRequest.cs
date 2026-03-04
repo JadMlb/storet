@@ -1,11 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Storet.API.Contracts.Items;
 
 public class ItemUpdateRequest
 {
 	public string? Name { get; set; }
 	public string? Description { get; set; }
-	[MinLength (1)]
 	public List<int>? Categories { get; set; }
 }
