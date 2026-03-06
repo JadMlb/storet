@@ -1,0 +1,50 @@
+<drawer open = "true" (onClose) = "handleClose()">
+	<h1 class = "list-item-details-header" header>
+		@if (creating)
+		{
+			New
+		}
+		@else
+		{
+			Edit
+		}
+		<ng-content select = "[list-item-details-header-title-suffix]"/>
+	</h1>
+	<div body>
+  	<ng-content select = "[body]"/>
+	</div>
+	<div class = "list-item-details-footer" footer>
+		@if (editing)
+		{
+			<styled-button
+				(onClick) = "handleCancel()"
+				role = "warn"
+			>
+				Cancel
+			</styled-button>
+			<styled-button
+				type = "submit"
+				form = "edit-item-form"
+				[disabled] = "submitButtonDisabled"
+				role = "primary"
+			>
+				Done
+			</styled-button>
+		}
+		@else
+		{
+			<styled-button
+				(onClick) = "handleDeleteItem()"
+				role = "warn"
+			>
+				Delete
+			</styled-button>
+			<styled-button
+				role = "primary"
+				(onClick) = "handleEditingEnabled()"
+			>
+				Edit
+			</styled-button>
+		}
+	</div>
+</drawer>

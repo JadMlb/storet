@@ -1,57 +1,21 @@
-<drawer open = "true" (onClose) = "navBack()">
-	<h1 class = "category-details-header" header>
-		@if (creating())
-		{
-			New
-		}
-		@else
-		{
-			Edit
-		}
-		category
-	</h1>
-	<form id = "edit-category-form" body [formGroup] = "form" (ngSubmit) = "onSubmit()">
-		<suspense [loading] = "categoriesDetailsStore.state() == 'loading'">
-			<text-input formControlName = "label" label = "Label"/>
-			<combobox
-				label = "Parent"
-				[options] = "options()"
-				formControlName = "parentCategoryId"
-			/>
-		</suspense>
-	</form>
-	<div class = "category-details-footer" footer>
-		@if (editing())
-		{
-			<styled-button
-				(onClick) = "onCancel()"
-				role = "warn"
-			>
-				Cancel
-			</styled-button>
-			<styled-button
-				type = "submit"
-				form = "edit-category-form"
-				[disabled] = "!form.valid || !form.dirty"
-				role = "primary"
-			>
-				Done
-			</styled-button>
-		}
-		@else
-		{
-			<styled-button
-				(onClick) = "deleteCategory()"
-				role = "warn"
-			>
-				Delete
-			</styled-button>
-			<styled-button
-				role = "primary"
-				(onClick) = "enableEditing()"
-			>
-				Edit
-			</styled-button>
-		}
-	</div>
-</drawer>
+<list-view-item-details
+  [editing] = "editing()"
+  [creating] = "creating()"
+  [submitButtonDisabled] = "!form.valid || !form.dirty"
+  (onEditingEnabled) = "onEditingEnabled()"
+  (onDeleteItem) = "onItemDelete()"
+  (onCancel) = "onCancel()"
+  (onClose) = "navBack()"
+>
+  <span list-item-details-header-title-suffix>category</span>
+  <form body id = "edit-item-form" [formGroup] = "form" (ngSubmit) = "onFormSubmit()">
+    <suspense [loading] = "categoriesDetailsStore.state() == 'loading'">
+     	<text-input formControlName = "label" label = "Label"/>
+     	<combobox
+      		label = "Parent"
+      		[options] = "options()"
+      		formControlName = "parentCategoryId"
+     	/>
+    </suspense>
+  </form>
+</list-view-item-details>
