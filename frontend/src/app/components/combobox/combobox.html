@@ -15,9 +15,28 @@
 			{
 				<span>{{placeholder}}</span>
 			}
+			@else if (multiple)
+			{
+    		@for (option of displayValues(); track option.value)
+        {
+          <div class = "combobox-option-tag">
+            {{option.display}}
+            @if (!disabled)
+            {
+              <button
+    						class = "combobox-button"
+    						(click) = "removeItem ($event, option)"
+                [disabled] = "disabled"
+     					>
+       					✕
+     					</button>
+            }
+          </div>
+        }
+			}
 			@else
 			{
-				<span>{{displayText()}}</span>
+			  <span>{{displayValues()[0].display}}</span>
 			}
 		</div>
 		@if (!disabled)
@@ -26,8 +45,9 @@
 				@if (!required)
 				{
 					<button
-						class = "combobox-clear-button"
+						class = "combobox-button"
 						(click) = "clearSelection ($event)"
+						[disabled] = "disabled"
 					>
 					✕
 					</button>

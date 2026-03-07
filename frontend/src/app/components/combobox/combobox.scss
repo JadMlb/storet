@@ -1,5 +1,25 @@
 @use "../../../theme" as theme;
 
+.combobox-button
+{
+  all: unset;
+	font: inherit;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	border-radius: 100px;
+	
+	&:hover
+  {
+    color: theme.$colour-error;
+  }
+  
+  &:disabled
+  {
+    color: theme.$colour-gray;
+  }
+}
+
 .combobox-wrapper
 {
 	display: flex;
@@ -39,21 +59,27 @@
 		{
 			outline: 2px solid theme.$colour-primary;
 		}
+		
+		.combobox-value
+		{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: theme.$spacing-small;
+      
+      .combobox-option-tag
+      {
+        border-radius: theme.$spacing-xsmall;
+        padding: theme.$spacing-xsmall;
+        background-color: theme.$colour-secondary-light;
+      }
+		}
 
 		.combobox-trailing
 		{
 			display: flex;
 			align-items: center;
 			gap: theme.$spacing-small;
-		}
-
-		.combobox-clear-button
-		{
-			all: unset;
-			font: inherit;
-			width: 20px;
-			height: 20px;
-			text-align: center;
 		}
 
 		&.disabled

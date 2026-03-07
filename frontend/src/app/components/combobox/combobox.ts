@@ -1,4 +1,4 @@
-import { Component, computed, Input, OnInit, Optional, Self, signal } from '@angular/core';
+import { booleanAttribute, Component, computed, Input, OnInit, Optional, Self, signal } from '@angular/core';
 import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
 import { Option } from '../../types/Option';
 import { Chevron } from '../chevron/chevron';
@@ -15,13 +15,14 @@ export class Combobox implements ControlValueAccessor, OnInit
   @Input() options: Option[] = [];
   @Input() label: string | null = null;
   @Input() placeholder = "Select an option";
-  @Input() required = false;
+  @Input ({transform: booleanAttribute}) required = false;
+  @Input ({transform: booleanAttribute}) multiple = false;
   disabled = false;
 
   isOpen = signal (false);
   searchTerm = signal ("");
-  selectedId = signal<string | null> (null);
-  selectedValue = signal<Option | null> (null);
+  selectedId = signal<string | string[] | null> (null);
+  selectedValue = signal<Option | Option[] | null> (null);
 
   chevronRotation = computed (
     () => this.isOpen() ? "top" : "bottom"
@@ -42,12 +43,16 @@ export class Combobox implements ControlValueAccessor, OnInit
     }
   );
 
-  displayText = computed (
-    () => this.selectedValue()?.display ?? ""
+  displayValues = computed (
+    () => this.multiple ?
+            this.selectedValue() as Option[] :
+            !this.selectedValue() ?
+              [] :
+              [this.selectedValue() as Option]
   );
 
   showPlaceholder = computed (
-    () => this.selectedId() === null
+    () => this.multiple ? this.selectedId()?.length === 0 : this.selectedId() === null
   );
 
   private onChange: any = () => {};
@@ -67,8 +72,16 @@ export class Combobox implements ControlValueAccessor, OnInit
   private updateSelected ()
   {
     const currentValue = this.selectedId();
-    const selected = this.options.find (opt => opt.value === currentValue);
-    this.selectedValue.set (selected ?? null);
+    if (this.multiple)
+    {
+      const selected = this.options.filter (opt => currentValue?.includes (opt.value));
+      this.selectedValue.set (selected);
+    }
+    else
+    {
+      const selected = this.options.find (opt => opt.value === currentValue);
+      this.selectedValue.set (selected ?? null);
+    }
   }
 
   ngOnInit ()
@@ -78,12 +91,33 @@ export class Combobox implements ControlValueAccessor, OnInit
 
   isSelected (option: Option)
   {
+    if (this.multiple)
+      return this.selectedId()?.includes (option.value);
     return this.selectedId() === option.value;
+  }
+  
+  private writeValueMultiple (value: any) : void
+  {
+    if (!this.multiple || !Array.isArray (value) || !value)
+      this.selectedId.set ([]);
+    else
+      this.selectedId.set (value.map ((i: any) => `${i}`));
+  }
+  
+  private writeValueSingle (value: any) : void
+  {
+    if (this.multiple || Array.isArray (value) || !value)
+      this.selectedId.set (null);
+    else
+      this.selectedId.set (`${value}`);
   }
 
   writeValue (value: any): void
   {
-    this.selectedId.set (`${value}`);
+    if (this.multiple)
+      this.writeValueMultiple (value);
+    else
+      this.writeValueSingle (value)
     this.updateSelected();
   }
 
@@ -111,29 +145,55 @@ export class Combobox implements ControlValueAccessor, OnInit
     if (this.isOpen())
       this.searchTerm.set ("");
   }
-
-  selectOption (option: Option): void
+  
+  private handleSelectionSingle (option: Option) : void
   {
-    const currentValue = this.selectedId();
+    const currentValue = this.selectedId() as string | null;
     if (currentValue === option.value && !this.required)
       this.selectedId.set (null);
     else
       this.selectedId.set (option.value);
+  }
+  
+  private handleSelectionMultiple (option: Option) : void
+  {
+    const currentValue = this.selectedId() as string[];
+    if (currentValue.find (o => option.value === o))
+      this.selectedId.update (old => (old as string[]).filter (o => o !== option.value));
+    else
+      this.selectedId.update (old => [...(old as string[]), option.value]);
+  }
+
+  selectOption (option: Option): void
+  {
+    if (this.multiple)
+      this.handleSelectionMultiple (option);
+    else
+      this.handleSelectionSingle (option);
 
     this.onChange (this.selectedId());
     this.onTouched();
     this.updateSelected();
     this.isOpen.set (false);
   }
+  
+  removeItem (event: Event, option: Option)
+  {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.selectOption (option);
+  }
 
   clearSelection (event: Event): void
   {
     event.stopPropagation();
+    event.preventDefault();
 
     if (this.disabled)
       return;
 
-    const newValue = null;
+    const newValue = this.multiple ? [] : null;
     this.selectedId.set (newValue);
     this.onChange (newValue);
     this.updateSelected();
