@@ -1,4 +1,4 @@
-import { Component, Input, Optional, Self } from '@angular/core';
+import { booleanAttribute, Component, Input, Optional, Self } from '@angular/core';
 import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
 
 @Component ({
@@ -10,6 +10,9 @@ import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
 })
 export class TextInput implements ControlValueAccessor
 {
+  @Input ({transform: booleanAttribute})
+  multiline: boolean = false;
+  
   @Input()
   label: string = "";
 

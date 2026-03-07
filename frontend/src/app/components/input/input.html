@@ -3,13 +3,28 @@
 	{
 		<label [class.required] = "isRequired">{{label}}</label>
 	}
-	<input
-		[class.disabled] = "disabled"
-		type = "text"
-		[placeholder] = "placeholder"
-		[value] = "value"
-		(input) = "onInput ($event)"
-		(blur) = "onBlur()"
-		[disabled] = "disabled"
-	/>
+	@if (multiline)
+	{
+    <textarea
+      class = "input"
+  		[class.disabled] = "disabled"
+  		[placeholder] = "placeholder"
+  		(input) = "onInput ($event)"
+  		(blur) = "onBlur()"
+  		[disabled] = "disabled"
+  	>{{value}}</textarea>
+	}
+	@else
+	{
+  	<input
+      class = "input"
+  		[class.disabled] = "disabled"
+  		type = "text"
+  		[placeholder] = "placeholder"
+  		[value] = "value"
+  		(input) = "onInput ($event)"
+  		(blur) = "onBlur()"
+  		[disabled] = "disabled"
+  	/>
+	}
 </div>
