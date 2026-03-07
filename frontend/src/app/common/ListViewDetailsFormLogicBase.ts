@@ -20,7 +20,10 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
   {
     this.creating.set (this.activatedRoute.snapshot.url[0].path === "new");
     if (this.creating())
+    {
       this.editing.set (true);
+      this.executeOnInitIfCreating();
+    }
     else
     {
       this.executeOnInitIfNotCreating();
@@ -47,6 +50,7 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
   }
   
   protected abstract executeOnInitIfNotCreating () : void;
+  protected abstract executeOnInitIfCreating () : void;
   protected abstract shouldMarkFormAsPristine (value: any) : boolean;
   
   onEditingEnabled ()
@@ -82,7 +86,11 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
   {
     if (!this.form.valid)
       return;
+      
+    this.handleFormSubmission();
   }
+  
+  protected abstract handleFormSubmission() : void;
   
   public abstract onItemDelete () : void;
 }

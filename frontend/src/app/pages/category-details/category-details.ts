@@ -1,15 +1,13 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Suspense } from '../../components/suspense/suspense';
 import { CategoryDetailsService } from '../../services/category-details';
 import { TextInput } from '../../components/input/input';
 import { Combobox } from '../../components/combobox/combobox';
 import { CategoriesService } from '../../services/categories';
-import { Option } from '../../types/Option';
-import { CategoryType } from '../../types/CategoryType';
 import { ListViewItemDetails } from '../../components/list-view-item-details/list-view-item-details';
 import { ListViewDetailsFormLogicBase } from '../../common/ListViewDetailsFormLogicBase';
+import { MappingProfile } from '../../common/MappingProfile';
 
 @Component ({
   selector: 'category-details',
@@ -27,16 +25,8 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
     parentCategoryId: new FormControl<number | null> (null)
   });
 
-  private static mapCategoryToOption (category: CategoryType): Option[]
-  {
-    return [
-      {value: `${category.id}`, display: category.label},
-      ...category.children?.flatMap (CategoryDetails.mapCategoryToOption) ?? []
-    ];
-  }
-
   options = computed (
-    () => (this.categoriesStore.data()?.flatMap (CategoryDetails.mapCategoryToOption) ?? [])
+    () => (this.categoriesStore.data()?.flatMap (MappingProfile.mapCategoryToOption) ?? [])
             .filter (o => o.value !== this.id)
   );
   
@@ -45,13 +35,24 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
     this.categoriesDetailsStore
         .setForm (this.form)
         .get ({path: this.id});
+  }
+  
+  override executeOnInitIfCreating () : void
+  {
+  }
+  
+  override ngOnInit () : void
+  {
+    super.ngOnInit();
+    
+    if (this.categoriesStore.data())
+      return;
+    
     this.categoriesStore.get();
   }
 
-  override onFormSubmit (): void
+  override handleFormSubmission (): void
   {
-    super.onFormSubmit();
-    
     if (this.creating())
     {
       this.categoriesDetailsStore

@@ -31,7 +31,7 @@ export abstract class DetailsService<TData> extends Service<TData>
       this.form.patchValue (this.mapResponseToFormData (response));
       this.form.markAsPristine();
     }
-    else if (actionType === "POST" || actionType === "DELETE" && response === null)
+    else if (actionType === "POST" || actionType === "PUT" || actionType === "DELETE" && response === null)
     {
       this.router?.navigate (
         ["../"],
