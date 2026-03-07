@@ -1,0 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Storet.API.ItemsCatalogue.Models;
+
+public class Item
+{
+	public Guid Id { get; set; }
+	[Required (AllowEmptyStrings = false)]
+	public string Name { get; set; } = string.Empty;
+	public string? Description { get; set; }
+	public ICollection<ItemCategory> ItemCategories { get; set; } = null!;
+}

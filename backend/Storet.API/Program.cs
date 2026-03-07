@@ -1,11 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Storet.API.Data;
-using Storet.API.Mappers;
-using Storet.API.Repositories.Categories;
-using Storet.API.Repositories.Items;
-using Storet.API.Repositories.ItemsCategories;
-using Storet.API.Services.Categories;
-using Storet.API.Services.Items;
+using Storet.API.ItemsCatalogue.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,24 +29,7 @@ builder.Services.AddCors (
 var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") ??
 						throw new InvalidOperationException ("Connection string is not configured");
 
-builder.Services.AddDbContext<StoretDbContext> (
-	options => options.UseNpgsql (connectionString)
-);
-
-#region DI
-#region Automapper
-builder.Services.AddAutoMapper (cfg => cfg.AddProfile<MappingProfile>());
-#endregion Automapper
-#region Categories
-builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
-builder.Services.AddScoped<ICategoriesService, CategoriesService>();
-#endregion Categories
-#region Items
-builder.Services.AddScoped<IItemsCategoriesRepository, ItemsCategoriesRepository>();
-builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
-builder.Services.AddScoped<IItemsService, ItemsService>();
-#endregion Items
-#endregion DI
+builder.Services.AddItemsCatalogueModule (connectionString);
 
 var app = builder.Build();
 
