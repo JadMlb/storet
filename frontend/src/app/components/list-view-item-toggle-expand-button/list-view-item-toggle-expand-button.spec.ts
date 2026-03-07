@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CategoryToggleExpandButton } from './category-toggle-expand-button';
+import { ListViewItemToggleExpandButton } from './list-view-item-toggle-expand-button';
 
 describe('CategoryToggleExpandButton', () => {
-  let component: CategoryToggleExpandButton;
-  let fixture: ComponentFixture<CategoryToggleExpandButton>;
+  let component: ListViewItemToggleExpandButton;
+  let fixture: ComponentFixture<ListViewItemToggleExpandButton>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CategoryToggleExpandButton]
+      imports: [ListViewItemToggleExpandButton]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CategoryToggleExpandButton);
+    fixture = TestBed.createComponent(ListViewItemToggleExpandButton);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

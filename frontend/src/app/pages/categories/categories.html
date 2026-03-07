@@ -6,8 +6,8 @@
   <suspense [loading] = "categoriesStore.state() == 'loading'">
 		@for (category of categoriesStore.data(); track category.id)
 		{
-			<category
-				[id] = "category.id"
+			<list-view-item
+				[id] = "`${category.id}`"
 				[label] = "category.label"
 				[children] = "category.children"
 				(onClick) = "navigateToDetails ($event)"

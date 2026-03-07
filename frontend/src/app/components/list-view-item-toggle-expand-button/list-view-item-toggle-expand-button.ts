@@ -1,13 +1,13 @@
-import { Component, computed, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, Output, signal } from '@angular/core';
 import { Chevron } from '../chevron/chevron';
 
 @Component ({
-  selector: 'category-toggle-expand-button',
+  selector: 'list-view-item-toggle-expand-button',
   imports: [Chevron],
-  templateUrl: './category-toggle-expand-button.html',
-  styleUrl: './category-toggle-expand-button.scss',
+  templateUrl: './list-view-item-toggle-expand-button.html',
+  styleUrl: './list-view-item-toggle-expand-button.scss',
 })
-export class CategoryToggleExpandButton
+export class ListViewItemToggleExpandButton
 {
   @Output() onToggle = new EventEmitter<boolean>();
   isExpanded = signal (false);

@@ -1,6 +1,6 @@
 @use "../../../theme" as theme;
 
-:host, .category-header
+:host, .list-view-item-header
 {
 	gap: theme.$spacing-small;
 }
@@ -12,7 +12,7 @@
 	cursor: pointer;
 }
 
-.category-header
+.list-view-item-header
 {
 	display: grid;
 	grid-template-areas: "expand label";
@@ -28,7 +28,7 @@
 	}
 }
 
-.category-header > .category-title
+.list-view-item-header > .list-view-item-title
 {
 	grid-area: label;
 }

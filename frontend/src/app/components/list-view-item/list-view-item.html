@@ -1,0 +1,25 @@
+<section
+	[id] = "id"
+	class = "list-view-item-header"
+	[style] = "styleMargin()"
+	(click) = "propagateClick ($event)"
+>
+	@if (hasChildren())
+	{
+		<list-view-item-toggle-expand-button (onToggle) = "handleToggleChange ($event)"/>
+	}
+	<span class = "list-view-item-title">{{label}}</span>
+</section>
+@if (isExpanded())
+{
+	@for (item of children; track item.id)
+	{
+		<list-view-item
+			[id] = "item.id"
+			[label] = "item.label"
+			[children] = "item.children"
+			[depth] = "depth + 1"
+			(onClick) = "propagateClick ($event)"
+		/>
+	}
+}

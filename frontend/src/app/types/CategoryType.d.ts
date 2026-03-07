@@ -1,7 +1,6 @@
-export type CategoryType = {
+export type CategoryMetadataType = {
 	id: number;
 	label: string;
-	children?: CategoryType[];
 };
 
 export type CategoryWithParentType = {

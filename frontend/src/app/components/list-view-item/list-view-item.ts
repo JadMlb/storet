@@ -1,18 +1,18 @@
 import { Component, computed, EventEmitter, Input, numberAttribute, Output, signal } from '@angular/core';
-import { CategoryToggleExpandButton } from '../category-toggle-expand-button/category-toggle-expand-button';
-import type { CategoryType } from "../../types/CategoryType";
+import { ListViewItemToggleExpandButton } from '../list-view-item-toggle-expand-button/list-view-item-toggle-expand-button';
+import { ListViewItemType } from '../../types/ListViewItem';
 
 @Component ({
-  selector: 'category',
-  imports: [CategoryToggleExpandButton],
-  templateUrl: './category.html',
-  styleUrl: './category.scss',
+  selector: 'list-view-item',
+  imports: [ListViewItemToggleExpandButton],
+  templateUrl: './list-view-item.html',
+  styleUrl: './list-view-item.scss',
 })
-export class Category
+export class ListViewItem
 {
-  @Input ({transform: numberAttribute}) id!: number;
+  @Input() id!: string;
   @Input() label!: string;
-  @Input() children: CategoryType[] | undefined = [];
+  @Input() children?: ListViewItemType[] = [];
   @Input() depth: number = 0;
   
   @Output() onClick = new EventEmitter<MouseEvent>();

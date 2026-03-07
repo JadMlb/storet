@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Suspense } from '../../components/suspense/suspense';
-import { Category } from '../../components/category/category';
+import { ListViewItem } from '../../components/list-view-item/list-view-item';
 import { CategoriesService } from '../../services/categories';
 import { ListView } from '../../components/list-view/list-view';
 import { Button } from '../../components/button/button';
@@ -8,7 +8,7 @@ import { ListViewLogicBase } from '../../common/ListViewLogicBase';
 
 @Component ({
   selector: 'categories',
-  imports: [Category, Suspense, Button, ListView],
+  imports: [ListViewItem, Suspense, Button, ListView],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })

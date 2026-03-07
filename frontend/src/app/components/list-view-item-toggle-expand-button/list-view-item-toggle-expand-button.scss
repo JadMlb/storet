@@ -6,7 +6,7 @@
 	cursor: pointer;
 }
 
-.category-toggle-expand-button
+.list-view-item-toggle-expand-button
 {
 	all: unset;
 	width: 20px;
@@ -20,10 +20,10 @@
 	{
 		background-color: theme.$colour-primary;
 	}
-}
-
-.category-toggle-expand-button > svg
-{
-	width: 15px;
-	height: 15px;
+	
+	> svg
+	{
+		width: 15px;
+		height: 15px;
+	}
 }

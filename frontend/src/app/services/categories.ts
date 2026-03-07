@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { CategoryType } from '../types/CategoryType';
+import { ListViewItemType } from '../types/ListViewItem';
 import { ActionType, Service } from './service';
 
 @Injectable ({
   providedIn: 'root',
 })
-export class CategoriesService extends Service<CategoryType[]>
+export class CategoriesService extends Service<ListViewItemType[]>
 {
   constructor ()
   {
     super ("categories");
   }
 
-  private static mapToCategoryType (data: any): CategoryType
+  private static mapToCategoryType (data: any): ListViewItemType
   {
     return {
       id: data.id,
@@ -21,7 +21,7 @@ export class CategoriesService extends Service<CategoryType[]>
     };
   }
 
-  override handleSuccess (actionType: ActionType, data: CategoryType[])
+  override handleSuccess (actionType: ActionType, data: ListViewItemType[])
   {
     let categories = data.map (CategoriesService.mapToCategoryType);
     super.handleSuccess (actionType, categories);
