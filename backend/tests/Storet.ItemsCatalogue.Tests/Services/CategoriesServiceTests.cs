@@ -2,13 +2,13 @@ using AutoMapper;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Storet.API.Contracts.Categories;
-using Storet.API.Mappers;
-using Storet.API.Models;
-using Storet.API.Repositories.Categories;
-using Storet.API.Services.Categories;
+using Storet.API.ItemsCatalogue.Contracts.Categories;
+using Storet.API.ItemsCatalogue.Mappers;
+using Storet.API.ItemsCatalogue.Models;
+using Storet.API.ItemsCatalogue.Repositories.Categories;
+using Storet.API.ItemsCatalogue.Services.Categories;
 
-namespace Storet.Tests.Services;
+namespace Storet.ItemsCatalogue.Tests.Services;
 
 public class CategoriesServiceTests
 {

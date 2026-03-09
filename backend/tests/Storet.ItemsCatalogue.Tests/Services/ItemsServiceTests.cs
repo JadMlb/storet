@@ -2,17 +2,17 @@ using AutoMapper;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Storet.API.Contracts.Items;
-using Storet.API.Exceptions;
-using Storet.API.Mappers;
-using Storet.API.Models;
-using Storet.API.Repositories.Categories;
-using Storet.API.Repositories.Items;
-using Storet.API.Repositories.ItemsCategories;
-using Storet.API.Services.Items;
-using Storet.API.Utils;
+using Storet.API.Core.Exceptions;
+using Storet.API.Core.Utils;
+using Storet.API.ItemsCatalogue.Contracts.Items;
+using Storet.API.ItemsCatalogue.Mappers;
+using Storet.API.ItemsCatalogue.Models;
+using Storet.API.ItemsCatalogue.Repositories.Categories;
+using Storet.API.ItemsCatalogue.Repositories.Items;
+using Storet.API.ItemsCatalogue.Repositories.ItemsCategories;
+using Storet.API.ItemsCatalogue.Services.Items;
 
-namespace Storet.Tests.Services;
+namespace Storet.ItemsCatalogue.Tests.Services;
 
 public class ItemsServiceTests
 {

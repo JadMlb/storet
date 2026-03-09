@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Storet.API.Contracts.Categories;
-using Storet.API.Controllers;
-using Storet.API.Services.Categories;
+using Storet.API.ItemsCatalogue.Contracts.Categories;
+using Storet.API.ItemsCatalogue.Controllers;
+using Storet.API.ItemsCatalogue.Services.Categories;
 
-namespace Storet.Tests.Controllers;
+namespace Storet.ItemsCatalogue.Tests.Controllers;
 
 public class CategoriesControllerTests
 {

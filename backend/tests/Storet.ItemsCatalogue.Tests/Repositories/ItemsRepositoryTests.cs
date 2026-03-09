@@ -1,16 +1,23 @@
 using FluentAssertions;
-using Storet.API.Models;
-using Storet.API.Repositories.Items;
-using Storet.API.Utils;
-using Storet.Tests.Repositories.Config;
+using Microsoft.EntityFrameworkCore;
+using Storet.API.Core.Utils;
+using Storet.API.ItemsCatalogue.Data;
+using Storet.API.ItemsCatalogue.Models;
+using Storet.API.ItemsCatalogue.Repositories.Items;
+using Storet.Tests.Common.Repository;
 
-namespace Storet.Tests.Repositories;
+namespace Storet.ItemsCatalogue.Tests.Repositories;
 
-public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<ItemsRepository>
+public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatalogueDbContext, ItemsRepository>
 {
 	protected override ItemsRepository InitRepository ()
 	{
 		return new ItemsRepository (context);
+	}
+	
+	protected override StoretItemsCatalogueDbContext InitDbContextWithOptions (DbContextOptions<StoretItemsCatalogueDbContext> options)
+	{
+		return new StoretItemsCatalogueDbContext (options);
 	}
 	
 	[Fact]
