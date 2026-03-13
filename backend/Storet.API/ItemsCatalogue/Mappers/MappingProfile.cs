@@ -1,6 +1,7 @@
 using AutoMapper;
 using Storet.API.ItemsCatalogue.Contracts.Categories;
 using Storet.API.ItemsCatalogue.Contracts.Items;
+using Storet.API.ItemsCatalogue.Contracts.ItemsCompositions;
 using Storet.API.ItemsCatalogue.Models;
 
 namespace Storet.API.ItemsCatalogue.Mappers;
@@ -47,14 +48,24 @@ public class MappingProfile : Profile
 		#region Items
 		CreateMap<Item, ItemResponse>()
 			.ForSourceMember (i => i.ItemCategories, opt => opt.DoNotValidate());
-		CreateMap<Item, ItemResponseWithCategories>()
-			.ForMember (i => i.Categories, opt => opt.MapFrom (i => i.ItemCategories.Select (i => i.Category)));
+		CreateMap<Item, ItemResponseDetails>()
+			.ForMember (i => i.Categories, opt => opt.MapFrom (i => i.ItemCategories.Select (i => i.Category)))
+			.ForMember (i => i.Components, opt => opt.MapFrom (i => i.Components));
+			
+		CreateMap<ItemComposition, ItemCompositionResponse>()
+			.ForMember (i => i.Id, opt => opt.MapFrom (i => i.ComponentItem.Id))
+			.ForMember (i => i.Name, opt => opt.MapFrom (i => i.ComponentItem.Name))
+			.ForMember (i => i.Description, opt => opt.MapFrom (i => i.ComponentItem.Description));
 		
 		CreateMap<ItemInsertRequest, Item>()
-			.ForMember (i => i.Id, opt => opt.Ignore());
+			.ForMember (i => i.Id, opt => opt.Ignore())
+			.ForMember (i => i.ItemCategories, opt => opt.Ignore())
+			.ForMember (i => i.Components, opt => opt.Ignore());
 		
 		CreateMap<ItemUpdateRequest, Item>()
 			.ForMember (i => i.Id, opt => opt.Ignore())
+			.ForMember (i => i.ItemCategories, opt => opt.Ignore())
+			.ForMember (i => i.Components, opt => opt.Ignore())
 			.ForAllMembers (opts => opts.Condition ((src, dest, srcMember) => srcMember != null));
 		#endregion Items
 	}

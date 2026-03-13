@@ -15,7 +15,8 @@ public class EntityNotFoundException : Exception
 	{
 		return o switch
 		{
-			List<int> list => string.Join (",", list.Select (i => i.ToString())),
+			IEnumerable<int> list => string.Join (",", list.Select (i => i.ToString())),
+			IEnumerable<Guid> list => string.Join (",", list.Select (i => i.ToString())),
 			_ => o.ToString()
 		};
 	}

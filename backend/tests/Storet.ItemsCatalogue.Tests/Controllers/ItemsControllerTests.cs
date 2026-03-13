@@ -72,7 +72,7 @@ public class ItemsControllerTests
 	public async Task GetOneWithExistsingIdShouldReturnOkWithItem ()
 	{
 		var id = Guid.NewGuid();
-		var item = new ItemResponseWithCategories
+		var item = new ItemResponseDetails
 		{
 			Id = id,
 			Name = "Laptop",
@@ -90,7 +90,7 @@ public class ItemsControllerTests
 		okResult.Should().NotBeNull();
 		okResult.StatusCode.Should().Be (200);
 		
-		var itemResponse = okResult.Value as ItemResponseWithCategories;
+		var itemResponse = okResult.Value as ItemResponseDetails;
 		itemResponse.Should().NotBeNull();
 		itemResponse.Id.Should().Be (id);
 		itemResponse.Name.Should().Be ("Laptop");
@@ -106,7 +106,7 @@ public class ItemsControllerTests
 	{
 		var id = Guid.NewGuid();
 		mockService.Setup (s => s.GetOneAsync (id))
-					.ReturnsAsync ((ItemResponseWithCategories?) null);
+					.ReturnsAsync ((ItemResponseDetails?) null);
 		
 		var result = await controller.GetOne (id);
 		var notFoundResult = result.Result;
@@ -155,6 +155,30 @@ public class ItemsControllerTests
 	}
 	
 	[Fact]
+	public async Task CreateWithInvalidComponentToCreateShouldReturnBadRequest ()
+	{
+		var item = new ItemInsertRequest
+		{
+			Name = "Item",
+			Components = [
+				new ()
+				{
+					Description = "Test"
+				}
+			]
+		};
+		
+		// manually validate since pipeline is not implemented in tests
+		ValidateModel (item);
+		
+		var result = await controller.Create (item);
+		var badRequestResult = result.Result;
+		badRequestResult.Should().BeOfType<BadRequestObjectResult>();
+		
+		mockService.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
 	public async Task CreateWithValidDataShouldReturnCreatedAtWithCreatedItem ()
 	{
 		var itemDto = new ItemInsertRequest
@@ -163,7 +187,7 @@ public class ItemsControllerTests
 			Categories = [1]
 		};
 		
-		var item = new ItemResponseWithCategories
+		var item = new ItemResponseDetails
 		{
 			Id = Guid.NewGuid(),
 			Name = "Item",
@@ -208,7 +232,7 @@ public class ItemsControllerTests
 			Description = "This is a test"
 		};
 		mockService.Setup (s => s.UpdateAsync (nonExistentItemId, updatedValues))
-					.ReturnsAsync ((ItemResponseWithCategories?) null);
+					.ReturnsAsync ((ItemResponseDetails?) null);
 		
 		ValidateModel (updatedValues);
 		var result = await controller.Update (nonExistentItemId, updatedValues);
@@ -239,6 +263,34 @@ public class ItemsControllerTests
 	}
 	
 	[Fact]
+	public async Task UpdateItemWithNonExistingItemComponentShouldReturnNotFound ()
+	{
+		var itemId = Guid.NewGuid();
+		var componentId = Guid.NewGuid();
+		var updatedValues = new ItemUpdateRequest
+		{
+			Description = "This is a test",
+			Components = [
+				new ()
+				{
+					Id = componentId,
+					Quantity = 1,
+					Unit = "unit"
+				}
+			],
+		};
+		mockService.Setup (s => s.UpdateAsync (itemId, updatedValues))
+					.ThrowsAsync (new EntityNotFoundException (nameof (Item), new List<Guid> {componentId}));
+		
+		ValidateModel (updatedValues);
+		var result = await controller.Update (itemId, updatedValues);
+		result.Result.Should().BeOfType<NotFoundObjectResult>();
+		
+		mockService.Verify (s => s.UpdateAsync (itemId, updatedValues), Times.Once());
+		mockService.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
 	public async Task UpdateItemWithValidDataShouldReturnOkWithUpdatedItem ()
 	{
 		var itemId = Guid.NewGuid();
@@ -247,7 +299,7 @@ public class ItemsControllerTests
 			Description = "This is a test",
 			Categories = [2]
 		};
-		var item = new ItemResponseWithCategories
+		var item = new ItemResponseDetails
 		{
 			Id = itemId,
 			Name = "Item",

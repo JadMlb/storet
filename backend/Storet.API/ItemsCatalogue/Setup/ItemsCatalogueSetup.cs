@@ -4,6 +4,7 @@ using Storet.API.ItemsCatalogue.Mappers;
 using Storet.API.ItemsCatalogue.Repositories.Categories;
 using Storet.API.ItemsCatalogue.Repositories.Items;
 using Storet.API.ItemsCatalogue.Repositories.ItemsCategories;
+using Storet.API.ItemsCatalogue.Repositories.ItemsCompositions;
 using Storet.API.ItemsCatalogue.Services.Categories;
 using Storet.API.ItemsCatalogue.Services.Items;
 
@@ -21,6 +22,8 @@ public static class ItemsCatalogueSetup
 		
 		services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 		services.AddScoped<ICategoriesService, CategoriesService>();
+		
+		services.AddScoped<IItemsCompositionRepository, ItemsCompositionsRepository>();
 		
 		services.AddScoped<IItemsCategoriesRepository, ItemsCategoriesRepository>();
 		services.AddScoped<IItemsRepository, ItemsRepository>();

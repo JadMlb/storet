@@ -24,7 +24,7 @@ public class ItemsController : ControllerBase
 	}
 	
 	[HttpGet ("{id:guid}")]
-	public async Task<ActionResult<ItemResponseWithCategories>> GetOne ([FromRoute] Guid id)
+	public async Task<ActionResult<ItemResponseDetails>> GetOne ([FromRoute] Guid id)
 	{
 		var item = await service.GetOneAsync (id);
 		if (item == null)
@@ -33,7 +33,7 @@ public class ItemsController : ControllerBase
 	}
 	
 	[HttpPost]
-	public async Task<ActionResult<ItemResponseWithCategories>> Create ([FromBody] ItemInsertRequest insertRequest)
+	public async Task<ActionResult<ItemResponseDetails>> Create ([FromBody] ItemInsertRequest insertRequest)
 	{
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
@@ -54,7 +54,7 @@ public class ItemsController : ControllerBase
 	}
 	
 	[HttpPut ("{id:guid}")]
-	public async Task<ActionResult<ItemResponseWithCategories>> Update ([FromRoute] Guid id, [FromBody] ItemUpdateRequest updatedValues)
+	public async Task<ActionResult<ItemResponseDetails>> Update ([FromRoute] Guid id, [FromBody] ItemUpdateRequest updatedValues)
 	{
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);

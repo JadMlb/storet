@@ -3,5 +3,5 @@ using Storet.API.ItemsCatalogue.Contracts.Items;
 
 namespace Storet.API.ItemsCatalogue.Services.Items;
 
-public interface IItemsService : IPaginatedCrudService<ItemResponse, ItemResponseWithCategories, ItemInsertRequest, ItemUpdateRequest, Guid, string>
+public interface IItemsService : IPaginatedCrudService<ItemResponse, ItemResponseDetails, ItemInsertRequest, ItemUpdateRequest, Guid, string>
 {}

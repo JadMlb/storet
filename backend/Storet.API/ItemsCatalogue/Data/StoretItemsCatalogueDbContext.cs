@@ -12,6 +12,7 @@ public class StoretItemsCatalogueDbContext : DbContext
 	public DbSet<CategoryHierarchy> CategoryHierarchies { get; set; }
 	public DbSet<Item> Items { get; set; }
 	public DbSet<ItemCategory> ItemsCategories { get; set; }
+	public DbSet<ItemComposition> ItemsCompositions { get; set; }
 
 	protected override void OnModelCreating (ModelBuilder modelBuilder)
 	{

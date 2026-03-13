@@ -9,4 +9,5 @@ public class Item
 	public string Name { get; set; } = string.Empty;
 	public string? Description { get; set; }
 	public ICollection<ItemCategory> ItemCategories { get; set; } = null!;
+	public ICollection<ItemComposition> Components { get; set; } = null!;
 }

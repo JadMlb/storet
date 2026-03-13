@@ -38,6 +38,7 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 							.AsNoTracking()
 							.Include (i => i.ItemCategories)
 							.ThenInclude (i => i.Category)
+							.Include (i => i.Components)
 							.FirstOrDefaultAsync (i => i.Id == key);
 	}
 	
@@ -46,6 +47,15 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		return await context.Items
 							.AsNoTracking()
 							.AnyAsync (i => i.Id == key);
+	}
+	
+	public async Task<bool> AllExistAsync (IEnumerable<Guid> keys)
+	{
+		var keysSet = keys.ToHashSet();
+		var numberOfExistsingIdsInDb = await context.Items
+													.AsNoTracking()
+													.CountAsync (c => keysSet.Contains (c.Id));
+		return keysSet.Count == numberOfExistsingIdsInDb;
 	}
 
 	public async Task<Item?> InsertAsync (Item model)
@@ -60,6 +70,12 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		{
 			return null;
 		}
+	}
+
+	public async Task<IEnumerable<Item>> BulkInsertAsync (IEnumerable<Item> items)
+	{
+		await context.Items.AddRangeAsync (items);
+		return items;
 	}
 
 	public async Task<Item?> UpdateAsync (Guid key, Item model)

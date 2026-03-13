@@ -10,6 +10,7 @@ using Storet.API.ItemsCatalogue.Models;
 using Storet.API.ItemsCatalogue.Repositories.Categories;
 using Storet.API.ItemsCatalogue.Repositories.Items;
 using Storet.API.ItemsCatalogue.Repositories.ItemsCategories;
+using Storet.API.ItemsCatalogue.Repositories.ItemsCompositions;
 using Storet.API.ItemsCatalogue.Services.Items;
 
 namespace Storet.ItemsCatalogue.Tests.Services;
@@ -18,6 +19,7 @@ public class ItemsServiceTests
 {
 	private readonly Mock<IItemsRepository> mockItemsRepository;
 	private readonly Mock<IItemsCategoriesRepository> mockItemsCategoriesRepository;
+	private readonly Mock<IItemsCompositionRepository> mockItemsCompositionsRepository;
 	private readonly Mock<ICategoriesRepository> mockCategoriesRepository;
 	private readonly ItemsService service;
 	private readonly IMapper mapper;
@@ -28,11 +30,12 @@ public class ItemsServiceTests
 		mockItemsRepository = new Mock<IItemsRepository>();
 		mockItemsCategoriesRepository = new Mock<IItemsCategoriesRepository>();
 		mockCategoriesRepository = new Mock<ICategoriesRepository>();
+		mockItemsCompositionsRepository = new Mock<IItemsCompositionRepository>();
 		loggerFactory = new LoggerFactory();
 		
 		var config = new MapperConfiguration (cfg => cfg.AddProfile<MappingProfile>(), loggerFactory);
 		mapper = config.CreateMapper();
-		service = new ItemsService (mockItemsRepository.Object, mockCategoriesRepository.Object, mockItemsCategoriesRepository.Object, mapper);
+		service = new ItemsService (mockItemsRepository.Object, mockCategoriesRepository.Object, mockItemsCategoriesRepository.Object, mockItemsCompositionsRepository.Object, mapper);
 	}
 	
 	[Fact]
@@ -42,8 +45,16 @@ public class ItemsServiceTests
 		
 		var itemCreateDto = new ItemInsertRequest
 		{
-			Name = "Steak",
-			Categories = [1]
+			Name = "Tea Box",
+			Categories = [1],
+			Components = [
+				new ()
+				{
+					Name = "Tea Bag",
+					Quantity = 10,
+					Unit = "unit"
+				}
+			]
 		};
 		
 		var category = new Category
@@ -67,6 +78,19 @@ public class ItemsServiceTests
 									.ReturnsAsync (
 										(IEnumerable<ItemCategory> itemCategories) => itemCategories.Count()
 									);
+		var teaBagId = Guid.NewGuid();
+		mockItemsRepository.Setup (i => i.BulkInsertAsync (It.IsAny<IEnumerable<Item>>()))
+							.ReturnsAsync (
+								[
+									new Item
+									{
+										Id = teaBagId,
+										Name = "Tea Bag"
+									}
+								]
+							);
+		mockItemsCompositionsRepository.Setup (c => c.BulkInsertAsync (It.IsAny<IEnumerable<ItemComposition>>()))
+										.ReturnsAsync (1);
 		mockItemsRepository.Setup (i => i.GetOneAsync (generatedItemId))
 							.ReturnsAsync (
 								new Item
@@ -80,21 +104,21 @@ public class ItemsServiceTests
 											ItemId = generatedItemId
 										}
 									],
-									Name = "Steak"
+									Name = "Tea Box"
 								}
 							);
 		
 		var result = await service.InsertAsync (itemCreateDto);
 		result.Should().NotBeNull();
 		result.Id.Should().NotBeEmpty();
-		result.Name.Should().Be ("Steak");
+		result.Name.Should().Be ("Tea Box");
 		
 		mockCategoriesRepository.Verify (
 			c => c.AllExistAsync (categoryIds),
 			Times.Once()
 		);
 		mockItemsRepository.Verify (
-			i => i.InsertAsync (It.Is<Item> (i => i.Name == "Steak")),
+			i => i.InsertAsync (It.Is<Item> (i => i.Name == "Tea Box")),
 			Times.Once()
 		);
 		mockItemsCategoriesRepository.Verify (
@@ -106,12 +130,21 @@ public class ItemsServiceTests
 			Times.Once()
 		);
 		mockItemsRepository.Verify (
+			i => i.BulkInsertAsync (It.Is<IEnumerable<Item>> (items => items.Count() == 1)),
+			Times.Once()
+		);
+		mockItemsCompositionsRepository.Verify (
+			c => c.BulkInsertAsync (It.Is<IEnumerable<ItemComposition>>(items => items.Count() == 1)),
+			Times.Once()
+		);
+		mockItemsRepository.Verify (
 			i => i.GetOneAsync (generatedItemId),
 			Times.Once()
 		);
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -136,6 +169,7 @@ public class ItemsServiceTests
 		mockCategoriesRepository.VerifyNoOtherCalls();
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -155,6 +189,45 @@ public class ItemsServiceTests
 		mockCategoriesRepository.VerifyNoOtherCalls();
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
+	public async Task CreateItemWithNonExistingComponentShouldThrowNotFoundException ()
+	{
+		var nonExistentComponentId = Guid.NewGuid();
+		
+		var itemCreateDto = new ItemInsertRequest
+		{
+			Name = "Tea Box",
+			Categories = [1],
+			Components = [
+				new () { Id = nonExistentComponentId, Quantity = 10, Unit = "unit"}
+			]
+		};
+		
+		mockCategoriesRepository.Setup (c => c.AllExistAsync (It.IsAny<IEnumerable<int>>()))
+								.ReturnsAsync (true);
+		mockItemsRepository.Setup (i => i.AllExistAsync (It.IsAny<IEnumerable<Guid>>()))
+							.ReturnsAsync (false);
+		
+		Func<Task> act = async () => await service.InsertAsync (itemCreateDto);
+		
+		await act.Should().ThrowAsync<EntityNotFoundException>()
+							.WithMessage ($"Item with ID {nonExistentComponentId} was not found");
+							
+		mockCategoriesRepository.Verify (
+			c => c.AllExistAsync (It.Is<IEnumerable<int>> (c => c.Contains (1))),
+			Times.Once()
+		);
+		mockItemsRepository.Verify (
+			i => i.AllExistAsync (It.Is<IEnumerable<Guid>> (i => i.Contains (nonExistentComponentId))),
+			Times.Once()
+		);
+		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsRepository.VerifyNoOtherCalls();
+		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -172,6 +245,7 @@ public class ItemsServiceTests
 		mockCategoriesRepository.VerifyNoOtherCalls();
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -222,6 +296,7 @@ public class ItemsServiceTests
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -273,6 +348,7 @@ public class ItemsServiceTests
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -344,6 +420,7 @@ public class ItemsServiceTests
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -381,6 +458,7 @@ public class ItemsServiceTests
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -433,6 +511,8 @@ public class ItemsServiceTests
 							.ReturnsAsync (true);
 		mockCategoriesRepository.Setup (c => c.AllExistAsync (newCategoriesIds))
 								.ReturnsAsync (true);
+		mockItemsCompositionsRepository.Setup (c => c.GetAllForItemAsync (itemId))
+										.ReturnsAsync ([]);
 		mockItemsRepository.Setup (c => c.UpdateAsync (itemId, It.IsAny<Item>()))
 							.ReturnsAsync (
 								(Guid itemId, Item item) =>
@@ -491,6 +571,7 @@ public class ItemsServiceTests
 		
 		mockItemsRepository.Verify (c => c.ExistsAsync (itemId), Times.Once());
 		mockCategoriesRepository.Verify (c => c.AllExistAsync (newCategoriesIds), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.GetAllForItemAsync (itemId), Times.Once());
 		mockItemsRepository.Verify (
 			c => c.UpdateAsync (
 				itemId, It.Is<Item> (i => i.Name == "New Laptop" && i.Description == "My new laptop")
@@ -513,6 +594,213 @@ public class ItemsServiceTests
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
+	public async Task UpdateItemWithNewComponentsShouldUpdateAndReturnItemWithDetails ()
+	{
+		var sugarCubeId = Guid.NewGuid();
+		var teaBagId = Guid.NewGuid();
+		var teaBag = new Item
+		{
+			Id = teaBagId,
+			Name = "Tea Bag"
+		};
+		
+		var itemUpdateDto = new ItemUpdateRequest
+		{
+			Components = [
+				new ()
+				{
+					Id = teaBagId,
+					Quantity = 10,
+					Unit = "unit"
+				}
+			]
+		};
+		
+		var food = new Category
+		{
+			Id = 1,
+			Label = "Food"
+		};
+		
+		var itemId = Guid.NewGuid();
+		
+		mockItemsRepository.Setup (i => i.ExistsAsync (itemId))
+							.ReturnsAsync (true);
+		mockItemsCompositionsRepository.Setup (c => c.GetAllForItemAsync (It.IsAny<Guid>()))
+										.ReturnsAsync ([
+											new ItemComposition
+											{
+												ParentItemId = itemId,
+												ComponentItemId = sugarCubeId,
+												Quantity = 10,
+												Unit = "unit"
+											}
+										]);
+		mockItemsRepository.Setup (i => i.AllExistAsync (It.IsAny<IEnumerable<Guid>>()))
+							.ReturnsAsync (true);
+		mockItemsRepository.Setup (c => c.UpdateAsync (itemId, It.IsAny<Item>()))
+							.ReturnsAsync (
+								(Guid itemId, Item item) =>
+								{
+									item.Id = itemId;
+									return item;
+								}
+							);
+		mockItemsCompositionsRepository.Setup (c => c.BulkDeleteForItemAsync (It.IsAny<Guid>(), It.IsAny<IEnumerable<Guid>>()))
+										.ReturnsAsync (1);
+		mockItemsCompositionsRepository.Setup (c => c.BulkInsertAsync (It.IsAny<IEnumerable<ItemComposition>>()))
+										.ReturnsAsync (1);
+		mockItemsRepository.Setup (i => i.GetOneAsync (itemId))
+							.ReturnsAsync (
+								new Item
+								{
+									Id = itemId,
+									Name = "Tea Box",
+									ItemCategories = [
+										new ()
+										{
+											ItemId = itemId,
+											CategoryId = 1,
+											Category = food
+										}
+									],
+									Components = [
+										new ()
+										{
+											ParentItemId = itemId,
+											ComponentItemId = teaBagId,
+											ComponentItem = teaBag,
+											Quantity = 10,
+											Unit = "unit"
+										}
+									]
+								}
+							);
+		
+		var result = await service.UpdateAsync (itemId, itemUpdateDto);
+		
+		result.Should().NotBeNull();
+		result.Name.Should().Be ("Tea Box");
+		result.Components.Should().HaveCount (1);
+		result.Components.Should().Contain (c => c.Id == teaBagId);
+		
+		mockItemsRepository.Verify (i => i.ExistsAsync (itemId), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.GetAllForItemAsync (It.Is<Guid> (id => id == itemId)), Times.Once());
+		mockItemsRepository.Verify (i => i.AllExistAsync (It.Is<IEnumerable<Guid>> (ids => ids.Contains (teaBagId))), Times.Once());
+		mockItemsRepository.Verify (c => c.UpdateAsync (itemId, It.IsAny<Item>()), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.BulkDeleteForItemAsync (It.IsAny<Guid>(), It.Is<IEnumerable<Guid>> (c => c.Count() == 1)), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.BulkInsertAsync (It.Is<IEnumerable<ItemComposition>> (c => c.Count() == 1)), Times.Once());
+		mockItemsRepository.Verify (i => i.GetOneAsync (itemId), Times.Once());
+		
+		mockItemsRepository.VerifyNoOtherCalls();
+		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
+	public async Task UpdateItemWithUpdatedComponentsQuantitiesOrUnitsShouldUpdateAndReturnItemWithDetails ()
+	{
+		var teaBagId = Guid.NewGuid();
+		var teaBag = new Item
+		{
+			Id = teaBagId,
+			Name = "Tea Bag"
+		};
+		
+		var itemUpdateDto = new ItemUpdateRequest
+		{
+			Components = [
+				new ()
+				{
+					Id = teaBagId,
+					Quantity = 20,
+					Unit = "unit"
+				}
+			]
+		};
+		
+		var food = new Category
+		{
+			Id = 1,
+			Label = "Food"
+		};
+		
+		var itemId = Guid.NewGuid();
+		
+		mockItemsRepository.Setup (i => i.ExistsAsync (itemId))
+							.ReturnsAsync (true);
+		mockItemsCompositionsRepository.Setup (c => c.GetAllForItemAsync (It.IsAny<Guid>()))
+										.ReturnsAsync ([
+											new ItemComposition
+											{
+												ParentItemId = itemId,
+												ComponentItemId = teaBagId,
+												Quantity = 10,
+												Unit = "unit"
+											}
+										]);
+		mockItemsRepository.Setup (i => i.AllExistAsync (It.IsAny<IEnumerable<Guid>>()))
+							.ReturnsAsync (true);
+		mockItemsRepository.Setup (c => c.UpdateAsync (itemId, It.IsAny<Item>()))
+							.ReturnsAsync (
+								(Guid itemId, Item item) =>
+								{
+									item.Id = itemId;
+									return item;
+								}
+							);
+		mockItemsCompositionsRepository.Setup (c => c.UpdateAsync (itemId, teaBagId, 20, "unit"))
+										.ReturnsAsync (true);
+		mockItemsRepository.Setup (i => i.GetOneAsync (itemId))
+							.ReturnsAsync (
+								new Item
+								{
+									Id = itemId,
+									Name = "Tea Box",
+									ItemCategories = [
+										new ()
+										{
+											ItemId = itemId,
+											CategoryId = 1,
+											Category = food
+										}
+									],
+									Components = [
+										new ()
+										{
+											ParentItemId = itemId,
+											ComponentItemId = teaBagId,
+											ComponentItem = teaBag,
+											Quantity = 20,
+											Unit = "unit"
+										}
+									]
+								}
+							);
+		
+		var result = await service.UpdateAsync (itemId, itemUpdateDto);
+		
+		result.Should().NotBeNull();
+		result.Name.Should().Be ("Tea Box");
+		result.Components.Should().HaveCount (1);
+		result.Components.Should().Contain (c => c.Id == teaBagId && c.Quantity == 20);
+		
+		mockItemsRepository.Verify (i => i.ExistsAsync (itemId), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.GetAllForItemAsync (It.Is<Guid> (id => id == itemId)), Times.Once());
+		mockItemsRepository.Verify (i => i.AllExistAsync (It.Is<IEnumerable<Guid>> (ids => ids.Contains (teaBagId))), Times.Once());
+		mockItemsRepository.Verify (c => c.UpdateAsync (itemId, It.IsAny<Item>()), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.UpdateAsync (itemId, teaBagId, 20, "unit"), Times.Once());
+		mockItemsRepository.Verify (i => i.GetOneAsync (itemId), Times.Once());
+		
+		mockItemsRepository.VerifyNoOtherCalls();
+		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -520,6 +808,8 @@ public class ItemsServiceTests
 	{
 		var nonExistentItemId = Guid.NewGuid();
 		mockItemsCategoriesRepository.Setup (ic => ic.DeleteAllForItemAsync (nonExistentItemId))
+									.ReturnsAsync (0);
+		mockItemsCompositionsRepository.Setup (ic => ic.DeleteAllForItemAsync (nonExistentItemId))
 									.ReturnsAsync (0);
 		mockItemsRepository.Setup (i => i.DeleteAsync (nonExistentItemId))
 							.ReturnsAsync (false);
@@ -530,9 +820,11 @@ public class ItemsServiceTests
 		
 		mockItemsRepository.Verify (i => i.DeleteAsync (nonExistentItemId), Times.Once());
 		mockItemsCategoriesRepository.Verify (i => i.DeleteAllForItemAsync (nonExistentItemId), Times.Once());
+		mockItemsCompositionsRepository.Verify (i => i.DeleteAllForItemAsync (nonExistentItemId), Times.Once());
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 	
 	[Fact]
@@ -541,6 +833,8 @@ public class ItemsServiceTests
 		var itemId = Guid.NewGuid();
 		mockItemsCategoriesRepository.Setup (ic => ic.DeleteAllForItemAsync (itemId))
 									.ReturnsAsync (2);
+		mockItemsCompositionsRepository.Setup (ic => ic.DeleteAllForItemAsync (itemId))
+										.ReturnsAsync (2);
 		mockItemsRepository.Setup (i => i.DeleteAsync (itemId))
 							.ReturnsAsync (true);
 							
@@ -550,8 +844,10 @@ public class ItemsServiceTests
 		
 		mockItemsRepository.Verify (i => i.DeleteAsync (itemId), Times.Once());
 		mockItemsCategoriesRepository.Verify (i => i.DeleteAllForItemAsync (itemId), Times.Once());
+		mockItemsCompositionsRepository.Verify (i => i.DeleteAllForItemAsync (itemId), Times.Once());
 		mockItemsRepository.VerifyNoOtherCalls();
 		mockItemsCategoriesRepository.VerifyNoOtherCalls();
 		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
 	}
 }

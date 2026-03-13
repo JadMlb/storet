@@ -1,5 +1,3 @@
-using Storet.API.ItemsCatalogue.Contracts.Categories;
-
 namespace Storet.API.ItemsCatalogue.Contracts.Items;
 
 public class ItemResponse
