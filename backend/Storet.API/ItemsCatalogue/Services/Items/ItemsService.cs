@@ -65,9 +65,9 @@ public class ItemsService : IItemsService
 	/// <param name = "newItemsToBeCreated">The list of item component models to be created in the database and added to the item</param>
 	/// <exception cref = "EntityNotFoundException">Thrown if <paramref name = "providedExistingItemIds"/> contains one or many non existing item ids.</exception>
 	/// <exception cref = "ArgumentException">Thrown if <paramref name = "newItemsToBeCreated"/> contains an invalid model to create the item</exception>
-	private async Task<(Dictionary<Guid, (short, string)> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (IEnumerable<ItemCompositionRequest>? components)
+	private async Task<(Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (IEnumerable<ItemCompositionRequest>? components)
 	{
-		Dictionary<Guid, (short, string)> providedExistingItemIds = [];
+		Dictionary<Guid, short> providedExistingItemIds = [];
 		IEnumerable<ItemCompositionRequest> newItemsToBeCreated = [];
 		
 		if (components != null && components.Any())
@@ -75,7 +75,7 @@ public class ItemsService : IItemsService
 			providedExistingItemIds = components.Where (c => c.Id != null)
 												.ToDictionary (
 													c => c.Id!.Value,
-													c => (c.Quantity, c.Unit)
+													c => c.Quantity
 												);
 			
 			if (providedExistingItemIds.Keys.Count > 0)
@@ -89,7 +89,6 @@ public class ItemsService : IItemsService
 			var invalidItemsExist = newItemsToBeCreated.Any (
 															i => string.IsNullOrWhiteSpace (i.Name)
 																|| i.Quantity < 1
-																|| string.IsNullOrWhiteSpace (i.Unit)
 														);
 			if (invalidItemsExist)
 				throw new ArgumentException ("Non existent item component must have all required fields in order to be added correctly");
@@ -98,7 +97,7 @@ public class ItemsService : IItemsService
 		return (providedExistingItemIds, newItemsToBeCreated);
 	}
 	
-	private async Task<(IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, (short, string)> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (Guid itemId, IEnumerable<ItemCompositionRequest>? components)
+	private async Task<(IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (Guid itemId, IEnumerable<ItemCompositionRequest>? components)
 	{
 		var rawComponents = await itemsCompositionRepository.GetAllForItemAsync (itemId);
 		
@@ -106,8 +105,7 @@ public class ItemsService : IItemsService
 										c => new ItemCompositionRequest
 											{
 												Id = c.ComponentItemId,
-												Quantity = c.Quantity,
-												Unit = c.Unit
+												Quantity = c.Quantity
 											}
 										);
 		
@@ -128,7 +126,7 @@ public class ItemsService : IItemsService
 		var insertedCategories = await itemsCategoriesRepository.BulkInsertAsync (itemsCategories);
 	}
 	
-	private async Task<IEnumerable<ItemComposition>> MergeComponentsForItem (Guid itemId, Dictionary<Guid, (short, string)> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
+	private async Task<IEnumerable<ItemComposition>> MergeComponentsForItem (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
 	{
 		IEnumerable<ItemComposition> itemsCompositionsToBeAdded = [];
 		if (newItemsToBeCreated.Any())
@@ -143,8 +141,7 @@ public class ItemsService : IItemsService
 													{
 														ParentItemId = itemId,
 														ComponentItemId = created.Id,
-														Quantity = composition.Quantity,
-														Unit = composition.Unit
+														Quantity = composition.Quantity
 													}
 												);
 		}
@@ -156,8 +153,7 @@ public class ItemsService : IItemsService
 												{
 													ParentItemId = itemId,
 													ComponentItemId = kv.Key,
-													Quantity = kv.Value.Item1,
-													Unit = kv.Value.Item2
+													Quantity = kv.Value
 												}
 											)
 										);
@@ -165,7 +161,7 @@ public class ItemsService : IItemsService
 		return itemsCompositionsToBeAdded;
 	}
 	
-	private async Task InsertItemComponents (Guid itemId, Dictionary<Guid, (short, string)> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
+	private async Task InsertItemComponents (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
 	{
 		var itemsCompositionsToBeAdded = await MergeComponentsForItem (itemId, providedExistingItemIds, newItemsToBeCreated);
 		
@@ -173,10 +169,10 @@ public class ItemsService : IItemsService
 			await itemsCompositionRepository.BulkInsertAsync (itemsCompositionsToBeAdded);
 	}
 	
-	private static (IEnumerable<Guid> removedIds, Dictionary<Guid, (short, string)> updatedValues) GetComponentsDiffForItem (IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, (short, string)> providedExistingItemIds)
+	private static (IEnumerable<Guid> removedIds, Dictionary<Guid, short> updatedValues) GetComponentsDiffForItem (IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, short> providedExistingItemIds)
 	{
 		IEnumerable<Guid> removedIds = [];
-		Dictionary<Guid, (short, string)> updatedValues = [];
+		Dictionary<Guid, short> updatedValues = [];
 		
 		if (oldComposition == null || !oldComposition.Any())
 			return (removedIds, updatedValues);
@@ -189,15 +185,12 @@ public class ItemsService : IItemsService
 		
 		var oldCompositionDict = oldComposition.ToDictionary (
 									c => c.Id!.Value,
-									c => (c.Quantity, c.Unit)
+									c => c.Quantity
 								);
 		
 		updatedValues = providedExistingItemIds.Where (
 							pair => oldCompositionDict.ContainsKey (pair.Key)
-									&& (
-										oldCompositionDict.GetValueOrDefault(pair.Key)!.Item1 != pair.Value.Item1
-										|| oldCompositionDict.GetValueOrDefault(pair.Key)!.Item2 != pair.Value.Item2
-									)
+									&& oldCompositionDict.GetValueOrDefault(pair.Key)! != pair.Value
 						)
 						.ToDictionary (
 							p => p.Key,
@@ -210,14 +203,14 @@ public class ItemsService : IItemsService
 		return (removedIds, updatedValues);
 	}
 	
-	private async Task UpdateComponentsForItem (Guid itemId, IEnumerable<ItemCompositionRequest>? oldComponents, Dictionary<Guid, (short, string)> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
+	private async Task UpdateComponentsForItem (Guid itemId, IEnumerable<ItemCompositionRequest>? oldComponents, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
 	{
 		var (removedItemComponents, updatedValues) = GetComponentsDiffForItem (oldComponents, providedExistingItemIds);
 		if (removedItemComponents.Any())
 			await itemsCompositionRepository.BulkDeleteForItemAsync (itemId, removedItemComponents);
 		if (updatedValues.Count != 0)
 			foreach (var modification in updatedValues)
-				await itemsCompositionRepository.UpdateAsync (itemId, modification.Key, modification.Value.Item1, modification.Value.Item2);
+				await itemsCompositionRepository.UpdateAsync (itemId, modification.Key, modification.Value);
 		
 		await InsertItemComponents (itemId, providedExistingItemIds, newItemsToBeCreated);
 	}
@@ -226,6 +219,8 @@ public class ItemsService : IItemsService
 	{
 		if (model.Categories.Count < 1)
 			throw new ArgumentException ("Item must be created with at least 1 category");
+		if (model.Quantity <= 0)
+			throw new ArgumentException ("Item must have a positive quantity");
 			
 		var allCategoriesExist = await categoriesRepository.AllExistAsync (model.Categories);
 		if (!allCategoriesExist)

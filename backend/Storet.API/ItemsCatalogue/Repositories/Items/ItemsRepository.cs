@@ -25,7 +25,7 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 			
 		var previousCursorItem = await context.Items
 												.AsNoTracking()
-												.Where (i => String.Compare (i.Name, query.Key) < 0)
+												.Where (i => string.Compare (i.Name, query.Key) < 0)
 												.OrderByDescending (i => i.Name)
 												.Take (query.PageSize + 1)
 												.FirstOrDefaultAsync();
@@ -39,6 +39,7 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 							.Include (i => i.ItemCategories)
 							.ThenInclude (i => i.Category)
 							.Include (i => i.Components)
+							.ThenInclude (i => i.ComponentItem)
 							.FirstOrDefaultAsync (i => i.Id == key);
 	}
 	
@@ -87,6 +88,8 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 
 		existing.Name = model.Name;
 		existing.Description = model.Description;
+		existing.Quantity = model.Quantity;
+		existing.Unit = model.Unit;
 
 		try
 		{

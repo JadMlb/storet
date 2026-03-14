@@ -26,7 +26,9 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		var item = new Item
 		{
 			Name = "Laptop",
-			Description = "My laptop"
+			Description = "My laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 
 		var result = await repository.InsertAsync (item);
@@ -35,11 +37,15 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		result.Id.Should().NotBe (Guid.Empty);
 		result.Name.Should().Be ("Laptop");
 		result.Description.Should().Be ("My laptop");
+		result.Quantity.Should().Be (1);
+		result.Unit.Should().Be (Unit.Unit);
 
 		var savedItem = await context.Items.FindAsync (result.Id);
 		savedItem.Should().NotBeNull();
 		savedItem.Name.Should().Be ("Laptop");
 		savedItem.Description.Should().Be ("My laptop");
+		savedItem.Quantity.Should().Be (1);
+		savedItem.Unit.Should().Be (Unit.Unit);
 	}
 
 	[Fact]
@@ -54,13 +60,13 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 
 		var items = new List<Item>
 		{
-			new () {Name = "Apple"},
-			new () {Name = "Banana"},
-			new () {Name = "Chicken breasts"},
-			new () {Name = "Orange"},
-			new () {Name = "Rice"},
-			new () {Name = "Steak"},
-			new () {Name = "Sugar"},
+			new () {Name = "Apple", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Banana", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Chicken breasts", Quantity = 400, Unit = Unit.Gram},
+			new () {Name = "Orange", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Rice", Quantity = 200, Unit = Unit.Gram},
+			new () {Name = "Steak", Quantity = 400, Unit = Unit.Gram},
+			new () {Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
 		};
 		await context.Items.AddRangeAsync (items);
 		await context.SaveChangesAsync();
@@ -90,16 +96,16 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 
 		var items = new List<Item>
 		{
-			new () {Name = "Apple"},
-			new () {Name = "Banana"},
-			new () {Name = "Chicken breasts"},
-			new () {Name = "Chocolate"},
-			new () {Name = "Lemon"},
-			new () {Name = "Orange"},
-			new () {Name = "Rice"},
-			new () {Name = "Steak"},
-			new () {Name = "Sugar"},
-			new () {Name = "Tea"},
+			new () {Name = "Apple", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Banana", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Chicken breasts", Quantity = 400, Unit = Unit.Gram},
+			new () {Name = "Chocolate", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Lemon", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Orange", Quantity = 1, Unit = Unit.Unit},
+			new () {Name = "Rice", Quantity = 200, Unit = Unit.Gram},
+			new () {Name = "Steak", Quantity = 400, Unit = Unit.Gram},
+			new () {Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Name = "Tea", Quantity = 1, Unit = Unit.Unit},
 		};
 		await context.Items.AddRangeAsync (items);
 		await context.SaveChangesAsync();
@@ -131,7 +137,9 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		var item = new Item
 		{
 			Name = "Laptop",
-			Description = "My laptop"
+			Description = "My laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (item);
 		await context.SaveChangesAsync();
@@ -149,6 +157,8 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		result.Id.Should().Be (item.Id);
 		result.Name.Should().Be ("Laptop");
 		result.Description.Should().Be ("My laptop");
+		result.Quantity.Should().Be (1);
+		result.Unit.Should().Be (Unit.Unit);
 		result.ItemCategories.Should().NotBeEmpty();
 		result.ItemCategories.Should().HaveCount (1);
 		result.ItemCategories.First().Should().NotBeNull();
@@ -176,7 +186,9 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		var item = new Item
 		{
 			Name = "Laptop",
-			Description = "My laptop"
+			Description = "My laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (item);
 		await context.SaveChangesAsync();
@@ -200,24 +212,29 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		var item = new Item
 		{
 			Name = "Laptop",
-			Description = "My Laptop"
+			Description = "My Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (item);
 		await context.SaveChangesAsync();
 
 		item.Description = null;
 		item.Name = "My laptop";
+		item.Quantity = 2;
 
 		var result = await repository.UpdateAsync (item.Id, item);
 		
 		result.Should().NotBeNull();
 		result.Description.Should().BeNull();
 		result.Name.Should().Be ("My laptop");
+		result.Quantity.Should().Be (2);
 
 		var updated = await context.Items.FindAsync (item.Id);
 		updated.Should().NotBeNull();
 		updated.Name.Should().Be ("My laptop");
 		updated.Description.Should().BeNull();
+		updated.Quantity.Should().Be (2);
 	}
 	
 	[Fact]
@@ -226,7 +243,9 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		var item = new Item
 		{
 			Name = "Laptop",
-			Description = "My Laptop"
+			Description = "My Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (item);
 		await context.SaveChangesAsync();

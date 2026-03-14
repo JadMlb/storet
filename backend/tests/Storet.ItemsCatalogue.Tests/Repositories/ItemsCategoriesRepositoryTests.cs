@@ -30,11 +30,15 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		var phone = new Item
 		{
-			Name = "Phone"
+			Name = "Phone",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
 		await context.SaveChangesAsync();
@@ -87,7 +91,9 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	{
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
@@ -116,7 +122,9 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
@@ -150,7 +158,9 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
@@ -190,7 +200,9 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
@@ -231,11 +243,15 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		var phone = new Item
 		{
-			Name = "Phone"
+			Name = "Phone",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
 		await context.SaveChangesAsync();
@@ -279,11 +295,15 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		var phone = new Item
 		{
-			Name = "Phone"
+			Name = "Phone",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
 		await context.SaveChangesAsync();
@@ -329,7 +349,9 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		
 		var laptop = new Item
 		{
-			Name = "Laptop"
+			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();

@@ -34,6 +34,8 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		{
 			Id = componentItemId,
 			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			ItemCategories = [
 				new () {ItemId = componentItemId, CategoryId = 1}
 			]
@@ -44,6 +46,8 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		{
 			Id = parentItemId,
 			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			ItemCategories = [
 				new () {ItemId = componentItemId, CategoryId = 1}
 			]
@@ -53,7 +57,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		
 		var itemCompositions = new List<ItemComposition>
 		{
-			new () {ParentItemId = parentItemId, ComponentItemId = componentItemId, Quantity = 10, Unit = "unit"},
+			new () {ParentItemId = parentItemId, ComponentItemId = componentItemId, Quantity = 10},
 		};
 
 		var result = await repository.BulkInsertAsync (itemCompositions);
@@ -65,7 +69,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 									.ToListAsync();
 		saved.Should().NotBeNull();
 		saved.Should().HaveCount (1);
-		saved.Should().Contain (i => i.ComponentItemId == componentItemId && i.Quantity == 10 && i.Unit == "unit");
+		saved.Should().Contain (i => i.ComponentItemId == componentItemId && i.Quantity == 10);
 	}
 	
 	[Fact]
@@ -73,7 +77,9 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var component = new Item
 		{
-			Name = "Component"
+			Name = "Component",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (component);
 		await context.SaveChangesAsync();
@@ -81,7 +87,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		var nonExistentItemId = Guid.NewGuid();
 		var itemComponents = new List<ItemComposition>
 		{
-			new () {ParentItemId = nonExistentItemId, ComponentItemId = component.Id, Quantity = 1, Unit = "unit"}
+			new () {ParentItemId = nonExistentItemId, ComponentItemId = component.Id, Quantity = 1}
 		};
 
 		Func<Task> act = async () => await repository.BulkInsertAsync (itemComponents);
@@ -97,7 +103,9 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var parent = new Item
 		{
-			Name = "Parent"
+			Name = "Parent",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddAsync (parent);
 		await context.SaveChangesAsync();
@@ -105,7 +113,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		var nonExistentItemId = Guid.NewGuid();
 		var itemComponents = new List<ItemComposition>
 		{
-			new () {ParentItemId = parent.Id, ComponentItemId = nonExistentItemId, Quantity = 1, Unit = "unit"}
+			new () {ParentItemId = parent.Id, ComponentItemId = nonExistentItemId, Quantity = 1}
 		};
 
 		Func<Task> act = async () => await repository.BulkInsertAsync (itemComponents);
@@ -121,12 +129,16 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var parent = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var component = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (parent, component);
 		await context.SaveChangesAsync();
@@ -135,8 +147,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		{
 			ParentItemId = parent.Id,
 			ComponentItemId = component.Id,
-			Quantity = 10,
-			Unit = "unit"
+			Quantity = 10
 		};
 		await context.ItemsCompositions.AddAsync (composition);
 		await context.SaveChangesAsync();
@@ -151,12 +162,16 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var parent = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var component = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (parent, component);
 		await context.SaveChangesAsync();
@@ -165,8 +180,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		{
 			ParentItemId = parent.Id,
 			ComponentItemId = component.Id,
-			Quantity = 10,
-			Unit = "unit"
+			Quantity = 10
 		};
 		await context.ItemsCompositions.AddAsync (composition);
 		await context.SaveChangesAsync();
@@ -193,12 +207,16 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var parent = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var component = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (parent, component);
 		await context.SaveChangesAsync();
@@ -207,8 +225,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		{
 			ParentItemId = parent.Id,
 			ComponentItemId = component.Id,
-			Quantity = 10,
-			Unit = "unit"
+			Quantity = 10
 		};
 		await context.ItemsCompositions.AddAsync (composition);
 		await context.SaveChangesAsync();
@@ -230,12 +247,16 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var parent = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var component = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (parent, component);
 		await context.SaveChangesAsync();
@@ -244,8 +265,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		{
 			ParentItemId = parent.Id,
 			ComponentItemId = component.Id,
-			Quantity = 10,
-			Unit = "unit"
+			Quantity = 10
 		};
 		await context.ItemsCompositions.AddAsync (composition);
 		await context.SaveChangesAsync();
@@ -268,22 +288,30 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var teaBox = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var teaBag = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var sugarBox = new Item
 		{
-			Name = "Sugar Box"
+			Name = "Sugar Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var sugarCube = new Item
 		{
-			Name = "Sugar Cube"
+			Name = "Sugar Cube",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (teaBox, teaBag, sugarBox, sugarCube);
 		await context.SaveChangesAsync();
@@ -294,15 +322,13 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 			{
 				ParentItemId = teaBox.Id,
 				ComponentItemId = teaBag.Id,
-				Quantity = 10,
-				Unit = "unit"
+				Quantity = 10
 			},
 			new ()
 			{
 				ParentItemId = sugarBox.Id,
 				ComponentItemId = sugarCube.Id,
-				Quantity = 100,
-				Unit = "unit"
+				Quantity = 100
 			},
 		};
 		await context.ItemsCompositions.AddRangeAsync (compositions);
@@ -327,22 +353,30 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var teaBox = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var teaBag = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var sugarBox = new Item
 		{
-			Name = "Sugar Box"
+			Name = "Sugar Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var sugarCube = new Item
 		{
-			Name = "Sugar Cube"
+			Name = "Sugar Cube",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (teaBox, teaBag, sugarBox, sugarCube);
 		await context.SaveChangesAsync();
@@ -353,15 +387,13 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 			{
 				ParentItemId = teaBox.Id,
 				ComponentItemId = teaBag.Id,
-				Quantity = 10,
-				Unit = "unit"
+				Quantity = 10
 			},
 			new ()
 			{
 				ParentItemId = sugarBox.Id,
 				ComponentItemId = sugarCube.Id,
-				Quantity = 100,
-				Unit = "unit"
+				Quantity = 100
 			},
 		};
 		await context.ItemsCompositions.AddRangeAsync (compositions);
@@ -386,22 +418,30 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	{
 		var teaBox = new Item
 		{
-			Name = "Tea Box"
+			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var teaBag = new Item
 		{
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var sugarBox = new Item
 		{
-			Name = "Sugar Box"
+			Name = "Sugar Box",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var sugarCube = new Item
 		{
-			Name = "Sugar Cube"
+			Name = "Sugar Cube",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		await context.Items.AddRangeAsync (teaBox, teaBag, sugarBox, sugarCube);
 		await context.SaveChangesAsync();
@@ -412,15 +452,13 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 			{
 				ParentItemId = teaBox.Id,
 				ComponentItemId = teaBag.Id,
-				Quantity = 10,
-				Unit = "unit"
+				Quantity = 10
 			},
 			new ()
 			{
 				ParentItemId = sugarBox.Id,
 				ComponentItemId = sugarCube.Id,
-				Quantity = 100,
-				Unit = "unit"
+				Quantity = 100
 			},
 		};
 		await context.ItemsCompositions.AddRangeAsync (compositions);
@@ -433,7 +471,6 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		result.Should().Contain (i => i.ParentItemId == teaBox.Id && i.ComponentItemId == teaBag.Id);
 		result.First().ComponentItem.Should().NotBeNull();
 		result.First().Quantity.Should().Be (10);
-		result.First().Unit.Should().Be ("unit");
 	}
 	
 	[Fact]

@@ -39,6 +39,26 @@ public class ItemsServiceTests
 	}
 	
 	[Fact]
+	public async Task CreateItemWithZeroOrLessQuantityShouldThrowArgumentException ()
+	{
+		var item = new ItemInsertRequest
+		{
+			Name = "Chicken breasts",
+			Unit = Unit.Gram
+		};
+		
+		Func<Task> act = async () => await service.InsertAsync (item);
+		
+		await act.Should().ThrowAsync<ArgumentException>()
+							.WithMessage ("Item must have a positive quantity");
+		
+		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsRepository.VerifyNoOtherCalls();
+		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
 	public async Task CreateItemWithValidDataShouldCreateItem ()
 	{
 		var categoryIds = new List<int> {1};
@@ -46,13 +66,14 @@ public class ItemsServiceTests
 		var itemCreateDto = new ItemInsertRequest
 		{
 			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Categories = [1],
 			Components = [
 				new ()
 				{
 					Name = "Tea Bag",
-					Quantity = 10,
-					Unit = "unit"
+					Quantity = 10
 				}
 			]
 		};
@@ -85,7 +106,9 @@ public class ItemsServiceTests
 									new Item
 									{
 										Id = teaBagId,
-										Name = "Tea Bag"
+										Name = "Tea Bag",
+										Quantity = 1,
+										Unit = Unit.Unit
 									}
 								]
 							);
@@ -154,6 +177,8 @@ public class ItemsServiceTests
 		var itemCreateDto = new ItemInsertRequest
 		{
 			Name = "Steak",
+			Quantity = 400,
+			Unit = Unit.Gram,
 			Categories = [999]
 		};
 		
@@ -178,6 +203,8 @@ public class ItemsServiceTests
 		var itemCreateDto = new ItemInsertRequest
 		{
 			Name = "Steak",
+			Quantity = 400,
+			Unit = Unit.Gram,
 			Categories = []
 		};
 		
@@ -200,9 +227,11 @@ public class ItemsServiceTests
 		var itemCreateDto = new ItemInsertRequest
 		{
 			Name = "Tea Box",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Categories = [1],
 			Components = [
-				new () { Id = nonExistentComponentId, Quantity = 10, Unit = "unit"}
+				new () {Id = nonExistentComponentId, Quantity = 10}
 			]
 		};
 		
@@ -258,16 +287,16 @@ public class ItemsServiceTests
 		
 		var items = new List<Item>
 		{
-			new () {Id = Guid.NewGuid(), Name = "Apple"},
-			new () {Id = Guid.NewGuid(), Name = "Banana"},
-			new () {Id = Guid.NewGuid(), Name = "Chicken breasts"},
-			new () {Id = Guid.NewGuid(), Name = "Chocolate"},
-			new () {Id = Guid.NewGuid(), Name = "Lemon"},
-			new () {Id = Guid.NewGuid(), Name = "Orange"},
-			new () {Id = Guid.NewGuid(), Name = "Rice"},
-			new () {Id = Guid.NewGuid(), Name = "Steak"},
-			new () {Id = Guid.NewGuid(), Name = "Sugar"},
-			new () {Id = Guid.NewGuid(), Name = "Tea"},
+			new () {Id = Guid.NewGuid(), Name = "Apple", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Banana", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Chicken breasts", Quantity = 500, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Chocolate", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Lemon", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Orange", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Rice", Quantity = 100, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Steak", Quantity = 500, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Tea", Quantity = 1, Unit = Unit.Unit},
 		};
 		
 		mockItemsRepository.Setup (i => i.GetAllAsync (It.IsAny<Query<string>>()))
@@ -310,16 +339,16 @@ public class ItemsServiceTests
 		
 		var items = new List<Item>
 		{
-			new () {Id = Guid.NewGuid(), Name = "Apple"},
-			new () {Id = Guid.NewGuid(), Name = "Banana"},
-			new () {Id = Guid.NewGuid(), Name = "Chicken breasts"},
-			new () {Id = Guid.NewGuid(), Name = "Chocolate"},
-			new () {Id = Guid.NewGuid(), Name = "Lemon"},
-			new () {Id = Guid.NewGuid(), Name = "Orange"},
-			new () {Id = Guid.NewGuid(), Name = "Rice"},
-			new () {Id = Guid.NewGuid(), Name = "Steak"},
-			new () {Id = Guid.NewGuid(), Name = "Sugar"},
-			new () {Id = Guid.NewGuid(), Name = "Tea"},
+			new () {Id = Guid.NewGuid(), Name = "Apple", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Banana", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Chicken breasts", Quantity = 500, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Chocolate", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Lemon", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Orange", Quantity = 1, Unit = Unit.Unit},
+			new () {Id = Guid.NewGuid(), Name = "Rice", Quantity = 100, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Steak", Quantity = 500, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Tea", Quantity = 1, Unit = Unit.Unit},
 		};
 		
 		mockItemsRepository.Setup (i => i.GetAllAsync (It.IsAny<Query<string>>()))
@@ -371,6 +400,8 @@ public class ItemsServiceTests
 		{
 			Id = itemId,
 			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			ItemCategories = [
 				new ()
 				{
@@ -392,6 +423,8 @@ public class ItemsServiceTests
 		
 		result.Should().NotBeNull();
 		result.Name.Should().Be ("Laptop");
+		result.Quantity.Should().Be (1);
+		result.Unit.Should().Be (Unit.Unit);
 		result.Categories.Should().HaveCount (1);
 		result.Categories.First().Id.Should().Be (1);
 		result.Categories.First().Label.Should().Be ("Electronics");
@@ -468,6 +501,8 @@ public class ItemsServiceTests
 		{
 			Name = "New Laptop",
 			Description = "My new laptop",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Categories = [2, 3]
 		};
 		
@@ -520,6 +555,8 @@ public class ItemsServiceTests
 									item.Id = itemId;
 									item.Name = itemUpdateDto.Name;
 									item.Description = itemUpdateDto.Description;
+									item.Quantity = 1;
+									item.Unit = Unit.Unit;
 									return item;
 								}
 							);
@@ -543,6 +580,8 @@ public class ItemsServiceTests
 									Id = itemId,
 									Name = "New Laptop",
 									Description = "My new laptop",
+									Quantity = 1,
+									Unit = Unit.Unit,
 									ItemCategories = [
 										new ()
 										{
@@ -605,7 +644,9 @@ public class ItemsServiceTests
 		var teaBag = new Item
 		{
 			Id = teaBagId,
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit,
 		};
 		
 		var itemUpdateDto = new ItemUpdateRequest
@@ -614,8 +655,7 @@ public class ItemsServiceTests
 				new ()
 				{
 					Id = teaBagId,
-					Quantity = 10,
-					Unit = "unit"
+					Quantity = 10
 				}
 			]
 		};
@@ -636,8 +676,7 @@ public class ItemsServiceTests
 											{
 												ParentItemId = itemId,
 												ComponentItemId = sugarCubeId,
-												Quantity = 10,
-												Unit = "unit"
+												Quantity = 10
 											}
 										]);
 		mockItemsRepository.Setup (i => i.AllExistAsync (It.IsAny<IEnumerable<Guid>>()))
@@ -647,6 +686,8 @@ public class ItemsServiceTests
 								(Guid itemId, Item item) =>
 								{
 									item.Id = itemId;
+									item.Quantity = 1;
+									item.Unit = Unit.Unit;
 									return item;
 								}
 							);
@@ -660,6 +701,8 @@ public class ItemsServiceTests
 								{
 									Id = itemId,
 									Name = "Tea Box",
+									Quantity = 1,
+									Unit = Unit.Unit,
 									ItemCategories = [
 										new ()
 										{
@@ -674,8 +717,7 @@ public class ItemsServiceTests
 											ParentItemId = itemId,
 											ComponentItemId = teaBagId,
 											ComponentItem = teaBag,
-											Quantity = 10,
-											Unit = "unit"
+											Quantity = 10
 										}
 									]
 								}
@@ -685,6 +727,8 @@ public class ItemsServiceTests
 		
 		result.Should().NotBeNull();
 		result.Name.Should().Be ("Tea Box");
+		result.Quantity.Should().Be (1);
+		result.Unit.Should().Be (Unit.Unit);
 		result.Components.Should().HaveCount (1);
 		result.Components.Should().Contain (c => c.Id == teaBagId);
 		
@@ -709,7 +753,9 @@ public class ItemsServiceTests
 		var teaBag = new Item
 		{
 			Id = teaBagId,
-			Name = "Tea Bag"
+			Name = "Tea Bag",
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var itemUpdateDto = new ItemUpdateRequest
@@ -718,8 +764,7 @@ public class ItemsServiceTests
 				new ()
 				{
 					Id = teaBagId,
-					Quantity = 20,
-					Unit = "unit"
+					Quantity = 20
 				}
 			]
 		};
@@ -740,8 +785,7 @@ public class ItemsServiceTests
 											{
 												ParentItemId = itemId,
 												ComponentItemId = teaBagId,
-												Quantity = 10,
-												Unit = "unit"
+												Quantity = 10
 											}
 										]);
 		mockItemsRepository.Setup (i => i.AllExistAsync (It.IsAny<IEnumerable<Guid>>()))
@@ -751,10 +795,12 @@ public class ItemsServiceTests
 								(Guid itemId, Item item) =>
 								{
 									item.Id = itemId;
+									item.Quantity = 1;
+									item.Unit = Unit.Unit;
 									return item;
 								}
 							);
-		mockItemsCompositionsRepository.Setup (c => c.UpdateAsync (itemId, teaBagId, 20, "unit"))
+		mockItemsCompositionsRepository.Setup (c => c.UpdateAsync (itemId, teaBagId, 20))
 										.ReturnsAsync (true);
 		mockItemsRepository.Setup (i => i.GetOneAsync (itemId))
 							.ReturnsAsync (
@@ -762,6 +808,8 @@ public class ItemsServiceTests
 								{
 									Id = itemId,
 									Name = "Tea Box",
+									Quantity = 1,
+									Unit = Unit.Unit,
 									ItemCategories = [
 										new ()
 										{
@@ -776,8 +824,7 @@ public class ItemsServiceTests
 											ParentItemId = itemId,
 											ComponentItemId = teaBagId,
 											ComponentItem = teaBag,
-											Quantity = 20,
-											Unit = "unit"
+											Quantity = 20
 										}
 									]
 								}
@@ -787,6 +834,8 @@ public class ItemsServiceTests
 		
 		result.Should().NotBeNull();
 		result.Name.Should().Be ("Tea Box");
+		result.Quantity.Should().Be (1);
+		result.Unit.Should().Be (Unit.Unit);
 		result.Components.Should().HaveCount (1);
 		result.Components.Should().Contain (c => c.Id == teaBagId && c.Quantity == 20);
 		
@@ -794,7 +843,7 @@ public class ItemsServiceTests
 		mockItemsCompositionsRepository.Verify (c => c.GetAllForItemAsync (It.Is<Guid> (id => id == itemId)), Times.Once());
 		mockItemsRepository.Verify (i => i.AllExistAsync (It.Is<IEnumerable<Guid>> (ids => ids.Contains (teaBagId))), Times.Once());
 		mockItemsRepository.Verify (c => c.UpdateAsync (itemId, It.IsAny<Item>()), Times.Once());
-		mockItemsCompositionsRepository.Verify (c => c.UpdateAsync (itemId, teaBagId, 20, "unit"), Times.Once());
+		mockItemsCompositionsRepository.Verify (c => c.UpdateAsync (itemId, teaBagId, 20), Times.Once());
 		mockItemsRepository.Verify (i => i.GetOneAsync (itemId), Times.Once());
 		
 		mockItemsRepository.VerifyNoOtherCalls();

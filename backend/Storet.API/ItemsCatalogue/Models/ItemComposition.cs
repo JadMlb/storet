@@ -9,6 +9,4 @@ public class ItemComposition
 	public Item ComponentItem { get; set; } = null!;
 	[Range ((short) 1, short.MaxValue)]
 	public short Quantity { get; set; }
-	[Required (AllowEmptyStrings = false)]
-	public string Unit { get; set; } = string.Empty;
 }

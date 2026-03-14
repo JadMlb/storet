@@ -8,6 +8,9 @@ public class Item
 	[Required (AllowEmptyStrings = false)]
 	public string Name { get; set; } = string.Empty;
 	public string? Description { get; set; }
+	[Range (float.Epsilon, float.MaxValue)]
+	public float Quantity { get; set; }
+	public Unit Unit { get; set; }
 	public ICollection<ItemCategory> ItemCategories { get; set; } = null!;
 	public ICollection<ItemComposition> Components { get; set; } = null!;
 }

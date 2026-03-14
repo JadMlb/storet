@@ -24,7 +24,7 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 		return await context.SaveChangesAsync();
 	}
 	
-	public async Task<bool> UpdateAsync (Guid parentItemId, Guid componentItemId, short? quantity, string? unit)
+	public async Task<bool> UpdateAsync (Guid parentItemId, Guid componentItemId, short quantity)
 	{
 		var relationship = await context.ItemsCompositions
 										.FirstOrDefaultAsync (
@@ -34,8 +34,7 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 		if (relationship == null)
 			return false;
 			
-		relationship.Quantity = quantity ?? relationship.Quantity;
-		relationship.Unit = unit ?? relationship.Unit;
+		relationship.Quantity = quantity;
 		
 		await context.SaveChangesAsync();
 		

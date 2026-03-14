@@ -47,13 +47,16 @@ public class MappingProfile : Profile
 		
 		#region Items
 		CreateMap<Item, ItemResponse>()
-			.ForSourceMember (i => i.ItemCategories, opt => opt.DoNotValidate());
+			.ForSourceMember (i => i.ItemCategories, opt => opt.DoNotValidate())
+			.ForSourceMember (i => i.Components, opt => opt.DoNotValidate())
+			.ForSourceMember (i => i.Quantity, opt => opt.DoNotValidate())
+			.ForSourceMember (i => i.Unit, opt => opt.DoNotValidate());
 		CreateMap<Item, ItemResponseDetails>()
 			.ForMember (i => i.Categories, opt => opt.MapFrom (i => i.ItemCategories.Select (i => i.Category)))
 			.ForMember (i => i.Components, opt => opt.MapFrom (i => i.Components));
 			
 		CreateMap<ItemComposition, ItemCompositionResponse>()
-			.ForMember (i => i.Id, opt => opt.MapFrom (i => i.ComponentItem.Id))
+			.ForMember (i => i.Id, opt => opt.MapFrom (i => i.ComponentItemId))
 			.ForMember (i => i.Name, opt => opt.MapFrom (i => i.ComponentItem.Name))
 			.ForMember (i => i.Description, opt => opt.MapFrom (i => i.ComponentItem.Description));
 		

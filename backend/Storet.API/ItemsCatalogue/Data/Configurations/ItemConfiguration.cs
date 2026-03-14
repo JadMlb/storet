@@ -8,7 +8,11 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
 {
 	public void Configure (EntityTypeBuilder<Item> builder)
 	{
-		builder.ToTable ("items", schema: "items_catalogue");
+		builder.ToTable (
+			"items",
+			schema: "items_catalogue",
+			t => t.HasCheckConstraint ("ck_items_positive_quantity", "quantity > 0")
+		);
 
 		builder.HasKey (i => i.Id)
 				.HasName ("pk_items");
@@ -22,6 +26,15 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
 				.HasColumnName ("description")
 				.HasColumnType ("text")
 				.IsRequired (false);
+		builder.Property (i => i.Quantity)
+				.HasColumnName ("quantity");
+		builder.Property (i => i.Unit)
+				.HasColumnName ("unit")
+				.HasDefaultValue (Unit.Unit)
+				.HasConversion (
+					u => u.ToString().ToLowerInvariant(),
+					v => Enum.Parse<Unit> (v, ignoreCase: true)
+				);
 
 		builder.HasIndex (i => i.Name)
 				.HasDatabaseName ("idx_uniq_items_name")

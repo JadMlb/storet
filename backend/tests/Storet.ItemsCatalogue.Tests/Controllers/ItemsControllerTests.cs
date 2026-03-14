@@ -76,6 +76,8 @@ public class ItemsControllerTests
 		{
 			Id = id,
 			Name = "Laptop",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Categories = [
 				new () {Id = 1, Label = "Electronics"}
 			]
@@ -94,6 +96,8 @@ public class ItemsControllerTests
 		itemResponse.Should().NotBeNull();
 		itemResponse.Id.Should().Be (id);
 		itemResponse.Name.Should().Be ("Laptop");
+		itemResponse.Quantity.Should().Be (1);
+		itemResponse.Unit.Should().Be (Unit.Unit);
 		itemResponse.Categories.Should().HaveCount (1);
 		itemResponse.Categories.Should().Contain (c => c.Id == 1 && c.Label == "Electronics");
 		
@@ -122,6 +126,8 @@ public class ItemsControllerTests
 		var item = new ItemInsertRequest
 		{
 			Name = "Item",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Categories = [999]
 		};
 		
@@ -141,7 +147,48 @@ public class ItemsControllerTests
 	{
 		var item = new ItemInsertRequest
 		{
-			Name = "Item"
+			Name = "Item",
+			Quantity = 1,
+			Unit = Unit.Unit,
+		};
+		
+		// manually validate since pipeline is not implemented in tests
+		ValidateModel (item);
+		
+		var result = await controller.Create (item);
+		var badRequestResult = result.Result;
+		badRequestResult.Should().BeOfType<BadRequestObjectResult>();
+		
+		mockService.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
+	public async Task CreateWithoutUnitShouldReturnBadRequest ()
+	{
+		var item = new ItemInsertRequest
+		{
+			Name = "Item",
+			Quantity = 1,
+		};
+		
+		// manually validate since pipeline is not implemented in tests
+		ValidateModel (item);
+		
+		var result = await controller.Create (item);
+		var badRequestResult = result.Result;
+		badRequestResult.Should().BeOfType<BadRequestObjectResult>();
+		
+		mockService.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
+	public async Task CreateWithNonPositiveQuantityShouldReturnBadRequest ()
+	{
+		var item = new ItemInsertRequest
+		{
+			Name = "Item",
+			Quantity = -1,
+			Unit = Unit.Unit
 		};
 		
 		// manually validate since pipeline is not implemented in tests
@@ -160,6 +207,8 @@ public class ItemsControllerTests
 		var item = new ItemInsertRequest
 		{
 			Name = "Item",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Components = [
 				new ()
 				{
@@ -184,13 +233,17 @@ public class ItemsControllerTests
 		var itemDto = new ItemInsertRequest
 		{
 			Name = "Item",
-			Categories = [1]
+			Categories = [1],
+			Quantity = 1,
+			Unit = Unit.Unit
 		};
 		
 		var item = new ItemResponseDetails
 		{
 			Id = Guid.NewGuid(),
 			Name = "Item",
+			Quantity = 1,
+			Unit = Unit.Unit,
 			Categories = [
 				new () {Id = 1, Label = "Category"}
 			]
@@ -274,8 +327,7 @@ public class ItemsControllerTests
 				new ()
 				{
 					Id = componentId,
-					Quantity = 1,
-					Unit = "unit"
+					Quantity = 1
 				}
 			],
 		};
@@ -297,6 +349,7 @@ public class ItemsControllerTests
 		var updatedValues = new ItemUpdateRequest
 		{
 			Description = "This is a test",
+			Quantity = 2,
 			Categories = [2]
 		};
 		var item = new ItemResponseDetails
@@ -304,6 +357,8 @@ public class ItemsControllerTests
 			Id = itemId,
 			Name = "Item",
 			Description = "This is a test",
+			Quantity = 2,
+			Unit = Unit.Unit,
 			Categories = [
 				new () {Id = 2, Label = "Category"}
 			]

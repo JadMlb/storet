@@ -8,7 +8,11 @@ public class ItemCompositionConfiguration : IEntityTypeConfiguration<ItemComposi
 {
 	public void Configure (EntityTypeBuilder<ItemComposition> builder)
 	{
-		builder.ToTable ("items_compositions", schema: "items_catalogue");
+		builder.ToTable (
+			"items_compositions",
+			schema: "items_catalogue",
+			t => t.HasCheckConstraint ("ck_items_compositions_positive_quantity", "quantity > 0")
+		);
 		
 		builder.HasKey (c => new {c.ParentItemId, c.ComponentItemId})
 				.HasName ("pk_items_compositions");
@@ -17,6 +21,8 @@ public class ItemCompositionConfiguration : IEntityTypeConfiguration<ItemComposi
 				.HasColumnName ("parent_item_id");
 		builder.Property (c => c.ComponentItemId)
 				.HasColumnName ("component_item_id");
+		builder.Property (c => c.Quantity)
+				.HasColumnName ("quantity");
 		
 		builder.HasOne<Item>()
 				.WithMany (i => i.Components)
