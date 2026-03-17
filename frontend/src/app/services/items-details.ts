@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { ItemType } from '../types/ItemType';
+import { ItemCompositionType, ItemType } from '../types/ItemType';
 import { DetailsService } from './details-service';
 import { CategoryMetadataType } from '../types/CategoryType';
 import { ActionType } from './service';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Injectable ({
   providedIn: 'root',
@@ -26,18 +27,38 @@ export class ItemsDetailsService extends DetailsService<ItemType>
       id: response.id,
       name: response.name,
       description: response.description,
-      categories: response.categories.map ((c: CategoryMetadataType) => c.id)
+      quantity: response.quantity,
+      unit: response.unit,
+      categories: response.categories.map ((c: CategoryMetadataType) => c.id),
+      components: response.components.map ((c: ItemCompositionType) => ({id: c.id, quantity: c.quantity}))
     } satisfies ItemType;
     
     super.handleSuccess (actionType, mappedItem);
   }
   
-  protected override mapResponseToFormData (response: any)
+  protected override updateForm (response: any)
   {
-    return {
+    const mappedResponse = {
       name: response.name,
       description: response.description,
+      quantity: response.quantity,
+      unit: response.unit,
       categories: [...response.categories]
     };
+    
+    const components = this.form!.get ("components") as FormArray;
+    components.clear();
+    
+    (response.components as ItemCompositionType[]).forEach (
+      component => components.push (
+        new FormGroup ({
+          id: new FormControl (component.id, [Validators.required]),
+          quantity: new FormControl (component.quantity, [Validators.required, Validators.min (1)])
+        })
+      )
+    );
+    
+    this.form!.disable();
+    this.form!.patchValue (mappedResponse);
   }
 }

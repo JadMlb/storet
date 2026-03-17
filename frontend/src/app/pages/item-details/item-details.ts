@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { Suspense } from '../../components/suspense/suspense';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { TextInput } from '../../components/input/input';
 import { Combobox } from '../../components/combobox/combobox';
 import { ListViewItemDetails } from '../../components/list-view-item-details/list-view-item-details';
@@ -8,28 +8,83 @@ import { ListViewDetailsFormLogicBase } from '../../common/ListViewDetailsFormLo
 import { ItemsDetailsService } from '../../services/items-details';
 import { CategoriesService } from '../../services/categories';
 import { MappingProfile } from '../../common/MappingProfile';
-import { ItemType } from '../../types/ItemType';
+import { Button } from '../../components/button/button';
+import { NumberInput } from '../../components/number-input/number-input';
+import { ItemsService } from '../../services/items';
+
+function positiveValueValidator (control: AbstractControl) : ValidationErrors | null
+{
+  const value = control.value;
+  const castedValue = +value;
+  const numericalValue = Number.isNaN (castedValue) ? 0 : castedValue;
+  if (numericalValue === 0)
+    return {noPositiveValue: true};
+  return null;
+}
 
 @Component ({
   selector: 'item-details',
-  imports: [Suspense, ReactiveFormsModule, TextInput, Combobox, ListViewItemDetails],
+  imports: [Suspense, ReactiveFormsModule, TextInput, Combobox, ListViewItemDetails, Button, NumberInput],
   templateUrl: './item-details.html',
   styleUrl: './item-details.scss',
 })
 export class ItemDetails extends ListViewDetailsFormLogicBase
 {
   readonly itemsDetailsStore = inject (ItemsDetailsService);
+  readonly itemsStore = inject (ItemsService);
   readonly categoriesStore = inject (CategoriesService);
   
   override form = new FormGroup ({
     name: new FormControl ("", [Validators.required]),
     description: new FormControl<string | null> (null),
-    categories: new FormControl<string[]> ([], this.creating() ? [Validators.required] : undefined)
+    quantity: new FormControl (1, [Validators.required, positiveValueValidator]),
+    unit: new FormControl ("unit", [Validators.required]),
+    categories: new FormControl<string[]> ([], this.creating() ? [Validators.required] : undefined),
+    components: new FormArray ([])
   });
   
   options = computed (
     () => this.categoriesStore.data()?.flatMap (MappingProfile.mapCategoryToOption) ?? []
   );
+  
+  items = computed (
+    () => this.itemsStore.data()?.flatMap (MappingProfile.mapItemToOption) ?? []
+  );
+  
+  readonly units = [
+    {value: "unit", display: "Unit"},
+    {value: "litre", display: "L"},
+    {value: "kilogramme", display: "kg"},
+  ]
+  
+  public get components ()
+  {
+    return this.form.get ("components") as FormArray;
+  }
+  
+  public addExistingComponent ()
+  {
+    const component = new FormGroup ({
+      id: new FormControl ("", [Validators.required]),
+      quantity: new FormControl (1, [Validators.required, Validators.min (1)]),
+    });
+    this.components.push (component);
+  }
+  
+  public addNewComponent ()
+  {
+    const component = new FormGroup ({
+      name: new FormControl ("", [Validators.required]),
+      description: new FormControl<string | null> (null),
+      quantity: new FormControl (1, [Validators.required, Validators.min (1)])
+    });
+    this.components.push (component);
+  }
+  
+  public removeComponent (index: number)
+  {
+    this.components.removeAt (index);
+  }
   
   protected override executeOnInitIfCreating (): void
   {}
@@ -46,21 +101,25 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     super.ngOnInit();
     
     this.categoriesStore.get();
+    
+    if (!this.itemsStore.data())
+      this.itemsStore.get();
   }
   
-  private categoriesArraysMatch (apiData: ItemType | null, value: any) : boolean
+  private arraysMatch<T> (apiDataArray?: T[], valueArray?: any) : boolean
   {
-    if (!apiData?.categories && !value?.categories)
+    if (!apiDataArray && !valueArray)
       return true;
     
-    if (!apiData?.categories && !!value?.categories ||!!apiData?.categories && !value?.categories)
+    if (!apiDataArray && !!valueArray ||!!apiDataArray && !valueArray)
       return false;
       
-    const strApiCategoryIds = apiData!.categories.map (c => `${c}`);
-    const strValuesCategoryIds = value.categories.map ((c: any) => `${c}`);
+    const strApiIds = apiDataArray!.map (MappingProfile.mapObjectToString);
+    const strValuesIds = valueArray.map (MappingProfile.mapObjectToString);
     
-    return strApiCategoryIds.length === strValuesCategoryIds.length
-        && strApiCategoryIds.every (cId => strValuesCategoryIds.includes (cId))
+    console.log (strApiIds, strValuesIds);
+    return strApiIds.length === strValuesIds.length
+        && strApiIds.every (cId => strValuesIds.includes (cId))
   }
   
   protected override shouldMarkFormAsPristine (value: any): boolean
@@ -70,11 +129,17 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     if (this.creating())
       return value.name === ""
               && !value.description
-              && value.categories.length === 0;
+              && value.quantity === 0
+              && !value.unit
+              && value.categories.length === 0
+              && value.components.lenght === 0;
     else
       return value.name === apiData?.name
               && (!apiData?.description ? !value.description : value.description === apiData?.description)
-              && this.categoriesArraysMatch (apiData, value);
+              && value.quantity === apiData?.quantity
+              && value.unit === apiData?.unit
+              && this.arraysMatch (apiData?.categories, value?.categories)
+              && this.arraysMatch (apiData?.components, value?.components);
   }
   
   public override onItemDelete (): void

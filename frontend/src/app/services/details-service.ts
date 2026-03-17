@@ -21,14 +21,14 @@ export abstract class DetailsService<TData> extends Service<TData>
     return this;
   }
   
-  protected abstract mapResponseToFormData (response: any) : any;
+  protected abstract updateForm (response: any) : void;
   
   override handleSuccess (actionType: ActionType, response: any): void
   {
     super.handleSuccess (actionType, response);
     if (this.form && response && actionType === "GET")
     {
-      this.form.patchValue (this.mapResponseToFormData (response));
+      this.updateForm (response);
       this.form.markAsPristine();
     }
     else if (actionType === "POST" || actionType === "PUT" || actionType === "DELETE" && response === null)

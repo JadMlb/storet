@@ -1,0 +1,91 @@
+@use "../../../theme" as theme;
+
+.label
+{
+  font-size: 0.8em;
+	font-weight: bold;
+	color: theme.$colour-gray;
+	margin-left: theme.$spacing-xsmall + 1px;
+}
+
+.buttons
+{
+  display: flex;
+  gap: theme.$spacing-medium;
+}
+
+.quantity
+{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: theme.$spacing-medium;
+  width: 100%;
+  > *
+  {
+    flex: 1;
+  }
+}
+
+.components
+{
+  border-left: 2px solid theme.$colour-gray;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacing-medium;
+  margin-top: theme.$spacing-medium;
+  
+  .component
+  {
+    padding-left: theme.$spacing-medium;
+    display: flex;
+    flex-direction: column;
+    gap: theme.$spacing-small;
+    
+    .remove-button
+    {
+      align-self: flex-end;
+    }
+  }
+}
+
+.input-wrapper
+{
+	display: flex;
+	flex-direction: column;
+	
+	label
+	{
+		font-size: 0.8em;
+		font-weight: bold;
+		color: theme.$colour-gray;
+		margin-left: theme.$spacing-xsmall + 1px;
+
+		&.required
+		{
+			&::after
+			{
+				content: " *";
+				color: theme.$colour-error;
+			}
+		}
+	}
+	
+	.input
+	{
+		font: inherit;
+		padding: theme.$spacing-xsmall;
+		border-radius: theme.$spacing-small;
+		border: 1px solid theme.$colour-gray;
+
+		&:focus
+		{
+			outline: 2px solid theme.$colour-primary;
+			border-color: transparent;
+		}
+
+		&.disabled
+		{
+			border-color: transparent;
+		}
+	}
+}

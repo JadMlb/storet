@@ -12,8 +12,10 @@ export class CategoryDetailsService extends DetailsService<CategoryWithParentTyp
     super ("categories");
   }
 
-  protected override mapResponseToFormData (response: any)
+  protected override updateForm (response: any)
   {
-    return {label: response.label, parentCategoryId: response.parentCategory?.id ?? null};
+    const mappedResponse = {label: response.label, parentCategoryId: response.parentCategory?.id ?? null};
+    
+    this.form!.patchValue (mappedResponse);
   }
 }
