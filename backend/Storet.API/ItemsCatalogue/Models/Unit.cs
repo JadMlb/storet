@@ -3,6 +3,6 @@ namespace Storet.API.ItemsCatalogue.Models;
 public enum Unit
 {
 	Unit,
-	Gram,
+	Kilogramme,
 	Litre
 }

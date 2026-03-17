@@ -61,8 +61,7 @@ public class ItemsService : IItemsService
 	
 	/// <summary>Separates the components to existsing and new, checks if provided item ids exist in the database and inserts new components as items</summary>
 	/// <param name = "components">The list of components to be sorted and checked</param>
-	/// <param name = "providedExistingItemIds">The dictionnary that maps existing item ids to their quantity and unit</param>
-	/// <param name = "newItemsToBeCreated">The list of item component models to be created in the database and added to the item</param>
+	/// <returns>A dictionnary that maps existing item ids to their quantity and unit and a list of item component models to be created in the database and added to the item</returns>
 	/// <exception cref = "EntityNotFoundException">Thrown if <paramref name = "providedExistingItemIds"/> contains one or many non existing item ids.</exception>
 	/// <exception cref = "ArgumentException">Thrown if <paramref name = "newItemsToBeCreated"/> contains an invalid model to create the item</exception>
 	private async Task<(Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (IEnumerable<ItemCompositionRequest>? components)
@@ -126,12 +125,20 @@ public class ItemsService : IItemsService
 		var insertedCategories = await itemsCategoriesRepository.BulkInsertAsync (itemsCategories);
 	}
 	
-	private async Task<IEnumerable<ItemComposition>> MergeComponentsForItem (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
+	private async Task<IEnumerable<ItemComposition>> MergeComponentsForItem (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated, float parentItemQuantity, Unit parentItemUnit)
 	{
 		IEnumerable<ItemComposition> itemsCompositionsToBeAdded = [];
 		if (newItemsToBeCreated.Any())
 		{
-			var itemsModels = newItemsToBeCreated.Select (i => new Item {Name = i.Name!, Description = i.Description});
+			var itemsModels = newItemsToBeCreated.Select (
+								i => new Item
+									{
+										Name = i.Name!,
+										Description = i.Description,
+										Quantity = parentItemQuantity / i.Quantity,
+										Unit = parentItemUnit
+									}
+								);
 			var created = await itemsRepository.BulkInsertAsync (itemsModels);
 			itemsCompositionsToBeAdded = created.Join (
 													newItemsToBeCreated,
@@ -161,9 +168,9 @@ public class ItemsService : IItemsService
 		return itemsCompositionsToBeAdded;
 	}
 	
-	private async Task InsertItemComponents (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
+	private async Task InsertItemComponents (Item item, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
 	{
-		var itemsCompositionsToBeAdded = await MergeComponentsForItem (itemId, providedExistingItemIds, newItemsToBeCreated);
+		var itemsCompositionsToBeAdded = await MergeComponentsForItem (item.Id, providedExistingItemIds, newItemsToBeCreated, item.Quantity, item.Unit);
 		
 		if (itemsCompositionsToBeAdded.Any())
 			await itemsCompositionRepository.BulkInsertAsync (itemsCompositionsToBeAdded);
@@ -203,16 +210,16 @@ public class ItemsService : IItemsService
 		return (removedIds, updatedValues);
 	}
 	
-	private async Task UpdateComponentsForItem (Guid itemId, IEnumerable<ItemCompositionRequest>? oldComponents, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
+	private async Task UpdateComponentsForItem (Item item, IEnumerable<ItemCompositionRequest>? oldComponents, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
 	{
 		var (removedItemComponents, updatedValues) = GetComponentsDiffForItem (oldComponents, providedExistingItemIds);
 		if (removedItemComponents.Any())
-			await itemsCompositionRepository.BulkDeleteForItemAsync (itemId, removedItemComponents);
+			await itemsCompositionRepository.BulkDeleteForItemAsync (item.Id, removedItemComponents);
 		if (updatedValues.Count != 0)
 			foreach (var modification in updatedValues)
-				await itemsCompositionRepository.UpdateAsync (itemId, modification.Key, modification.Value);
+				await itemsCompositionRepository.UpdateAsync (item.Id, modification.Key, modification.Value);
 		
-		await InsertItemComponents (itemId, providedExistingItemIds, newItemsToBeCreated);
+		await InsertItemComponents (item, providedExistingItemIds, newItemsToBeCreated);
 	}
 	
 	public async Task<ItemResponseDetails?> InsertAsync (ItemInsertRequest model)
@@ -234,7 +241,7 @@ public class ItemsService : IItemsService
 		
 		await InsertItemCategories (insertedItem.Id, model);
 		
-		await InsertItemComponents (insertedItem.Id, providedExistingItemIds, newItemsToBeCreated);
+		await InsertItemComponents (insertedItem, providedExistingItemIds, newItemsToBeCreated);
 		
 		var fullEntity = await itemsRepository.GetOneAsync (insertedItem.Id);
 		return mapper.Map<Item, ItemResponseDetails> (fullEntity!);
@@ -293,7 +300,7 @@ public class ItemsService : IItemsService
 		
 		await UpdateCategoriesForItem (key, deletedCategoryIds, addedCategoryIds);
 		
-		await UpdateComponentsForItem (key, oldComponents, providedExistingItemIds, newItemsToBeCreated);
+		await UpdateComponentsForItem (updatedItem, oldComponents, providedExistingItemIds, newItemsToBeCreated);
 		
 		var finalEntity = await itemsRepository.GetOneAsync (key);
 		return mapper.Map<Item, ItemResponseDetails> (finalEntity!);

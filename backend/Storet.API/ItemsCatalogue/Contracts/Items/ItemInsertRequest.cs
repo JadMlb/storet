@@ -12,7 +12,7 @@ public class ItemInsertRequest
 	[Required (AllowEmptyStrings = false)]
 	public string Name { get; set; } = string.Empty;
 	public string? Description { get; set; }
-	[Range (float.Epsilon, float.MaxValue)]
+	[PositiveValue]
 	public float Quantity { get; set; }
 	[Required]
 	[JsonConverter (typeof (LowercaseUnitConverter))]

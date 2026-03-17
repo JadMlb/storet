@@ -20,6 +20,7 @@ public static class ItemsCatalogueSetup
 							connectionString,
 							opt => opt.MapEnum<Unit> (schemaName: "items_catalogue", enumName: "units")
 						)
+						.EnableSensitiveDataLogging()
 		);
 		
 		services.AddAutoMapper (cfg => cfg.AddProfile<MappingProfile>());

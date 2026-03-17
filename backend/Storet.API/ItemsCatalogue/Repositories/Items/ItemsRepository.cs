@@ -75,8 +75,12 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 
 	public async Task<IEnumerable<Item>> BulkInsertAsync (IEnumerable<Item> items)
 	{
-		await context.Items.AddRangeAsync (items);
-		return items;
+		var itemsList = items.ToList();
+
+		await context.Items.AddRangeAsync (itemsList);
+		await context.SaveChangesAsync();
+		
+		return itemsList;
 	}
 
 	public async Task<Item?> UpdateAsync (Guid key, Item model)

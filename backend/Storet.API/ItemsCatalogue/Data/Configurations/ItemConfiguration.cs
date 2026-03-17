@@ -30,11 +30,8 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
 				.HasColumnName ("quantity");
 		builder.Property (i => i.Unit)
 				.HasColumnName ("unit")
-				.HasDefaultValue (Unit.Unit)
-				.HasConversion (
-					u => u.ToString().ToLowerInvariant(),
-					v => Enum.Parse<Unit> (v, ignoreCase: true)
-				);
+				.HasColumnType ("items_catalogue.units")
+				.HasDefaultValue (Unit.Unit);
 
 		builder.HasIndex (i => i.Name)
 				.HasDatabaseName ("idx_uniq_items_name")

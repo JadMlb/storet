@@ -44,7 +44,7 @@ public class ItemsServiceTests
 		var item = new ItemInsertRequest
 		{
 			Name = "Chicken breasts",
-			Unit = Unit.Gram
+			Unit = Unit.Kilogramme
 		};
 		
 		Func<Task> act = async () => await service.InsertAsync (item);
@@ -178,7 +178,7 @@ public class ItemsServiceTests
 		{
 			Name = "Steak",
 			Quantity = 400,
-			Unit = Unit.Gram,
+			Unit = Unit.Kilogramme,
 			Categories = [999]
 		};
 		
@@ -204,7 +204,7 @@ public class ItemsServiceTests
 		{
 			Name = "Steak",
 			Quantity = 400,
-			Unit = Unit.Gram,
+			Unit = Unit.Kilogramme,
 			Categories = []
 		};
 		
@@ -289,13 +289,13 @@ public class ItemsServiceTests
 		{
 			new () {Id = Guid.NewGuid(), Name = "Apple", Quantity = 1, Unit = Unit.Unit},
 			new () {Id = Guid.NewGuid(), Name = "Banana", Quantity = 1, Unit = Unit.Unit},
-			new () {Id = Guid.NewGuid(), Name = "Chicken breasts", Quantity = 500, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Chicken breasts", Quantity = 500, Unit = Unit.Kilogramme},
 			new () {Id = Guid.NewGuid(), Name = "Chocolate", Quantity = 1, Unit = Unit.Unit},
 			new () {Id = Guid.NewGuid(), Name = "Lemon", Quantity = 1, Unit = Unit.Unit},
 			new () {Id = Guid.NewGuid(), Name = "Orange", Quantity = 1, Unit = Unit.Unit},
-			new () {Id = Guid.NewGuid(), Name = "Rice", Quantity = 100, Unit = Unit.Gram},
-			new () {Id = Guid.NewGuid(), Name = "Steak", Quantity = 500, Unit = Unit.Gram},
-			new () {Id = Guid.NewGuid(), Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Rice", Quantity = 100, Unit = Unit.Kilogramme},
+			new () {Id = Guid.NewGuid(), Name = "Steak", Quantity = 500, Unit = Unit.Kilogramme},
+			new () {Id = Guid.NewGuid(), Name = "Sugar", Quantity = 100, Unit = Unit.Kilogramme},
 			new () {Id = Guid.NewGuid(), Name = "Tea", Quantity = 1, Unit = Unit.Unit},
 		};
 		
@@ -341,13 +341,13 @@ public class ItemsServiceTests
 		{
 			new () {Id = Guid.NewGuid(), Name = "Apple", Quantity = 1, Unit = Unit.Unit},
 			new () {Id = Guid.NewGuid(), Name = "Banana", Quantity = 1, Unit = Unit.Unit},
-			new () {Id = Guid.NewGuid(), Name = "Chicken breasts", Quantity = 500, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Chicken breasts", Quantity = 500, Unit = Unit.Kilogramme},
 			new () {Id = Guid.NewGuid(), Name = "Chocolate", Quantity = 1, Unit = Unit.Unit},
 			new () {Id = Guid.NewGuid(), Name = "Lemon", Quantity = 1, Unit = Unit.Unit},
 			new () {Id = Guid.NewGuid(), Name = "Orange", Quantity = 1, Unit = Unit.Unit},
-			new () {Id = Guid.NewGuid(), Name = "Rice", Quantity = 100, Unit = Unit.Gram},
-			new () {Id = Guid.NewGuid(), Name = "Steak", Quantity = 500, Unit = Unit.Gram},
-			new () {Id = Guid.NewGuid(), Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Id = Guid.NewGuid(), Name = "Rice", Quantity = 100, Unit = Unit.Kilogramme},
+			new () {Id = Guid.NewGuid(), Name = "Steak", Quantity = 500, Unit = Unit.Kilogramme},
+			new () {Id = Guid.NewGuid(), Name = "Sugar", Quantity = 100, Unit = Unit.Kilogramme},
 			new () {Id = Guid.NewGuid(), Name = "Tea", Quantity = 1, Unit = Unit.Unit},
 		};
 		

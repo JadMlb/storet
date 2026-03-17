@@ -62,11 +62,11 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		{
 			new () {Name = "Apple", Quantity = 1, Unit = Unit.Unit},
 			new () {Name = "Banana", Quantity = 1, Unit = Unit.Unit},
-			new () {Name = "Chicken breasts", Quantity = 400, Unit = Unit.Gram},
+			new () {Name = "Chicken breasts", Quantity = 400, Unit = Unit.Kilogramme},
 			new () {Name = "Orange", Quantity = 1, Unit = Unit.Unit},
-			new () {Name = "Rice", Quantity = 200, Unit = Unit.Gram},
-			new () {Name = "Steak", Quantity = 400, Unit = Unit.Gram},
-			new () {Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Name = "Rice", Quantity = 200, Unit = Unit.Kilogramme},
+			new () {Name = "Steak", Quantity = 400, Unit = Unit.Kilogramme},
+			new () {Name = "Sugar", Quantity = 100, Unit = Unit.Kilogramme},
 		};
 		await context.Items.AddRangeAsync (items);
 		await context.SaveChangesAsync();
@@ -98,13 +98,13 @@ public class ItemsRepositoryTests : InMemoryRepositoryTestsBase<StoretItemsCatal
 		{
 			new () {Name = "Apple", Quantity = 1, Unit = Unit.Unit},
 			new () {Name = "Banana", Quantity = 1, Unit = Unit.Unit},
-			new () {Name = "Chicken breasts", Quantity = 400, Unit = Unit.Gram},
+			new () {Name = "Chicken breasts", Quantity = 400, Unit = Unit.Kilogramme},
 			new () {Name = "Chocolate", Quantity = 1, Unit = Unit.Unit},
 			new () {Name = "Lemon", Quantity = 1, Unit = Unit.Unit},
 			new () {Name = "Orange", Quantity = 1, Unit = Unit.Unit},
-			new () {Name = "Rice", Quantity = 200, Unit = Unit.Gram},
-			new () {Name = "Steak", Quantity = 400, Unit = Unit.Gram},
-			new () {Name = "Sugar", Quantity = 100, Unit = Unit.Gram},
+			new () {Name = "Rice", Quantity = 200, Unit = Unit.Kilogramme},
+			new () {Name = "Steak", Quantity = 400, Unit = Unit.Kilogramme},
+			new () {Name = "Sugar", Quantity = 100, Unit = Unit.Kilogramme},
 			new () {Name = "Tea", Quantity = 1, Unit = Unit.Unit},
 		};
 		await context.Items.AddRangeAsync (items);

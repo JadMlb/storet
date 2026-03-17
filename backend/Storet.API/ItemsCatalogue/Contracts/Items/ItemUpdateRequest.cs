@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Storet.API.Core.Validation;
 using Storet.API.ItemsCatalogue.Contracts.ItemsCompositions;
 using Storet.API.ItemsCatalogue.Mappers;
 using Storet.API.ItemsCatalogue.Models;
@@ -11,7 +12,7 @@ public class ItemUpdateRequest
 	[MinLength (1)]
 	public string? Name { get; set; }
 	public string? Description { get; set; }
-	[Range (float.Epsilon, float.MaxValue)]
+	[PositiveValue]
 	public float? Quantity { get; set; }
 	[JsonConverter (typeof (LowercaseUnitConverter))]
 	[EnumDataType (typeof (Unit))]
