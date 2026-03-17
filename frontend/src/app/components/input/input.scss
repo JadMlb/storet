@@ -39,5 +39,10 @@
 		{
 			border-color: transparent;
 		}
+		
+		&.multiline
+		{
+			resize: vertical;
+		}
 	}
 }

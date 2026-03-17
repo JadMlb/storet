@@ -44,6 +44,7 @@
 	.body
 	{
 		flex-direction: column;
+		overflow-y: auto;
 	}
 	
 	button.close-button
