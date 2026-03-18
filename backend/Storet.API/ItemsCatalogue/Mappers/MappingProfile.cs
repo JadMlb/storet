@@ -50,8 +50,10 @@ public class MappingProfile : Profile
 			.ForSourceMember (i => i.ItemCategories, opt => opt.DoNotValidate())
 			.ForSourceMember (i => i.Components, opt => opt.DoNotValidate())
 			.ForSourceMember (i => i.Quantity, opt => opt.DoNotValidate())
-			.ForSourceMember (i => i.Unit, opt => opt.DoNotValidate());
+			.ForSourceMember (i => i.Unit, opt => opt.DoNotValidate())
+			.ForSourceMember (i => i.IsComponent, opt => opt.DoNotValidate());
 		CreateMap<Item, ItemResponseDetails>()
+			.ForSourceMember (i => i.IsComponent, opt => opt.DoNotValidate())
 			.ForMember (i => i.Categories, opt => opt.MapFrom (i => i.ItemCategories.Select (i => i.Category)))
 			.ForMember (i => i.Components, opt => opt.MapFrom (i => i.Components));
 			

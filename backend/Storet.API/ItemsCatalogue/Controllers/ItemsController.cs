@@ -23,6 +23,12 @@ public class ItemsController : ControllerBase
 		return Ok (await service.GetAllAsync (query));
 	}
 	
+	[HttpGet ("components")]
+	public async Task<ActionResult<IEnumerable<ItemResponse>>> GetAllComponents ()
+	{
+		return Ok (await service.GetAllComponentsAsync());
+	}
+	
 	[HttpGet ("{id:guid}")]
 	public async Task<ActionResult<ItemResponseDetails>> GetOne ([FromRoute] Guid id)
 	{

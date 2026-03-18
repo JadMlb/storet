@@ -27,6 +27,7 @@ function positiveValueValidator (control: AbstractControl) : ValidationErrors | 
   imports: [Suspense, ReactiveFormsModule, TextInput, Combobox, ListViewItemDetails, Button, NumberInput],
   templateUrl: './item-details.html',
   styleUrl: './item-details.scss',
+  providers: [ItemsService]
 })
 export class ItemDetails extends ListViewDetailsFormLogicBase
 {
@@ -48,7 +49,11 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   );
   
   items = computed (
-    () => this.itemsStore.data()?.flatMap (MappingProfile.mapItemToOption) ?? []
+    () =>
+    {
+      const apiData = this.itemsStore.data();
+      return apiData?.flatMap (MappingProfile.mapItemToOption) ?? []
+    }
   );
   
   readonly units = [
@@ -103,7 +108,7 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     this.categoriesStore.get();
     
     if (!this.itemsStore.data())
-      this.itemsStore.get();
+      this.itemsStore.get ({path: "components"});
   }
   
   private arraysMatch<T> (apiDataArray?: T[], valueArray?: any) : boolean
@@ -117,7 +122,6 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     const strApiIds = apiDataArray!.map (MappingProfile.mapObjectToString);
     const strValuesIds = valueArray.map (MappingProfile.mapObjectToString);
     
-    console.log (strApiIds, strValuesIds);
     return strApiIds.length === strValuesIds.length
         && strApiIds.every (cId => strValuesIds.includes (cId))
   }

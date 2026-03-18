@@ -32,6 +32,9 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
 				.HasColumnName ("unit")
 				.HasColumnType ("items_catalogue.units")
 				.HasDefaultValue (Unit.Unit);
+		builder.Property (i => i.IsComponent)
+				.HasColumnName ("is_component")
+				.HasDefaultValue (false);
 
 		builder.HasIndex (i => i.Name)
 				.HasDatabaseName ("idx_uniq_items_name")

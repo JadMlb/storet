@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { ActionType, Service } from './service';
 import { ItemMetadataType } from '../types/ItemType';
-import { Pagination } from '../types/PaginatedResponse';
+import { PaginatedResponse, Pagination } from '../types/PaginatedResponse';
 
 @Injectable ({
   providedIn: 'root',
@@ -17,7 +17,12 @@ export class ItemsService extends Service<ItemMetadataType[]>
   
   override handleSuccess (actionType: ActionType, response: any) : void
   {
-    this.pagination.set ({previous: response.previous, next: response.next});
-    super.handleSuccess (actionType, response.data);
+    if (Array.isArray (response))
+      super.handleSuccess (actionType, response);
+    else
+    {
+      this.pagination.set ({previous: response.previous, next: response.next});
+      super.handleSuccess (actionType, response.data);
+    }
   }
 }

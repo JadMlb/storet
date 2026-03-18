@@ -14,7 +14,16 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 	{
 		return await context.Items
 							.AsNoTracking()
+							.Where (i => !i.IsComponent)
 							.PaginateQuery (query, "Name")
+							.ToListAsync();
+	}
+	
+	public async Task<IEnumerable<Item>> GetAllComponentsAsync ()
+	{
+		return await context.Items
+							.AsNoTracking()
+							.Where (i => i.IsComponent)
 							.ToListAsync();
 	}
 	
@@ -55,6 +64,7 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		var keysSet = keys.ToHashSet();
 		var numberOfExistsingIdsInDb = await context.Items
 													.AsNoTracking()
+													.Where (i => i.IsComponent)
 													.CountAsync (c => keysSet.Contains (c.Id));
 		return keysSet.Count == numberOfExistsingIdsInDb;
 	}

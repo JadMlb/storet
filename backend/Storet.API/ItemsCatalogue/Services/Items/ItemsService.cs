@@ -50,6 +50,12 @@ public class ItemsService : IItemsService
 		return response;
 	}
 	
+	public async Task<IEnumerable<ItemResponse>> GetAllComponentsAsync ()
+	{
+		var result = await itemsRepository.GetAllComponentsAsync();
+		return result.Select (mapper.Map<Item, ItemResponse>);
+	}
+	
 	public async Task<ItemResponseDetails?> GetOneAsync (Guid key)
 	{
 		var item = await itemsRepository.GetOneAsync (key);
@@ -136,7 +142,8 @@ public class ItemsService : IItemsService
 										Name = i.Name!,
 										Description = i.Description,
 										Quantity = parentItemQuantity / i.Quantity,
-										Unit = parentItemUnit
+										Unit = parentItemUnit,
+										IsComponent = true
 									}
 								);
 			var created = await itemsRepository.BulkInsertAsync (itemsModels);
