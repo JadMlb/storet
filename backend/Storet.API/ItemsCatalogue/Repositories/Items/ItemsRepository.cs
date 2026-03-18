@@ -133,4 +133,24 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 			return false;
 		}
 	}
+	
+	public async Task<bool> BulkDeleteAsync (IEnumerable<Guid> itemsIds)
+	{
+		var existing = await context.Items
+									.Where (i => itemsIds.Contains (i.Id))
+									.ToListAsync();
+		if (existing.Count == 0)
+			return false;
+		
+		try
+		{
+			context.Items.RemoveRange (existing);
+			await context.SaveChangesAsync();
+			return true;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+	}
 }

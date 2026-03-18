@@ -18,6 +18,17 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 							.ToListAsync();
 	}
 	
+	public async Task<IEnumerable<Guid>> GetNotUsedByAnyAsync (IEnumerable<Guid> items)
+	{
+		var usedIds = await context.ItemsCompositions
+									.AsNoTracking()
+									.Select (i => i.ComponentItemId)
+									.Distinct()
+									.ToListAsync();
+		return items.Except (usedIds)
+					.ToList();
+	}
+	
 	public async Task<int> BulkInsertAsync (IEnumerable<ItemComposition> itemCompositions)
 	{
 		await context.ItemsCompositions.AddRangeAsync (itemCompositions);

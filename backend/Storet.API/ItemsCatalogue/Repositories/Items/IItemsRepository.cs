@@ -7,4 +7,5 @@ public interface IItemsRepository : IPaginatedCrudRepository<Item, Guid, string>
 {
 	public Task<IEnumerable<Item>> BulkInsertAsync (IEnumerable<Item> items);
 	public Task<IEnumerable<Item>> GetAllComponentsAsync ();
+	public Task<bool> BulkDeleteAsync (IEnumerable<Guid> itemsIds);
 }

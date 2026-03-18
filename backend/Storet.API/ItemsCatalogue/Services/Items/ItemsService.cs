@@ -221,12 +221,18 @@ public class ItemsService : IItemsService
 	{
 		var (removedItemComponents, updatedValues) = GetComponentsDiffForItem (oldComponents, providedExistingItemIds);
 		if (removedItemComponents.Any())
+		{
 			await itemsCompositionRepository.BulkDeleteForItemAsync (item.Id, removedItemComponents);
+			var notUsedItems = await itemsCompositionRepository.GetNotUsedByAnyAsync (removedItemComponents);
+			if (notUsedItems.Any())
+				await itemsRepository.BulkDeleteAsync (notUsedItems);
+		}
 		if (updatedValues.Count != 0)
 			foreach (var modification in updatedValues)
 				await itemsCompositionRepository.UpdateAsync (item.Id, modification.Key, modification.Value);
 		
-		await InsertItemComponents (item, providedExistingItemIds, newItemsToBeCreated);
+		if (providedExistingItemIds.Count > 0)
+			await InsertItemComponents (item, providedExistingItemIds, newItemsToBeCreated);
 	}
 	
 	public async Task<ItemResponseDetails?> InsertAsync (ItemInsertRequest model)
