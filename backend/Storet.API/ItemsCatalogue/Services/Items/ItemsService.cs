@@ -191,6 +191,7 @@ public class ItemsService : IItemsService
 		if (oldComposition == null || !oldComposition.Any())
 			return (removedIds, updatedValues);
 		
+		// get removed components and remove from provided list
 		removedIds = oldComposition.Select (c => c.Id!.Value)
 									.Except (providedExistingItemIds.Keys)
 									.ToList();
@@ -202,6 +203,7 @@ public class ItemsService : IItemsService
 									c => c.Quantity
 								);
 		
+		// get updated components and remove from provided list
 		updatedValues = providedExistingItemIds.Where (
 							pair => oldCompositionDict.ContainsKey (pair.Key)
 									&& oldCompositionDict.GetValueOrDefault(pair.Key)! != pair.Value
@@ -212,6 +214,17 @@ public class ItemsService : IItemsService
 						);
 		
 		foreach (var id in updatedValues.Keys)
+			providedExistingItemIds.Remove (id);
+
+		// get unchanged components and remove from provided list
+		var unchanged = providedExistingItemIds.Where (
+							pair => oldCompositionDict.ContainsKey (pair.Key)
+									&& oldCompositionDict.GetValueOrDefault(pair.Key)! == pair.Value
+						)
+						.Select (p => p.Key)
+						.ToList();
+		
+		foreach (var id in unchanged)
 			providedExistingItemIds.Remove (id);
 		
 		return (removedIds, updatedValues);
