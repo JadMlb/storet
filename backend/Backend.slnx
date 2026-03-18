@@ -1,7 +1,11 @@
 <Solution>
+  <Folder Name="/Modules/">
+    <Project Path="Modules/Storet.Modules.ItemsCatalogue/Storet.Modules.ItemsCatalogue.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Storet.Tests.Common/Storet.Tests.Common.csproj" />
     <Project Path="tests/Storet.ItemsCatalogue.Tests/Storet.ItemsCatalogue.Tests.csproj" />
   </Folder>
   <Project Path="Storet.API/Storet.API.csproj" />
+  <Project Path="Storet.Core/Storet.Core.csproj" />
 </Solution>
