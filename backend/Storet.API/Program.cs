@@ -1,4 +1,4 @@
-using Storet.API.ItemsCatalogue.Setup;
+using Storet.Modules.ItemsCatalogue.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
