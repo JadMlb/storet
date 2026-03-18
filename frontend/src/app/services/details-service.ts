@@ -21,7 +21,7 @@ export abstract class DetailsService<TData> extends Service<TData>
     return this;
   }
   
-  protected abstract updateForm (response: any) : void;
+  public abstract updateForm (response: any) : void;
   
   override handleSuccess (actionType: ActionType, response: any): void
   {

@@ -59,6 +59,8 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
     this.editing.set (true);
   }
   
+  protected abstract resetFormOnCancelEditing () : void;
+  
   onCancel () : void
   {
     if (this.creating())
@@ -67,6 +69,7 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
       return;
     }
 
+    this.resetFormOnCancelEditing();
     this.form.disable();
     this.editing.set (false);
   }

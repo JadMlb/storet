@@ -36,7 +36,7 @@ export class ItemsDetailsService extends DetailsService<ItemType>
     super.handleSuccess (actionType, mappedItem);
   }
   
-  protected override updateForm (response: any)
+  public override updateForm (response: any)
   {
     const mappedResponse = {
       name: response.name,
@@ -50,12 +50,15 @@ export class ItemsDetailsService extends DetailsService<ItemType>
     components.clear();
     
     (response.components as ItemCompositionType[]).forEach (
-      component => components.push (
-        new FormGroup ({
+      component =>
+      {
+        const formGroup = new FormGroup ({
           id: new FormControl (component.id, [Validators.required]),
           quantity: new FormControl (component.quantity, [Validators.required, Validators.min (1)])
-        })
-      )
+        });
+        formGroup.disable();
+        components.push (formGroup);
+      }
     );
     
     this.form!.disable();

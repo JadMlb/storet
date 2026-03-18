@@ -86,4 +86,13 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
       && value.parentCategoryId == (apiData?.parentCategory?.id ?? null)
     )
   }
+  
+  protected override resetFormOnCancelEditing () : void
+  {
+    const apiData = this.categoriesDetailsStore.data();
+    if (apiData)
+      this.categoriesDetailsStore.updateForm (apiData);
+    else
+      this.form.reset();
+  }
 }

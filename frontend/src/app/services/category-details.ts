@@ -12,7 +12,7 @@ export class CategoryDetailsService extends DetailsService<CategoryWithParentTyp
     super ("categories");
   }
 
-  protected override updateForm (response: any)
+  public override updateForm (response: any)
   {
     const mappedResponse = {label: response.label, parentCategoryId: response.parentCategory?.id ?? null};
     

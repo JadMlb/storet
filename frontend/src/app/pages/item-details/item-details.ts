@@ -89,6 +89,7 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   public removeComponent (index: number)
   {
     this.components.removeAt (index);
+    this.components.markAsDirty();
   }
   
   protected override executeOnInitIfCreating (): void
@@ -144,6 +145,15 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
               && value.unit === apiData?.unit
               && this.arraysMatch (apiData?.categories, value?.categories)
               && this.arraysMatch (apiData?.components, value?.components);
+  }
+  
+  protected override resetFormOnCancelEditing () : void
+  {
+    const apiData = this.itemsDetailsStore.data();
+    if (apiData)
+      this.itemsDetailsStore.updateForm (apiData);
+    else
+      this.form.reset();
   }
   
   public override onItemDelete (): void
