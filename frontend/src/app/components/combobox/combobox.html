@@ -20,7 +20,7 @@
     		@for (option of displayValues(); track option.value)
         {
           <div class = "combobox-option-tag">
-            {{option.display}}
+            {{option?.display}}
             @if (!disabled)
             {
               <button
@@ -36,7 +36,7 @@
 			}
 			@else
 			{
-			  <span>{{displayValues()[0].display}}</span>
+			  <span>{{displayValues()[0]?.display}}</span>
 			}
 		</div>
 		@if (!disabled)

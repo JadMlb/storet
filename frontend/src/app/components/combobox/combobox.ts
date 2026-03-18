@@ -1,4 +1,4 @@
-import { booleanAttribute, Component, computed, Input, OnInit, Optional, Self, signal } from '@angular/core';
+import { booleanAttribute, Component, computed, input, Input, Optional, Self, signal } from '@angular/core';
 import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
 import { Option } from '../../types/Option';
 import { Chevron } from '../chevron/chevron';
@@ -10,9 +10,9 @@ import { Chevron } from '../chevron/chevron';
   styleUrl: './combobox.scss',
   providers: []
 })
-export class Combobox implements ControlValueAccessor, OnInit
+export class Combobox implements ControlValueAccessor
 {
-  @Input() options: Option[] = [];
+  options = input<Option[]> ([]);
   @Input() label: string | null = null;
   @Input() placeholder = "Select an option";
   @Input ({transform: booleanAttribute}) required = false;
@@ -22,7 +22,20 @@ export class Combobox implements ControlValueAccessor, OnInit
   isOpen = signal (false);
   searchTerm = signal ("");
   selectedId = signal<string | string[] | null> (null);
-  selectedValue = signal<Option | Option[] | null> (null);
+  selectedValue = computed (
+    () =>
+    {
+      const opts = this.options();
+      const currentValue = this.selectedId();
+      
+      if (opts.length === 0)
+        return null;
+      
+      if (this.multiple)
+        return opts.filter (opt => currentValue?.includes (opt.value));
+      return opts.find (opt => opt.value === currentValue) ?? null;
+    }
+  );
 
   chevronRotation = computed (
     () => this.isOpen() ? "top" : "bottom"
@@ -32,7 +45,7 @@ export class Combobox implements ControlValueAccessor, OnInit
     () =>
     {
       const term = this.searchTerm().toLowerCase();
-      const allOptions = this.options;
+      const allOptions = this.options();
 
       if (!term)
         return allOptions;
@@ -44,11 +57,16 @@ export class Combobox implements ControlValueAccessor, OnInit
   );
 
   displayValues = computed (
-    () => this.multiple ?
-            this.selectedValue() as Option[] :
-            !this.selectedValue() ?
-              [] :
-              [this.selectedValue() as Option]
+    () =>
+    {
+      const opts = this.options();
+      const value = this.selectedValue();
+      if (opts.length === 0 || value === null)
+        return [];
+      return this.multiple ?
+            value as Option[] :
+              [value as Option]
+    }
   );
 
   showPlaceholder = computed (
@@ -67,26 +85,6 @@ export class Combobox implements ControlValueAccessor, OnInit
   public get isRequired (): boolean
   {
     return Boolean (this.parent?.control?.hasValidator (Validators.required));
-  }
-
-  private updateSelected ()
-  {
-    const currentValue = this.selectedId();
-    if (this.multiple)
-    {
-      const selected = this.options.filter (opt => currentValue?.includes (opt.value));
-      this.selectedValue.set (selected);
-    }
-    else
-    {
-      const selected = this.options.find (opt => opt.value === currentValue);
-      this.selectedValue.set (selected ?? null);
-    }
-  }
-
-  ngOnInit ()
-  {
-    this.updateSelected();
   }
 
   isSelected (option: Option)
@@ -118,7 +116,6 @@ export class Combobox implements ControlValueAccessor, OnInit
       this.writeValueMultiple (value);
     else
       this.writeValueSingle (value)
-    this.updateSelected();
   }
 
   registerOnChange (fn: any): void
@@ -173,7 +170,6 @@ export class Combobox implements ControlValueAccessor, OnInit
 
     this.onChange (this.selectedId());
     this.onTouched();
-    this.updateSelected();
     this.isOpen.set (false);
   }
   
@@ -196,7 +192,6 @@ export class Combobox implements ControlValueAccessor, OnInit
     const newValue = this.multiple ? [] : null;
     this.selectedId.set (newValue);
     this.onChange (newValue);
-    this.updateSelected();
     this.onTouched();
   }
 
