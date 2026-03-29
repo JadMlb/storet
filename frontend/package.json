@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "npm run inject-env && ng serve",
+    "build": "npm run inject-env && ng build",
+    "watch": "npm run inject-env && ng build --watch --configuration development",
+    "dev": "npm run inject-env && ng dev",
+    "test": "ng test",
+    "inject-env": "node scripts/inject-env.js"
   },
   "prettier": {
     "printWidth": 100,
