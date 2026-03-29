@@ -14,6 +14,8 @@ export class Button
   @Input() disabled: boolean = false;
   @Input() type: "reset" | "submit" | "button" = "button";
   @Input() role: "primary" | "normal" | "warn" = "normal";
+  @Input() renderStyle: "filled" | "outlined" = "filled";
+  @Input() fill: boolean = false;
   @Output() onClick = new EventEmitter<any>();
 
   handleClick (event: Event)

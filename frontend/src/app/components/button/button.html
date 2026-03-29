@@ -1,5 +1,8 @@
 <button
 	class = "button"
+	[class.fill] = "fill"
+	[class.filled] = "renderStyle === 'filled'"
+	[class.outlined] = "renderStyle === 'outlined'"
 	[class.primary] = "role === 'primary'"
 	[class.normal] = "role === 'normal'"
 	[class.warn] = "role === 'warn'"
