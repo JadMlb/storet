@@ -5,8 +5,18 @@ import { Items } from './pages/items/items';
 import { ItemDetails } from './pages/item-details/item-details';
 import { AppLayout } from './components/app-layout/app-layout';
 import { authGuard } from './guards/auth-guard';
+import { Login } from './pages/auth/login/login';
+import { Signup } from './pages/auth/signup/signup';
 
 export const routes: Routes = [
+  {
+    path: "login",
+    component: Login
+  },
+  {
+    path: "signup",
+    component: Signup
+  },
   {
     path: "",
     component: AppLayout,

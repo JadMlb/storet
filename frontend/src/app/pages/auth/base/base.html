@@ -1,0 +1,79 @@
+<h1 class = "app-name">Storet</h1>
+<form class = "login-signup-form" [formGroup] = "form" (ngSubmit) = "handleFormSubmit()">
+  <h1>
+    <ng-content select = "[title]"/>
+  </h1>
+  <ng-content select = "[subtitle]"/>
+  <text-input
+    label = "Email"
+    formControlName = "email"
+    placeholder = "Email"
+  />
+  <password-input
+    label = "Password"
+    formControlName = "password"
+    placeholder = "Password"
+  />
+  @if (form.get("password")?.value && form.get("password")?.invalid)
+  {
+    Password must contain at least:
+    <ul class = "error">
+      @if (form.get("password")?.hasError ("minlength"))
+      {
+        <li>8 characters</li>
+      }
+      @if (form.get("password")?.hasError ("hasNumber"))
+      {
+        <li>1 number</li>
+      }
+      @if (form.get("password")?.hasError ("hasCapitalCase"))
+      {
+        <li>1 uppercase character</li>
+      }
+      @if (form.get("password")?.hasError ("hasSmallCase"))
+      {
+        <li>1 lowercase character</li>
+      }
+      @if (form.get("password")?.hasError ("hasSpecialCharacters"))
+      {
+        <li>1 character from the following list: !@#$%^&*</li>
+      }
+    </ul>
+  }
+  @if (confirmPassword())
+  {
+    <password-input
+      label = "Confirm password"
+      formControlName = "confirmPassword"
+      placeholder = "Confirm password"
+    />
+    
+    @if (form.get("confirmPassword")?.hasError ("passwordMatches"))
+    {
+      <p class = "error">Passwords do not match</p>
+    }
+  }
+  
+  @if (error())
+  {
+    <p class = "error">{{error()}}</p>
+  }
+  
+  <styled-button
+    [fill] = "true"
+    role = "primary"
+    type = "submit"
+    [disabled] = "primaryButtonDisabled()"
+  >
+    <ng-content select = "[primary-button-content]"/>
+  </styled-button>
+  <ng-content select = "[secondary-text]"/>
+  <styled-button
+    [fill] = "true"
+    role = "primary"
+    renderStyle = "outlined"
+    (onClick) = "navigate ($event)"
+  >
+    <ng-content select = "[secondary-button-content]"/>
+  </styled-button>
+</form>
