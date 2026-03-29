@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Storet.API.Authorization;
+using Storet.Core.Authorization;
 using Storet.Modules.ItemsCatalogue.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,9 +30,31 @@ builder.Services.AddCors (
 	}
 );
 
-var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") ??
+var authAuthority = Environment.GetEnvironmentVariable ("AUTH") ??
 						throw new InvalidOperationException ("Connection string is not configured");
 
+builder.Services.AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer (
+					opt =>
+					{
+						opt.Authority = authAuthority;
+						opt.Audience = "authenticated";
+						opt.TokenValidationParameters = new TokenValidationParameters
+						{
+							ValidateIssuer = true,
+							ValidIssuer = authAuthority,
+							ValidateAudience = true,
+							ValidAudience = "authenticated",
+							ValidateLifetime = true
+						};
+					}
+				);
+
+var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") ??
+						throw new InvalidOperationException ("Connection string is not configured");
+						
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddItemsCatalogueModule (connectionString);
 
 var app = builder.Build();
@@ -40,6 +66,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors ("AllowFrontend");
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.MapControllers();

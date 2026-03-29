@@ -9,4 +9,5 @@ public class ItemComposition
 	public Item ComponentItem { get; set; } = null!;
 	[Range ((short) 1, short.MaxValue)]
 	public short Quantity { get; set; }
+	public Guid UserId { get; set; }
 }

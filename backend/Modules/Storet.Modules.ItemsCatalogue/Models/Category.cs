@@ -10,4 +10,5 @@ public class Category
 	public int? ParentCategoryId { get; set; }
 	public Category? ParentCategory { get; set; }
 	public ICollection<Category> SubCategories { get; set; } = [];
+	public Guid UserId { get; set; }
 }

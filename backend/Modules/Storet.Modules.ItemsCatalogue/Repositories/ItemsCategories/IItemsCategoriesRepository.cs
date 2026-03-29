@@ -4,8 +4,8 @@ namespace Storet.Modules.ItemsCatalogue.Repositories.ItemsCategories;
 
 public interface IItemsCategoriesRepository
 {
-	public Task<IEnumerable<ItemCategory>> GetAllForItemAsync (Guid itemId);
+	public Task<IEnumerable<ItemCategory>> GetAllForItemAsync (Guid itemId, Guid userId);
 	public Task<int> BulkInsertAsync (IEnumerable<ItemCategory> itemCategories);
-	public Task<int> BulkDeleteForItemAsync (Guid itemId, IEnumerable<int> categoryIds);
-	public Task<int> DeleteAllForItemAsync (Guid itemId);
+	public Task<int> BulkDeleteForItemAsync (Guid itemId, Guid userId, IEnumerable<int> categoryIds);
+	public Task<int> DeleteAllForItemAsync (Guid itemId, Guid userId);
 }

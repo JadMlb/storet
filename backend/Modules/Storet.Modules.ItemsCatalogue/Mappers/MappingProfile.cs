@@ -1,4 +1,5 @@
 using AutoMapper;
+using Storet.Core.Mappers;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Contracts.ItemsCompositions;
@@ -32,12 +33,14 @@ public class MappingProfile : Profile
 		CreateMap<CategoryInsertRequest, Category>()
 			.ForMember (dest => dest.Id, opt => opt.Ignore())
 			.ForMember (dest => dest.SubCategories, opt => opt.Ignore())
-			.ForMember (dest => dest.ParentCategory, opt => opt.Ignore());
+			.ForMember (dest => dest.ParentCategory, opt => opt.Ignore())
+			.ForMember (c => c.UserId, opt => opt.MapFrom<CurrentUserResolver<CategoryInsertRequest, Category>>());
 		
 		CreateMap<CategoryUpdateRequest, Category>()
 			.ForMember (dest => dest.Id, opt => opt.Ignore())
 			.ForMember (dest => dest.SubCategories, opt => opt.Ignore())
 			.ForMember (dest => dest.ParentCategory, opt => opt.Ignore())
+			.ForMember (c => c.UserId, opt => opt.MapFrom<CurrentUserResolver<CategoryUpdateRequest, Category>>())
 			.ForAllMembers (opts => opts.Condition ((src, dest, srcMember) => srcMember != null));
 		
 		CreateMap<CategoryHierarchy, Category>()
@@ -65,12 +68,14 @@ public class MappingProfile : Profile
 		CreateMap<ItemInsertRequest, Item>()
 			.ForMember (i => i.Id, opt => opt.Ignore())
 			.ForMember (i => i.ItemCategories, opt => opt.Ignore())
-			.ForMember (i => i.Components, opt => opt.Ignore());
+			.ForMember (i => i.Components, opt => opt.Ignore())
+			.ForMember (i => i.UserId, opt => opt.MapFrom<CurrentUserResolver<ItemInsertRequest, Item>>());
 		
 		CreateMap<ItemUpdateRequest, Item>()
 			.ForMember (i => i.Id, opt => opt.Ignore())
 			.ForMember (i => i.ItemCategories, opt => opt.Ignore())
 			.ForMember (i => i.Components, opt => opt.Ignore())
+			.ForMember (i => i.UserId, opt => opt.MapFrom<CurrentUserResolver<ItemUpdateRequest, Item>>())
 			.ForAllMembers (opts => opts.Condition ((src, dest, srcMember) => srcMember != null));
 		#endregion Items
 	}

@@ -35,9 +35,14 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
 		builder.Property (i => i.IsComponent)
 				.HasColumnName ("is_component")
 				.HasDefaultValue (false);
+		builder.Property (i => i.UserId)
+				.HasColumnName ("user_id");
 
 		builder.HasIndex (i => i.Name)
 				.HasDatabaseName ("idx_uniq_items_name")
 				.IsUnique();
+
+		builder.HasIndex (i => i.UserId)
+				.HasDatabaseName ("idx_items_user_ids");
 	}
 }

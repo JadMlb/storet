@@ -1,4 +1,5 @@
 using AutoMapper;
+using Storet.Core.Authorization;
 using Storet.Core.Exceptions;
 using Storet.Core.Utils;
 using Storet.Modules.ItemsCatalogue.Contracts.Items;
@@ -17,14 +18,16 @@ public class ItemsService : IItemsService
 	private readonly IItemsRepository itemsRepository;
 	private readonly IItemsCategoriesRepository itemsCategoriesRepository;
 	private readonly IItemsCompositionRepository itemsCompositionRepository;
+	private readonly ICurrentUser user;
 	private readonly IMapper mapper;
 	
-	public ItemsService (IItemsRepository itemsRepository, ICategoriesRepository categoriesRepository, IItemsCategoriesRepository itemsCategoriesRepository, IItemsCompositionRepository itemsCompositionRepository, IMapper mapper)
+	public ItemsService (IItemsRepository itemsRepository, ICategoriesRepository categoriesRepository, IItemsCategoriesRepository itemsCategoriesRepository, IItemsCompositionRepository itemsCompositionRepository, ICurrentUser user, IMapper mapper)
 	{
 		this.itemsRepository = itemsRepository;
 		this.categoriesRepository = categoriesRepository;
 		this.itemsCategoriesRepository = itemsCategoriesRepository;
 		this.itemsCompositionRepository = itemsCompositionRepository;
+		this.user = user;
 		this.mapper = mapper;
 	}
 	
@@ -33,8 +36,8 @@ public class ItemsService : IItemsService
 		if (query.PageSize < 1)
 			throw new ArgumentException ("Invalid page size for query");
 		
-		var data = await itemsRepository.GetAllAsync (query);
-		var previousKey = await itemsRepository.GetPreviousKeyAsync (query);
+		var data = await itemsRepository.GetAllAsync (query, user.Id);
+		var previousKey = await itemsRepository.GetPreviousKeyAsync (query, user.Id);
 		
 		var response = new PaginatedResponse<ItemResponse, string>();
 		if (data.Count() > query.PageSize)
@@ -52,13 +55,13 @@ public class ItemsService : IItemsService
 	
 	public async Task<IEnumerable<ItemResponse>> GetAllComponentsAsync ()
 	{
-		var result = await itemsRepository.GetAllComponentsAsync();
+		var result = await itemsRepository.GetAllComponentsAsync (user.Id);
 		return result.Select (mapper.Map<Item, ItemResponse>);
 	}
 	
 	public async Task<ItemResponseDetails?> GetOneAsync (Guid key)
 	{
-		var item = await itemsRepository.GetOneAsync (key);
+		var item = await itemsRepository.GetOneAsync (key, user.Id);
 		if (item == null)
 			return null;
 			
@@ -85,7 +88,7 @@ public class ItemsService : IItemsService
 			
 			if (providedExistingItemIds.Keys.Count > 0)
 			{
-				var itemsExistInDatabase = await itemsRepository.AllExistAsync (providedExistingItemIds.Keys.ToList());
+				var itemsExistInDatabase = await itemsRepository.AllExistAsync (user.Id, providedExistingItemIds.Keys.ToList());
 				if (!itemsExistInDatabase)
 					throw new EntityNotFoundException (nameof (Item), providedExistingItemIds.Keys);
 			}
@@ -104,7 +107,7 @@ public class ItemsService : IItemsService
 	
 	private async Task<(IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (Guid itemId, IEnumerable<ItemCompositionRequest>? components)
 	{
-		var rawComponents = await itemsCompositionRepository.GetAllForItemAsync (itemId);
+		var rawComponents = await itemsCompositionRepository.GetAllForItemAsync (itemId, user.Id);
 		
 		var oldComponents = rawComponents?.Select (
 										c => new ItemCompositionRequest
@@ -125,9 +128,11 @@ public class ItemsService : IItemsService
 										cId => new ItemCategory
 										{
 											ItemId = insertedItemId,
-											CategoryId = cId
+											CategoryId = cId,
+											UserId = user.Id
 										}
-									);
+									)
+									.ToList();
 		var insertedCategories = await itemsCategoriesRepository.BulkInsertAsync (itemsCategories);
 	}
 	
@@ -143,9 +148,11 @@ public class ItemsService : IItemsService
 										Description = i.Description,
 										Quantity = parentItemQuantity / i.Quantity,
 										Unit = parentItemUnit,
-										IsComponent = true
+										IsComponent = true,
+										UserId = user.Id
 									}
-								);
+								)
+								.ToList();
 			var created = await itemsRepository.BulkInsertAsync (itemsModels);
 			itemsCompositionsToBeAdded = created.Join (
 													newItemsToBeCreated,
@@ -155,7 +162,8 @@ public class ItemsService : IItemsService
 													{
 														ParentItemId = itemId,
 														ComponentItemId = created.Id,
-														Quantity = composition.Quantity
+														Quantity = composition.Quantity,
+														UserId = user.Id
 													}
 												);
 		}
@@ -167,12 +175,13 @@ public class ItemsService : IItemsService
 												{
 													ParentItemId = itemId,
 													ComponentItemId = kv.Key,
-													Quantity = kv.Value
+													Quantity = kv.Value,
+													UserId = user.Id
 												}
 											)
 										);
 										
-		return itemsCompositionsToBeAdded;
+		return itemsCompositionsToBeAdded.ToList();
 	}
 	
 	private async Task InsertItemComponents (Item item, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
@@ -235,14 +244,14 @@ public class ItemsService : IItemsService
 		var (removedItemComponents, updatedValues) = GetComponentsDiffForItem (oldComponents, providedExistingItemIds);
 		if (removedItemComponents.Any())
 		{
-			await itemsCompositionRepository.BulkDeleteForItemAsync (item.Id, removedItemComponents);
-			var notUsedItems = await itemsCompositionRepository.GetNotUsedByAnyAsync (removedItemComponents);
+			await itemsCompositionRepository.BulkDeleteForItemAsync (item.Id, user.Id, removedItemComponents);
+			var notUsedItems = await itemsCompositionRepository.GetNotUsedByAnyAsync (removedItemComponents, user.Id);
 			if (notUsedItems.Any())
-				await itemsRepository.BulkDeleteAsync (notUsedItems);
+				await itemsRepository.BulkDeleteAsync (notUsedItems, user.Id);
 		}
 		if (updatedValues.Count != 0)
 			foreach (var modification in updatedValues)
-				await itemsCompositionRepository.UpdateAsync (item.Id, modification.Key, modification.Value);
+				await itemsCompositionRepository.UpdateAsync (item.Id, modification.Key, user.Id, modification.Value);
 		
 		if (providedExistingItemIds.Count > 0)
 			await InsertItemComponents (item, providedExistingItemIds, newItemsToBeCreated);
@@ -255,7 +264,7 @@ public class ItemsService : IItemsService
 		if (model.Quantity <= 0)
 			throw new ArgumentException ("Item must have a positive quantity");
 			
-		var allCategoriesExist = await categoriesRepository.AllExistAsync (model.Categories);
+		var allCategoriesExist = await categoriesRepository.AllExistAsync (user.Id, model.Categories);
 		if (!allCategoriesExist)
 			throw new EntityNotFoundException (nameof (Category), model.Categories);
 		
@@ -269,7 +278,7 @@ public class ItemsService : IItemsService
 		
 		await InsertItemComponents (insertedItem, providedExistingItemIds, newItemsToBeCreated);
 		
-		var fullEntity = await itemsRepository.GetOneAsync (insertedItem.Id);
+		var fullEntity = await itemsRepository.GetOneAsync (insertedItem.Id, user.Id);
 		return mapper.Map<Item, ItemResponseDetails> (fullEntity!);
 	}
 	
@@ -278,13 +287,13 @@ public class ItemsService : IItemsService
 		IEnumerable<int> deletedCategoryIds = [], addedCategoryIds = [];
 		if (model.Categories != null && model.Categories.Count > 0)
 		{
-			var newCategoriesListExists = await categoriesRepository.AllExistAsync (model.Categories);
+			var newCategoriesListExists = await categoriesRepository.AllExistAsync (user.Id, model.Categories);
 			
 			if (!newCategoriesListExists)
 				throw new EntityNotFoundException (nameof (Category), model.Categories);
 				
 			// get the dif changes
-			var oldCategoriesRelationships = await itemsCategoriesRepository.GetAllForItemAsync (key);
+			var oldCategoriesRelationships = await itemsCategoriesRepository.GetAllForItemAsync (key, user.Id);
 			var oldCategories = oldCategoriesRelationships.Select (r => r.CategoryId);
 			deletedCategoryIds = oldCategories.Except (model.Categories);
 			addedCategoryIds = model.Categories.Except (oldCategories);
@@ -296,23 +305,25 @@ public class ItemsService : IItemsService
 	private async Task UpdateCategoriesForItem (Guid key, IEnumerable<int> deletedCategoryIds, IEnumerable<int> addedCategoryIds)
 	{
 		if (deletedCategoryIds.Any())
-			await itemsCategoriesRepository.BulkDeleteForItemAsync (key, deletedCategoryIds);
+			await itemsCategoriesRepository.BulkDeleteForItemAsync (key, user.Id, deletedCategoryIds);
 		if (addedCategoryIds.Any())
 		{
 			var toBeInserted = addedCategoryIds.Select (
 				cId => new ItemCategory
 				{
 					CategoryId = cId,
-					ItemId = key
+					ItemId = key,
+					UserId = user.Id
 				}
-			);
+			)
+			.ToList();
 			await itemsCategoriesRepository.BulkInsertAsync (toBeInserted);
 		}
 	}
 	
 	public async Task<ItemResponseDetails?> UpdateAsync (Guid key, ItemUpdateRequest model)
 	{
-		var itemExists = await itemsRepository.ExistsAsync (key);
+		var itemExists = await itemsRepository.ExistsAsync (key, user.Id);
 		if (!itemExists)
 			return null;
 		
@@ -320,7 +331,7 @@ public class ItemsService : IItemsService
 		
 		var (oldComponents, providedExistingItemIds, newItemsToBeCreated) = await CheckIfComponentsExist (key, model.Components);
 		
-		var updatedItem = await itemsRepository.UpdateAsync (key, mapper.Map<ItemUpdateRequest, Item> (model));
+		var updatedItem = await itemsRepository.UpdateAsync (key, user.Id, mapper.Map<ItemUpdateRequest, Item> (model));
 		if (updatedItem == null)
 			return null;
 		
@@ -328,7 +339,7 @@ public class ItemsService : IItemsService
 		
 		await UpdateComponentsForItem (updatedItem, oldComponents, providedExistingItemIds, newItemsToBeCreated);
 		
-		var finalEntity = await itemsRepository.GetOneAsync (key);
+		var finalEntity = await itemsRepository.GetOneAsync (key, user.Id);
 		return mapper.Map<Item, ItemResponseDetails> (finalEntity!);
 	}
 	
@@ -336,9 +347,9 @@ public class ItemsService : IItemsService
 	{
 		try
 		{
-			await itemsCategoriesRepository.DeleteAllForItemAsync (key);
-			await itemsCompositionRepository.DeleteAllForItemAsync (key);
-			return await itemsRepository.DeleteAsync (key);
+			await itemsCategoriesRepository.DeleteAllForItemAsync (key, user.Id);
+			await itemsCompositionRepository.DeleteAllForItemAsync (key, user.Id);
+			return await itemsRepository.DeleteAsync (key, user.Id);
 		}
 		catch (Exception)
 		{

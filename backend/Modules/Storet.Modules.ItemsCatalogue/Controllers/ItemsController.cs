@@ -3,9 +3,11 @@ using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Core.Exceptions;
 using Storet.Core.Utils;
 using Storet.Modules.ItemsCatalogue.Services.Items;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Storet.Modules.ItemsCatalogue.Controllers;
 
+[Authorize]
 [ApiController]
 [Route ("api/items")]
 public class ItemsController : ControllerBase

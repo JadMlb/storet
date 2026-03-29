@@ -6,4 +6,5 @@ public class CategoryHierarchy
 	public string Label { get; set; } = string.Empty;
 	public int? ParentCategoryId { get; set; }
 	public int Level { get; set; }
+	public Guid UserId { get; set; }
 }

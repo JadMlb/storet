@@ -17,6 +17,8 @@ public class ItemCategoryConfiguration : IEntityTypeConfiguration<ItemCategory>
 				.HasColumnName ("category_id");
 		builder.Property (i => i.ItemId)
 				.HasColumnName ("item_id");
+		builder.Property (i => i.UserId)
+				.HasColumnName ("user_id");
 		builder.HasOne (i => i.Item)
 				.WithMany (i => i.ItemCategories)
 				.HasForeignKey (i => i.ItemId)
@@ -25,5 +27,8 @@ public class ItemCategoryConfiguration : IEntityTypeConfiguration<ItemCategory>
 				.WithMany()
 				.HasForeignKey (i => i.CategoryId)
 				.HasConstraintName ("fk_items_categories_categories");
+
+		builder.HasIndex (c => c.UserId)
+				.HasDatabaseName ("idx_items_categories_user_ids");
 	}
 }

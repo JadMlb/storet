@@ -10,30 +10,33 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 {
 	public ItemsRepository (StoretItemsCatalogueDbContext context) : base (context) {}
 
-	public async Task<IEnumerable<Item>> GetAllAsync (Query<string> query)
+	public async Task<IEnumerable<Item>> GetAllAsync (Query<string> query, Guid userId)
 	{
 		return await context.Items
 							.AsNoTracking()
 							.Where (i => !i.IsComponent)
+							.Where (i => i.UserId == userId)
 							.PaginateQuery (query, "Name")
 							.ToListAsync();
 	}
 	
-	public async Task<IEnumerable<Item>> GetAllComponentsAsync ()
+	public async Task<IEnumerable<Item>> GetAllComponentsAsync (Guid userId)
 	{
 		return await context.Items
 							.AsNoTracking()
 							.Where (i => i.IsComponent)
+							.Where (i => i.UserId == userId)
 							.ToListAsync();
 	}
 	
-	public async Task<string?> GetPreviousKeyAsync (Query<string> query)
+	public async Task<string?> GetPreviousKeyAsync (Query<string> query, Guid userId)
 	{
 		if (query.Key == null)
 			return null;
 			
 		var previousCursorItem = await context.Items
 												.AsNoTracking()
+												.Where (i => i.UserId == userId)
 												.Where (i => string.Compare (i.Name, query.Key) < 0)
 												.OrderByDescending (i => i.Name)
 												.Take (query.PageSize + 1)
@@ -41,7 +44,7 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		return previousCursorItem?.Name;
 	}
 	
-	public async Task<Item?> GetOneAsync (Guid key)
+	public async Task<Item?> GetOneAsync (Guid key, Guid userId)
 	{
 		return await context.Items
 							.AsNoTracking()
@@ -49,22 +52,23 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 							.ThenInclude (i => i.Category)
 							.Include (i => i.Components)
 							.ThenInclude (i => i.ComponentItem)
-							.FirstOrDefaultAsync (i => i.Id == key);
+							.FirstOrDefaultAsync (i => i.Id == key && i.UserId == userId);
 	}
 	
-	public async Task<bool> ExistsAsync (Guid key)
+	public async Task<bool> ExistsAsync (Guid key, Guid userId)
 	{
 		return await context.Items
 							.AsNoTracking()
-							.AnyAsync (i => i.Id == key);
+							.AnyAsync (i => i.Id == key && i.UserId == userId);
 	}
 	
-	public async Task<bool> AllExistAsync (IEnumerable<Guid> keys)
+	public async Task<bool> AllExistAsync (Guid userId, IEnumerable<Guid> keys)
 	{
 		var keysSet = keys.ToHashSet();
 		var numberOfExistsingIdsInDb = await context.Items
 													.AsNoTracking()
 													.Where (i => i.IsComponent)
+													.Where (i => i.UserId == userId)
 													.CountAsync (c => keysSet.Contains (c.Id));
 		return keysSet.Count == numberOfExistsingIdsInDb;
 	}
@@ -93,10 +97,10 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		return itemsList;
 	}
 
-	public async Task<Item?> UpdateAsync (Guid key, Item model)
+	public async Task<Item?> UpdateAsync (Guid key, Guid userId, Item model)
 	{
 		var existing = await context.Items
-									.FirstOrDefaultAsync (i => i.Id == key);
+									.FirstOrDefaultAsync (i => i.Id == key && i.UserId == userId);
 		if (existing == null)
 			return null;
 
@@ -116,9 +120,9 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		}
 	}
 
-	public async Task<bool> DeleteAsync (Guid key)
+	public async Task<bool> DeleteAsync (Guid key, Guid userId)
 	{
-		var existing = await context.Items.FirstOrDefaultAsync (i => i.Id == key);
+		var existing = await context.Items.FirstOrDefaultAsync (i => i.Id == key && i.UserId == userId);
 		if (existing == null)
 			return false;
 		
@@ -134,10 +138,10 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 		}
 	}
 	
-	public async Task<bool> BulkDeleteAsync (IEnumerable<Guid> itemsIds)
+	public async Task<bool> BulkDeleteAsync (IEnumerable<Guid> itemsIds, Guid userId)
 	{
 		var existing = await context.Items
-									.Where (i => itemsIds.Contains (i.Id))
+									.Where (i => itemsIds.Contains (i.Id) && i.UserId == userId)
 									.ToListAsync();
 		if (existing.Count == 0)
 			return false;

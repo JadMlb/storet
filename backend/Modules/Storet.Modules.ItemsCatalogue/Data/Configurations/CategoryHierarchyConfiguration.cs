@@ -19,5 +19,7 @@ public class CategoryHierarchyConfiguration : IEntityTypeConfiguration<CategoryH
 				.HasColumnName ("parent_id");
 		builder.Property (c => c.Level)
 				.HasColumnName ("level");
+		builder.Property (c => c.UserId)
+				.HasColumnName ("user_id");
 	}
 }

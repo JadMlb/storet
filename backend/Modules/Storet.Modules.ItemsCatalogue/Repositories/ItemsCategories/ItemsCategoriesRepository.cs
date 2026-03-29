@@ -9,11 +9,11 @@ public class ItemsCategoriesRepository : BaseRepository<StoretItemsCatalogueDbCo
 {
 	public ItemsCategoriesRepository (StoretItemsCatalogueDbContext context) : base (context) {}
 
-	public async Task<IEnumerable<ItemCategory>> GetAllForItemAsync (Guid itemId)
+	public async Task<IEnumerable<ItemCategory>> GetAllForItemAsync (Guid itemId, Guid userId)
 	{
 		return await context.ItemsCategories
 							.AsNoTracking()
-							.Where (i => i.ItemId == itemId)
+							.Where (i => i.ItemId == itemId && i.UserId == userId)
 							.Include (i => i.Category)
 							.ToListAsync();
 	}
@@ -24,17 +24,17 @@ public class ItemsCategoriesRepository : BaseRepository<StoretItemsCatalogueDbCo
 		return await context.SaveChangesAsync();
 	}
 	
-	public async Task<int> BulkDeleteForItemAsync (Guid itemId, IEnumerable<int> categoryIds)
+	public async Task<int> BulkDeleteForItemAsync (Guid itemId, Guid userId, IEnumerable<int> categoryIds)
 	{
 		return await context.ItemsCategories
-							.Where (i => i.ItemId == itemId && categoryIds.Contains (i.CategoryId))
+							.Where (i => i.ItemId == itemId && categoryIds.Contains (i.CategoryId) && i.UserId == userId)
 							.ExecuteDeleteAsync();
 	}
 
-	public async Task<int> DeleteAllForItemAsync (Guid itemId)
+	public async Task<int> DeleteAllForItemAsync (Guid itemId, Guid userId)
 	{
 		return await context.ItemsCategories
-							.Where (i => i.ItemId == itemId)
+							.Where (i => i.ItemId == itemId && i.UserId == userId)
 							.ExecuteDeleteAsync();
 	}
 }

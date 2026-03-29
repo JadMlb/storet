@@ -1,5 +1,9 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Storet.Core.Mappers;
+using Storet.Modules.ItemsCatalogue.Contracts.Categories;
+using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Data;
 using Storet.Modules.ItemsCatalogue.Mappers;
 using Storet.Modules.ItemsCatalogue.Models;
@@ -24,7 +28,19 @@ public static class ItemsCatalogueSetup
 						.EnableSensitiveDataLogging()
 		);
 		
-		services.AddAutoMapper (cfg => cfg.AddProfile<MappingProfile>());
+		services.AddScoped (typeof (CurrentUserResolver<,>));
+		services.AddScoped<CurrentUserResolver<CategoryInsertRequest, Category>>();
+		services.AddScoped<CurrentUserResolver<CategoryUpdateRequest, Category>>();
+		services.AddScoped<CurrentUserResolver<ItemInsertRequest, Item>>();
+		services.AddScoped<CurrentUserResolver<ItemUpdateRequest, Item>>();
+		services.AddAutoMapper (
+			(sp, cfg) =>
+			{
+				cfg.ConstructServicesUsing (type => ActivatorUtilities.CreateInstance (sp, type));
+				cfg.AddProfile<MappingProfile>();
+			},
+			Assembly.GetExecutingAssembly()
+		);
 		
 		services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 		services.AddScoped<ICategoriesService, CategoriesService>();

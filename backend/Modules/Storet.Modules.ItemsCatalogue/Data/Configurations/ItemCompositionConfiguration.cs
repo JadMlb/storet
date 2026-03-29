@@ -23,6 +23,8 @@ public class ItemCompositionConfiguration : IEntityTypeConfiguration<ItemComposi
 				.HasColumnName ("component_item_id");
 		builder.Property (c => c.Quantity)
 				.HasColumnName ("quantity");
+		builder.Property (c => c.UserId)
+				.HasColumnName ("user_id");
 		
 		builder.HasOne<Item>()
 				.WithMany (i => i.Components)
@@ -32,5 +34,8 @@ public class ItemCompositionConfiguration : IEntityTypeConfiguration<ItemComposi
 				.WithMany()
 				.HasForeignKey (c => c.ComponentItemId)
 				.HasConstraintName ("fk_items_components_component_item");
+
+		builder.HasIndex (c => c.UserId)
+				.HasDatabaseName ("idx_items_components_user_ids");
 	}
 }

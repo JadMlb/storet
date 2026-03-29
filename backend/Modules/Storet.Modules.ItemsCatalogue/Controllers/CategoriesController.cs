@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Services.Categories;
 
 namespace Storet.Modules.ItemsCatalogue.Controllers;
 
+[Authorize]
 [ApiController]
 [Route ("api/categories")]
 public class CategoriesController : ControllerBase

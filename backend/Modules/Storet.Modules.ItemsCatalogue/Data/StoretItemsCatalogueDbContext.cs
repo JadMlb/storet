@@ -19,5 +19,16 @@ public class StoretItemsCatalogueDbContext : DbContext
 		base.OnModelCreating (modelBuilder);
 
 		modelBuilder.ApplyConfigurationsFromAssembly (Assembly.GetExecutingAssembly());
+		
+		if (!Database.IsNpgsql())
+		{
+			modelBuilder.Entity<Item>()
+						.Property (i => i.Unit)
+						.HasColumnType ("text")
+						.HasConversion (
+							u => u.ToString().ToLowerInvariant(),
+							s => Enum.Parse<Unit> (s, true)
+						);
+		}
 	}
 }

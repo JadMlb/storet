@@ -1,4 +1,5 @@
 using AutoMapper;
+using Storet.Core.Authorization;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Modules.ItemsCatalogue.Repositories.Categories;
@@ -8,17 +9,19 @@ namespace Storet.Modules.ItemsCatalogue.Services.Categories;
 public class CategoriesService : ICategoriesService
 {
 	private readonly ICategoriesRepository repository;
+	private readonly ICurrentUser user;
 	private readonly IMapper mapper;
 
-	public CategoriesService (ICategoriesRepository repository, IMapper mapper)
+	public CategoriesService (ICategoriesRepository repository, ICurrentUser user, IMapper mapper)
 	{
 		this.repository = repository;
+		this.user = user;
 		this.mapper = mapper;
 	}
 
 	public async Task<IEnumerable<CategoryResponseWithSubCategories>> GetAllAsync ()
 	{
-		var categoriesWithLevels = await repository.GetAllWithDepthAsync();
+		var categoriesWithLevels = await repository.GetAllWithDepthAsync (user.Id);
 
 		if (categoriesWithLevels == null)
 			return [];
@@ -57,7 +60,7 @@ public class CategoriesService : ICategoriesService
 
 	public async Task<CategoryResponseWithParent?> GetOneAsync (int key)
 	{
-		var category = await repository.GetOneAsync (key);
+		var category = await repository.GetOneAsync (key, user.Id);
 		return mapper.Map<CategoryResponseWithParent> (category);
 	}
 
@@ -65,7 +68,7 @@ public class CategoriesService : ICategoriesService
 	{
 		if (model.ParentCategoryId.HasValue)
 		{
-			var _ = await repository.GetOneAsync (model.ParentCategoryId.Value) ??
+			var _ = await repository.GetOneAsync (model.ParentCategoryId.Value, user.Id) ??
 						throw new InvalidOperationException ("Parent category is not found");
 		}
 
@@ -75,20 +78,20 @@ public class CategoriesService : ICategoriesService
 
 	public async Task<CategoryResponseWithParent?> UpdateAsync (int key, CategoryUpdateRequest model)
 	{
-		var existingCategory = await repository.GetOneAsync (key);
+		var existingCategory = await repository.GetOneAsync (key, user.Id);
 		if (existingCategory == null)
 			return null;
 
 		if (model.ParentCategoryId.HasValue)
 		{
-			var _ = await repository.GetOneAsync (model.ParentCategoryId.Value) ??
+			var _ = await repository.GetOneAsync (model.ParentCategoryId.Value, user.Id) ??
 						throw new InvalidOperationException ("Parent category is not found");
 		}
 		
 		existingCategory.Label = model.Label ?? existingCategory.Label;
 		existingCategory.ParentCategoryId = model.ParentCategoryId ?? existingCategory.ParentCategoryId;
 
-		var updatedCategory = await repository.UpdateAsync (key, existingCategory);
+		var updatedCategory = await repository.UpdateAsync (key, user.Id, existingCategory);
 		return mapper.Map<CategoryResponseWithParent> (updatedCategory);
 	}
 
@@ -96,7 +99,7 @@ public class CategoriesService : ICategoriesService
 	{
 		try
 		{
-			return await repository.DeleteAsync (key);
+			return await repository.DeleteAsync (key, user.Id);
 		}
 		catch (InvalidOperationException)
 		{

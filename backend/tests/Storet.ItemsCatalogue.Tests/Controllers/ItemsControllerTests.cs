@@ -2,12 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Storet.API.Core.Exceptions;
-using Storet.API.Core.Utils;
-using Storet.API.ItemsCatalogue.Contracts.Items;
-using Storet.API.ItemsCatalogue.Controllers;
-using Storet.API.ItemsCatalogue.Models;
-using Storet.API.ItemsCatalogue.Services.Items;
+using Storet.Core.Exceptions;
+using Storet.Core.Utils;
+using Storet.Modules.ItemsCatalogue.Contracts.Items;
+using Storet.Modules.ItemsCatalogue.Controllers;
+using Storet.Modules.ItemsCatalogue.Models;
+using Storet.Modules.ItemsCatalogue.Services.Items;
 
 namespace Storet.ItemsCatalogue.Tests.Controllers;
 

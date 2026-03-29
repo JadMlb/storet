@@ -14,4 +14,5 @@ public class Item
 	public bool IsComponent { get; set; } = false;
 	public ICollection<ItemCategory> ItemCategories { get; set; } = null!;
 	public ICollection<ItemComposition> Components { get; set; } = null!;
+	public Guid UserId { get; set; }
 }

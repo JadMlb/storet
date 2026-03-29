@@ -9,33 +9,37 @@ public class CategoriesRepository : BaseRepository<StoretItemsCatalogueDbContext
 {
 	public CategoriesRepository (StoretItemsCatalogueDbContext context) : base (context) {}
 
-	public async Task<IEnumerable<Category>> GetAllAsync ()
+	public async Task<IEnumerable<Category>> GetAllAsync (Guid userId)
 	{
 		return await context.Categories
 							.AsNoTracking()
+							.Where (c => c.UserId == userId)
 							.ToListAsync();
 	}
 
-	public async Task<IEnumerable<CategoryHierarchy>> GetAllWithDepthAsync ()
+	public async Task<IEnumerable<CategoryHierarchy>> GetAllWithDepthAsync (Guid userId)
 	{
 		return await context.CategoryHierarchies
 							.AsNoTracking()
+							.Where (c => c.UserId == userId)
 							.ToListAsync();
 	}
 
-	public async Task<Category?> GetOneAsync (int key)
+	public async Task<Category?> GetOneAsync (int key, Guid userId)
 	{
 		return await context.Categories
 							.AsNoTracking()
+							.Where (c => c.UserId == userId)
 							.Include (c => c.ParentCategory)
 							.FirstOrDefaultAsync (c => c.Id == key);
 	}
 	
-	public async Task<bool> AllExistAsync (IEnumerable<int> keys)
+	public async Task<bool> AllExistAsync (Guid userId, IEnumerable<int> keys)
 	{
 		var keysSet = keys.ToHashSet();
 		var numberOfExistsingIdsInDb = await context.Categories
 													.AsNoTracking()
+													.Where (c => c.UserId == userId)
 													.CountAsync (c => keysSet.Contains (c.Id));
 		return keysSet.Count == numberOfExistsingIdsInDb;
 	}
@@ -48,6 +52,7 @@ public class CategoriesRepository : BaseRepository<StoretItemsCatalogueDbContext
 			await context.SaveChangesAsync();
 			return await context.Categories
 								.AsNoTracking()
+								.Where (c => c.UserId == model.UserId)
 								.Include (c => c.ParentCategory)
 								.FirstOrDefaultAsync (c => c.Id == model.Id);
 		}
@@ -57,9 +62,9 @@ public class CategoriesRepository : BaseRepository<StoretItemsCatalogueDbContext
 		}
 	}
 
-	public async Task<Category?> UpdateAsync (int key, Category model)
+	public async Task<Category?> UpdateAsync (int key, Guid userId, Category model)
 	{
-		var old = await context.Categories.FirstOrDefaultAsync (c => c.Id == key);
+		var old = await context.Categories.FirstOrDefaultAsync (c => c.Id == key && c.UserId == userId);
 		if (old == null)
 			return null;
 		
@@ -77,16 +82,17 @@ public class CategoriesRepository : BaseRepository<StoretItemsCatalogueDbContext
 		}
 	}
 
-	public async Task<bool> DeleteAsync (int key)
+	public async Task<bool> DeleteAsync (int key, Guid userId)
 	{
 		var old = await context.Categories
+								.Where (c => c.UserId == userId)
 								.Include (c => c.SubCategories)
 								.FirstOrDefaultAsync (c => c.Id == key);
 		
 		if (old == null)
 			return false;
 
-		if (old.SubCategories.Any())
+		if (old.SubCategories.Count > 0)
 			throw new InvalidOperationException ("Cannot delete category with subcategories");
 		
 		try

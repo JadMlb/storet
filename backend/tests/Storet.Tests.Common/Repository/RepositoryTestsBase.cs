@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Xunit.Abstractions;
 
 namespace Storet.Tests.Common.Repository;
 
@@ -6,9 +7,11 @@ public abstract class RepositoryTestsBase<TContext, TRepository> : IDisposable w
 {
 	protected readonly TContext context;
 	protected readonly TRepository repository;
+	protected readonly ITestOutputHelper output;
 	
-	public RepositoryTestsBase ()
+	public RepositoryTestsBase (ITestOutputHelper output)
 	{
+		this.output = output;
 		context = InitDbContext();
 		repository = InitRepository();
 		

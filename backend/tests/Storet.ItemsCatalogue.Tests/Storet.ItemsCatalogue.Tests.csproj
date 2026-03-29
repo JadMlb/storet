@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Storet.API\Storet.API.csproj" />
+    <ProjectReference Include="..\..\Modules\Storet.Modules.ItemsCatalogue\Storet.Modules.ItemsCatalogue.csproj" />
     <ProjectReference Include="..\Storet.Tests.Common\Storet.Tests.Common.csproj" />
   </ItemGroup>
 

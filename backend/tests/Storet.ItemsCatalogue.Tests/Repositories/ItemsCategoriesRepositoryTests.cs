@@ -1,14 +1,17 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Storet.API.ItemsCatalogue.Data;
-using Storet.API.ItemsCatalogue.Models;
-using Storet.API.ItemsCatalogue.Repositories.ItemsCategories;
+using Storet.Modules.ItemsCatalogue.Data;
+using Storet.Modules.ItemsCatalogue.Models;
+using Storet.Modules.ItemsCatalogue.Repositories.ItemsCategories;
 using Storet.Tests.Common.Repository;
+using Xunit.Abstractions;
 
 namespace Storet.ItemsCatalogue.Tests.Repositories;
 
 public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretItemsCatalogueDbContext, IItemsCategoriesRepository>
 {
+	public ItemsCategoriesRepositoryTests (ITestOutputHelper output) : base (output) {}
+
 	protected override ItemsCategoriesRepository InitRepository ()
 	{
 		return new ItemsCategoriesRepository (context);
@@ -22,9 +25,12 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task InsertAsyncWithExistingItemAndCategoryShouldAddToDatabase ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var category = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		await context.Categories.AddAsync (category);
 		
@@ -32,21 +38,23 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		var phone = new Item
 		{
 			Name = "Phone",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = category.Id},
-			new () {ItemId = phone.Id, CategoryId = category.Id}
+			new () {ItemId = laptop.Id, CategoryId = category.Id, UserId = userId},
+			new () {ItemId = phone.Id, CategoryId = category.Id, UserId = userId}
 		};
 
 		var result = await repository.BulkInsertAsync (itemCategories);
@@ -54,7 +62,7 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		result.Should().Be (2);
 		
 		var saved = await context.ItemsCategories
-									.Where (i => i.CategoryId == category.Id)
+									.Where (i => i.CategoryId == category.Id && i.UserId == userId)
 									.ToListAsync();
 		saved.Should().NotBeNull();
 		saved.Should().HaveCount (2);
@@ -65,9 +73,12 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task InsertAsyncWithNonExistingItemShouldThrowException ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var category = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		await context.Categories.AddAsync (category);
 		await context.SaveChangesAsync();
@@ -75,7 +86,7 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		var nonExistentItemId = Guid.NewGuid();
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = nonExistentItemId, CategoryId = category.Id}
+			new () {ItemId = nonExistentItemId, CategoryId = category.Id, UserId = userId}
 		};
 
 		Func<Task> act = async () => await repository.BulkInsertAsync (itemCategories);
@@ -89,18 +100,21 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task InsertAsyncWithNonExistingCategoryShouldThrowException ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var laptop = new Item
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = 999}
+			new () {ItemId = laptop.Id, CategoryId = 999, UserId = userId}
 		};
 
 		Func<Task> act = async () => await repository.BulkInsertAsync (itemCategories);
@@ -114,9 +128,11 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task InsertAsyncWithExistingRelationshipShouldThrowException ()
 	{
+		var userId = Guid.NewGuid();
 		var electronics = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		await context.Categories.AddAsync (electronics);
 		
@@ -124,7 +140,8 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
@@ -132,7 +149,8 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		var laptopIsElectronics = new ItemCategory
 		{
 			ItemId = laptop.Id,
-			CategoryId = electronics.Id
+			CategoryId = electronics.Id,
+			UserId = userId
 		};
 		await context.ItemsCategories.AddAsync (laptopIsElectronics);
 		
@@ -146,13 +164,17 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task DeleteAllForItemAsyncWithExistingItemShouldDeleteFromDatabase ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var electronics = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		var deskEssentials = new Category
 		{
-			Label = "Desk Essentials"
+			Label = "Desk Essentials",
+			UserId = userId
 		};
 		await context.Categories.AddRangeAsync (electronics, deskEssentials);
 		
@@ -160,26 +182,27 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = electronics.Id},
-			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id}
+			new () {ItemId = laptop.Id, CategoryId = electronics.Id, UserId = userId},
+			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id, UserId = userId}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
 		await context.SaveChangesAsync();
 
-		var result = await repository.DeleteAllForItemAsync (laptop.Id);
+		var result = await repository.DeleteAllForItemAsync (laptop.Id, userId);
 		
 		result.Should().Be (2);
 		
 		var deleted = await context.ItemsCategories
 									.AsNoTracking()
-									.Where (i => i.ItemId == laptop.Id)
+									.Where (i => i.ItemId == laptop.Id && i.UserId == userId)
 									.ToListAsync();
 		deleted.Should().NotBeNull();
 		deleted.Should().HaveCount (0);
@@ -188,13 +211,17 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task DeleteAllForItemAsyncWithNonExistingItemShouldDoNothing ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var electronics = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		var deskEssentials = new Category
 		{
-			Label = "Desk Essentials"
+			Label = "Desk Essentials",
+			UserId = userId
 		};
 		await context.Categories.AddRangeAsync (electronics, deskEssentials);
 		
@@ -202,22 +229,23 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = electronics.Id},
-			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id}
+			new () {ItemId = laptop.Id, CategoryId = electronics.Id, UserId = userId},
+			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id, UserId = userId}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
 		await context.SaveChangesAsync();
 		
 		var nonExistingId = Guid.NewGuid();
 
-		var result = await repository.DeleteAllForItemAsync (nonExistingId);
+		var result = await repository.DeleteAllForItemAsync (nonExistingId, userId);
 		
 		result.Should().Be (0);
 		
@@ -231,13 +259,17 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task DeleteAsyncWithExistingItemAndCategoryShouldDeleteFromDatabase ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var electronics = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		var deskEssentials = new Category
 		{
-			Label = "Desk Essentials"
+			Label = "Desk Essentials",
+			UserId = userId
 		};
 		await context.Categories.AddRangeAsync (electronics, deskEssentials);
 		
@@ -245,22 +277,24 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		var phone = new Item
 		{
 			Name = "Phone",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = electronics.Id},
-			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id},
-			new () {ItemId = phone.Id, CategoryId = electronics.Id}
+			new () {ItemId = laptop.Id, CategoryId = electronics.Id, UserId = userId},
+			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id, UserId = userId},
+			new () {ItemId = phone.Id, CategoryId = electronics.Id, UserId = userId}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
 		await context.SaveChangesAsync();
@@ -270,7 +304,7 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 			electronics.Id
 		};
 		
-		var result = await repository.BulkDeleteForItemAsync (laptop.Id, toBeDeleted);
+		var result = await repository.BulkDeleteForItemAsync (laptop.Id, userId, toBeDeleted);
 		
 		result.Should().Be (1);
 		
@@ -283,13 +317,17 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task DeleteAsyncWithNonExistingItemOrCategoryShouldDoNothing ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var electronics = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		var deskEssentials = new Category
 		{
-			Label = "Desk Essentials"
+			Label = "Desk Essentials",
+			UserId = userId
 		};
 		await context.Categories.AddRangeAsync (electronics, deskEssentials);
 		
@@ -297,22 +335,24 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		var phone = new Item
 		{
 			Name = "Phone",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddRangeAsync (laptop, phone);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = electronics.Id},
-			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id},
-			new () {ItemId = phone.Id, CategoryId = electronics.Id}
+			new () {ItemId = laptop.Id, CategoryId = electronics.Id, UserId = userId},
+			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id, UserId = userId},
+			new () {ItemId = phone.Id, CategoryId = electronics.Id, UserId = userId}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
 		await context.SaveChangesAsync();
@@ -323,7 +363,7 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 			electronics.Id
 		};
 		
-		var result = await repository.BulkDeleteForItemAsync (nonExistingId, toBeDeleted);
+		var result = await repository.BulkDeleteForItemAsync (nonExistingId, userId, toBeDeleted);
 		
 		result.Should().Be (0);
 		
@@ -337,13 +377,17 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task GetAllForItemAsyncWithExistingItemShouldReturnNonEmptyList ()
 	{
+		var userId = Guid.NewGuid();
+		
 		var electronics = new Category
 		{
-			Label = "Electronics"
+			Label = "Electronics",
+			UserId = userId
 		};
 		var deskEssentials = new Category
 		{
-			Label = "Desk Essentials"
+			Label = "Desk Essentials",
+			UserId = userId
 		};
 		await context.Categories.AddRangeAsync (electronics, deskEssentials);
 		
@@ -351,20 +395,21 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 		{
 			Name = "Laptop",
 			Quantity = 1,
-			Unit = Unit.Unit
+			Unit = Unit.Unit,
+			UserId = userId
 		};
 		await context.Items.AddAsync (laptop);
 		await context.SaveChangesAsync();
 		
 		var itemCategories = new List<ItemCategory>
 		{
-			new () {ItemId = laptop.Id, CategoryId = electronics.Id},
-			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id}
+			new () {ItemId = laptop.Id, CategoryId = electronics.Id, UserId = userId},
+			new () {ItemId = laptop.Id, CategoryId = deskEssentials.Id, UserId = userId}
 		};
 		await context.ItemsCategories.AddRangeAsync (itemCategories);
 		await context.SaveChangesAsync();
 		
-		var result = await repository.GetAllForItemAsync (laptop.Id);
+		var result = await repository.GetAllForItemAsync (laptop.Id, userId);
 		
 		result.Should().NotBeNull();
 		result.Should().HaveCount (2);
@@ -377,7 +422,7 @@ public class ItemsCategoriesRepositoryTests : SqliteRepositoryTestsBase<StoretIt
 	[Fact]
 	public async Task GetAllForItemAsyncWithNonExistingItemShouldReturnEmptyList ()
 	{
-		var result = await repository.GetAllForItemAsync (Guid.NewGuid());
+		var result = await repository.GetAllForItemAsync (Guid.NewGuid(), Guid.NewGuid());
 		
 		result.Should().NotBeNull();
 		result.Should().BeEmpty();

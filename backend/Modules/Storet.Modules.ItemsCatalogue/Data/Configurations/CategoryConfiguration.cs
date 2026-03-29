@@ -18,6 +18,8 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 		builder.Property (c => c.Label)
 				.HasColumnName ("label")
 				.HasColumnType ("text");
+		builder.Property (c => c.UserId)
+				.HasColumnName ("user_id");
 		builder.Property (c => c.ParentCategoryId)
 				.HasColumnName ("parent_id");
 		builder.HasOne (c => c.ParentCategory)
@@ -25,5 +27,12 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 				.HasForeignKey (c => c.ParentCategoryId)
 				.OnDelete (DeleteBehavior.Restrict)
 				.HasConstraintName ("fk_categories_parent_categ");
+
+		builder.HasIndex (c => c.Label)
+				.HasDatabaseName ("idx_uniq_categories_label")
+				.IsUnique();
+				
+		builder.HasIndex (c => c.UserId)
+				.HasDatabaseName ("idx_categories_user_ids");
 	}
 }

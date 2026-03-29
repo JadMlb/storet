@@ -9,19 +9,20 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 {
 	public ItemsCompositionsRepository (StoretItemsCatalogueDbContext context) : base (context) {}
 
-	public async Task<IEnumerable<ItemComposition>> GetAllForItemAsync (Guid itemId)
+	public async Task<IEnumerable<ItemComposition>> GetAllForItemAsync (Guid itemId, Guid userId)
 	{
 		return await context.ItemsCompositions
 							.AsNoTracking()
-							.Where (c => c.ParentItemId == itemId)
+							.Where (c => c.ParentItemId == itemId && c.UserId == userId)
 							.Include (c => c.ComponentItem)
 							.ToListAsync();
 	}
 	
-	public async Task<IEnumerable<Guid>> GetNotUsedByAnyAsync (IEnumerable<Guid> items)
+	public async Task<IEnumerable<Guid>> GetNotUsedByAnyAsync (IEnumerable<Guid> items, Guid userId)
 	{
 		var usedIds = await context.ItemsCompositions
 									.AsNoTracking()
+									.Where (i => i.UserId == userId)
 									.Select (i => i.ComponentItemId)
 									.Distinct()
 									.ToListAsync();
@@ -35,12 +36,13 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 		return await context.SaveChangesAsync();
 	}
 	
-	public async Task<bool> UpdateAsync (Guid parentItemId, Guid componentItemId, short quantity)
+	public async Task<bool> UpdateAsync (Guid parentItemId, Guid componentItemId, Guid userId, short quantity)
 	{
 		var relationship = await context.ItemsCompositions
 										.FirstOrDefaultAsync (
 											c => c.ParentItemId == parentItemId
 												&& c.ComponentItemId == componentItemId
+												&& c.UserId == userId
 										);
 		if (relationship == null)
 			return false;
@@ -52,17 +54,17 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 		return true;
 	}
 	
-	public async Task<int> BulkDeleteForItemAsync (Guid parentItemId, IEnumerable<Guid> componentIds)
+	public async Task<int> BulkDeleteForItemAsync (Guid parentItemId, Guid userId, IEnumerable<Guid> componentIds)
 	{
 		return await context.ItemsCompositions
-							.Where (i => i.ParentItemId == parentItemId && componentIds.Contains (i.ComponentItemId))
+							.Where (i => i.UserId == userId && i.ParentItemId == parentItemId && componentIds.Contains (i.ComponentItemId))
 							.ExecuteDeleteAsync();
 	}
 	
-	public async Task<int> DeleteAllForItemAsync (Guid itemId)
+	public async Task<int> DeleteAllForItemAsync (Guid itemId, Guid userId)
 	{
 		return await context.ItemsCompositions
-							.Where (i => i.ParentItemId == itemId)
+							.Where (i => i.ParentItemId == itemId && i.UserId == userId)
 							.ExecuteDeleteAsync();
 	}
 }

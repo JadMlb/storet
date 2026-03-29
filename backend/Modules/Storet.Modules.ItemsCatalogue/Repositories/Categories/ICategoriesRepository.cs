@@ -5,5 +5,5 @@ namespace Storet.Modules.ItemsCatalogue.Repositories.Categories;
 
 public interface ICategoriesRepository : ICrudRepository<Category, int>, IBulkExistenceCheckable<int>
 {
-	public Task<IEnumerable<CategoryHierarchy>> GetAllWithDepthAsync ();
+	public Task<IEnumerable<CategoryHierarchy>> GetAllWithDepthAsync (Guid userId);
 }

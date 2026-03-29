@@ -6,4 +6,5 @@ public class ItemCategory
 	public Category Category { get; set; } = null!;
 	public Guid ItemId { get; set; }
 	public Item Item { get; set; } = null!;
+	public Guid UserId { get; set; }
 }
