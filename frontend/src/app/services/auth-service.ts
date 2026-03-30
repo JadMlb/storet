@@ -36,6 +36,11 @@ export class AuthService
     );
   }
   
+  public getUserEmail () : string
+  {
+    return this.userSignal()?.email ?? "";
+  }
+  
   public getAccessToken () : string | null
   {
     return this.sessionSignal()?.access_token ?? null;

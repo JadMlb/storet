@@ -5,7 +5,7 @@
 	a
 	{
 		display: inline-block;
-		width: 100%;
+		width: calc(100% - 2 * theme.$spacing-small);
 		padding: theme.$spacing-small;
 		border-radius: theme.$spacing-small;
 		text-decoration: none;

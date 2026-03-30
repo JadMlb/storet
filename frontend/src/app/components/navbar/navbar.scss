@@ -8,10 +8,20 @@
 aside
 {
 	padding: theme.$spacing-large;
+	height: calc(100% - 2 * theme.$spacing-large);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 
 	h1
 	{
 		margin-top: unset;
+		margin-bottom: theme.$spacing-large;
+	}
+	
+	nav
+	{
+	  flex: 1;
 	}
 }
 

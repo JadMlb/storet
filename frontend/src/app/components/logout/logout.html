@@ -1,0 +1,20 @@
+<button
+  class = "logout"
+  (click) = "toggleMenuOpen()"
+>
+  {{userInitial()}}
+</button>
+
+@if (menuOpen())
+{
+  <div class = "menu">
+    {{user()}}
+    <styled-button
+      role = "warn"
+      [fill] = "true"
+      (onClick) = "logout()"
+    >
+      Log out
+    </styled-button>
+  </div>
+}
