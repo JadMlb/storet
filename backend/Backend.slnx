@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Modules/">
+    <Project Path="Modules/Storet.Modules.Inventory/Storet.Modules.Inventory.csproj" />
     <Project Path="Modules/Storet.Modules.ItemsCatalogue/Storet.Modules.ItemsCatalogue.csproj" />
   </Folder>
   <Folder Name="/tests/">
