@@ -6,6 +6,6 @@ public class Inventory
 	public Guid UserId { get; set; }
 	public float QuantityInStock { get; set; }
 	public float MinQuantity { get; set; }
-	public float MaxQuantity { get; set; }
+	public float? MaxQuantity { get; set; }
 	public Status Status { get; set; }
 }

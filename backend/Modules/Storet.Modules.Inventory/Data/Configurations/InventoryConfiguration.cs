@@ -8,7 +8,15 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Models.Inventory>
 {
 	public void Configure (EntityTypeBuilder<Models.Inventory> builder)
 	{
-		builder.ToTable ("inventory", schema: "inventory");
+		builder.ToTable (
+			"inventory",
+			schema: "inventory",
+			t =>
+			{
+				t.HasCheckConstraint ("ck_inventory_min_quantity_positive", "min_quantity >= 0");
+				t.HasCheckConstraint ("ck_inventory_max_quantity_positive", "max_quantity > 0");
+			}
+		);
 		
 		builder.HasKey (i => new {i.ItemId, i.UserId})
 				.HasName ("pk_inventory");
@@ -19,12 +27,12 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Models.Inventory>
 		builder.Property (i => i.QuantityInStock)
 				.HasColumnName ("quantity_in_stock");
 		builder.Property (i => i.MinQuantity)
-				.HasColumnName ("min_quantity");
+				.HasColumnName ("min_quantity")
+				.HasDefaultValue (0);
 		builder.Property (i => i.MaxQuantity)
 				.HasColumnName ("max_quantity");
 		builder.Property (i => i.Status)
 				.HasColumnName ("status")
-				.HasColumnType ("inventory.statuses")
-				.HasDefaultValue (Status.Empty);
+				.HasColumnType ("inventory.statuses");
 	}
 }

@@ -2,7 +2,9 @@ namespace Storet.Modules.Inventory.Models;
 
 public enum Status
 {
-	Empty,
+	EmptyAccepted,
+	EmptyNotAccepted,
 	Critical,
-	Sufficient
+	Sufficient,
+	Full
 }
