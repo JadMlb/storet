@@ -18,7 +18,14 @@ public class StoretInventoryDbContext : DbContext
 		
 		builder.ApplyConfigurationsFromAssembly (Assembly.GetExecutingAssembly());
 		
-		if (!Database.IsNpgsql())
+		if (Database.IsNpgsql())
+		{
+			builder.HasCollation ("name_case_insensitive", locale: "und-u-ks-level1", provider: "icu", deterministic: false);
+			builder.Entity<StorageLocation>()
+					.Property (l => l.Name)
+					.UseCollation ("name_case_insensitive");
+		}
+		else
 		{
 			builder.Entity<Models.Inventory>()
 					.Property (i => i.Status)

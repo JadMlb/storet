@@ -16,7 +16,11 @@ public abstract class RepositoryTestsBase<TContext, TRepository> : IDisposable w
 		repository = InitRepository();
 		
 		context.Database.EnsureCreated();
+		AfterDbCreated();
 	}
+	
+	protected virtual void AfterDbCreated ()
+	{}
 	
 	protected abstract TContext InitDbContext ();
 	protected abstract TRepository InitRepository ();
