@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Storet.Tests.Common/Storet.Tests.Common.csproj" />
+    <Project Path="tests/Storet.Inventory.Tests/Storet.Inventory.Tests.csproj" />
     <Project Path="tests/Storet.ItemsCatalogue.Tests/Storet.ItemsCatalogue.Tests.csproj" />
   </Folder>
   <Project Path="Storet.API/Storet.API.csproj" />

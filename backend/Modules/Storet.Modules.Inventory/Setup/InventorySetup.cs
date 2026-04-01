@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Storet.Modules.Inventory.Data;
 using Storet.Modules.Inventory.Models;
+using Storet.Modules.Inventory.Repositories.Inventory;
 
 namespace Storet.Modules.Inventory.Setup;
 
@@ -21,6 +22,8 @@ public static class InventorySetup
 						)
 						.EnableSensitiveDataLogging()
 		);
+		
+		services.AddScoped<IInventoryRepository, InventoryRepository>();
 		
 		return services;
 	}
