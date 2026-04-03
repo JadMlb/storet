@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Storet.Modules.Inventory.Data;
 using Storet.Modules.Inventory.Models;
 using Storet.Modules.Inventory.Repositories.Inventory;
+using Storet.Modules.Inventory.Repositories.InventoryMovements;
 using Storet.Modules.Inventory.Repositories.StorageLocations;
 
 namespace Storet.Modules.Inventory.Setup;
@@ -27,6 +28,8 @@ public static class InventorySetup
 		services.AddScoped<IInventoryRepository, InventoryRepository>();
 		
 		services.AddScoped<IStorageLocationsRepository, StorageLocationsRepository>();
+		
+		services.AddScoped<IInventoryMovementsRepository, InventoryMovementsRepository>();
 		
 		return services;
 	}

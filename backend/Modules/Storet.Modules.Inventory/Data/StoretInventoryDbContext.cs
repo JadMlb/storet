@@ -49,6 +49,13 @@ public class StoretInventoryDbContext : DbContext
 						s => s.ToString().ToLowerInvariant(),
 						s => Enum.Parse<MovementSource> (s, true)
 					);
+			builder.Entity<InventoryMovement>()
+					.Property (m => m.ExecutedAt)
+					.HasColumnType ("text")
+					.HasConversion (
+						s => s.ToString ("O"),
+						s => DateTimeOffset.Parse (s)
+					);
 		}
 	}
 }

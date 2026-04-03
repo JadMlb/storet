@@ -5,5 +5,6 @@ public enum MovementSource
 	Purchase,
 	Sale,
 	Usage,
-	Gift
+	Gift,
+	InnerTransfer
 }
