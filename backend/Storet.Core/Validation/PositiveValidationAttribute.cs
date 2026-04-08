@@ -4,9 +4,11 @@ namespace Storet.Core.Validation;
 
 public class PositiveValueAttribute : ValidationAttribute
 {
-	public PositiveValueAttribute ()
+	private readonly bool include;
+	
+	public PositiveValueAttribute (bool include = false)
 	{
-		ErrorMessage = $"Value must be positive (> 0)";
+		ErrorMessage = $"Value must be positive (>{(include ? "=" : "")} 0)";
 	}
 
 	public override bool IsValid (object? value)
@@ -17,7 +19,7 @@ public class PositiveValueAttribute : ValidationAttribute
 		try
 		{
 			var doubleValue = Convert.ToDouble (value);
-			return doubleValue > 0;
+			return include ? doubleValue >= 0 : doubleValue > 0;
 		}
 		catch (Exception)
 		{

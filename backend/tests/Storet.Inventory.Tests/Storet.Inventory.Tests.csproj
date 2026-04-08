@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Storet.Tests.Common\Storet.Tests.Common.csproj" />
     <ProjectReference Include="..\..\Modules\Storet.Modules.Inventory\Storet.Modules.Inventory.csproj" />
+    <ProjectReference Include="..\..\Modules\Storet.Modules.ItemsCatalogue\Storet.Modules.ItemsCatalogue.csproj" />
   </ItemGroup>
 
 </Project>

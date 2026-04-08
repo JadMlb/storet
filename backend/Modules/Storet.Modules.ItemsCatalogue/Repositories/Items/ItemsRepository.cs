@@ -20,6 +20,16 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 							.ToListAsync();
 	}
 	
+	public async Task<IEnumerable<Item>> GetAllFromListAsync (Guid userId, IEnumerable<Guid> itemIds)
+	{
+		return await context.Items
+							.AsNoTracking()
+							.Where (i => !i.IsComponent)
+							.Where (i => i.UserId == userId)
+							.Where (i => itemIds.Contains (i.Id))
+							.ToListAsync();
+	}
+	
 	public async Task<IEnumerable<Item>> GetAllComponentsAsync (Guid userId)
 	{
 		return await context.Items

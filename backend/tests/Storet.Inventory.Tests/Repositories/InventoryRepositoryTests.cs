@@ -65,6 +65,7 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 		};
 		await context.Inventories.AddAsync (inventory);
 		await context.SaveChangesAsync();
+		context.Entry(inventory).State = EntityState.Detached;
 		
 		var inventoryDuplicateKey = new Modules.Inventory.Models.Inventory
 		{
@@ -146,6 +147,64 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 		var userId = Guid.NewGuid();
 		var result = await repository.GetAllAsync (userId);
 		result.Should().BeEmpty();
+	}
+	
+	[Fact]
+	public async Task GetOneWithNonExistingItemIdShouldReturnNull ()
+	{
+		var res = await repository.GetOneAsync (Guid.NewGuid(), Guid.NewGuid());
+		
+		res.Should().BeNull();
+	}
+	
+	[Fact]
+	public async Task GetOneWithExistingItemIdShouldReturnInventory ()
+	{
+		var userId = Guid.NewGuid();
+		var itemId = Guid.NewGuid();
+		var inventory = new Modules.Inventory.Models.Inventory
+		{
+			ItemId = itemId,
+			UserId = userId,
+			QuantityInStock = 1,
+			Status = Status.Sufficient
+		};
+		await context.Inventories.AddAsync (inventory);
+		await context.SaveChangesAsync();
+		
+		var res = await repository.GetOneAsync (itemId, userId);
+		
+		res.Should().NotBeNull();
+		res.ItemId.Should().Be (itemId);
+		res.UserId.Should().Be (userId);
+		res.QuantityInStock.Should().Be (1);
+		res.Status.Should().Be (Status.Sufficient);
+	}
+	
+	[Fact]
+	public async Task GetFromListWithNonExistingItemIdShouldReturnDict ()
+	{
+		var userId = Guid.NewGuid();
+		var inventories = new List<Modules.Inventory.Models.Inventory>
+		{
+			new () {UserId = userId, ItemId = Guid.NewGuid(), MaxQuantity = 10, MinQuantity = 1, QuantityInStock = 10, Status = Status.Full},
+			new () {UserId = userId, ItemId = Guid.NewGuid(), QuantityInStock = 0, Status = Status.EmptyAccepted},
+			new () {UserId = userId, ItemId = Guid.NewGuid(), QuantityInStock = 1, Status = Status.Sufficient},
+			new () {UserId = userId, ItemId = Guid.NewGuid(), MinQuantity = 3, QuantityInStock = 3, Status = Status.Critical},
+			new () {UserId = Guid.NewGuid(), ItemId = Guid.NewGuid(), MinQuantity = 3, QuantityInStock = 3, Status = Status.Critical},
+		};
+		
+		await context.Inventories.AddRangeAsync (inventories);
+		await context.SaveChangesAsync();
+		
+		var nonExistingItemId = Guid.NewGuid();
+		var interestingIds = new List<Guid> {inventories[0].ItemId, inventories[1].ItemId, nonExistingItemId};
+		var res = await repository.GetAllFromListAsync (userId, interestingIds);
+		
+		res.Should().NotBeEmpty();
+		res.Should().HaveCount (2);
+		res.Keys.Should().BeSubsetOf (interestingIds);
+		res.Keys.Should().NotContain (nonExistingItemId);
 	}
 	
 	[Fact]

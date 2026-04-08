@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Storet.Core\Storet.Core.csproj" />
+    <ProjectReference Include="..\Storet.Modules.ItemsCatalogue\Storet.Modules.ItemsCatalogue.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -59,6 +59,19 @@ public class ItemsService : IItemsService
 		return result.Select (mapper.Map<Item, ItemResponse>);
 	}
 	
+	public async Task<Dictionary<Guid, ItemResponse>?> GetAllFromListAsync (IEnumerable<Guid> itemIds)
+	{
+		var items = await itemsRepository.GetAllFromListAsync (user.Id, itemIds);
+		var missingItems = itemIds.Except(items.Select (i => i.Id)).ToList();
+		if (missingItems.Count == 0)
+			throw new EntityNotFoundException (nameof (Item), missingItems);
+		
+		return items.ToDictionary (
+			i => i.Id,
+			mapper.Map<Item, ItemResponse>
+		);
+	}
+	
 	public async Task<ItemResponseDetails?> GetOneAsync (Guid key)
 	{
 		var item = await itemsRepository.GetOneAsync (key, user.Id);
@@ -66,6 +79,15 @@ public class ItemsService : IItemsService
 			return null;
 			
 		return mapper.Map<Item, ItemResponseDetails> (item);
+	}
+	
+	public async Task<ItemResponse?> CheckIfExistsAndGetMetadataAsync (Guid itemId)
+	{
+		var item = await itemsRepository.GetOneAsync (itemId, user.Id);
+		if (item == null)
+			return null;
+			
+		return mapper.Map<Item, ItemResponse> (item);
 	}
 	
 	/// <summary>Separates the components to existsing and new, checks if provided item ids exist in the database and inserts new components as items</summary>

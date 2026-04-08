@@ -438,6 +438,78 @@ public class ItemsServiceTests
 	}
 	
 	[Fact]
+	public async Task GetAllFromListAsyncWithNonExistentIdShouldThrowNotFoundException ()
+	{
+		var userId = Guid.NewGuid();
+		var itemIds = new List<Guid> {Guid.NewGuid()};
+		
+		mockCurrentUser.Setup (u => u.Id)
+						.Returns (userId);
+		mockItemsRepository.Setup (i => i.GetAllFromListAsync (userId, It.IsAny<IEnumerable<Guid>>()))
+							.ReturnsAsync ([]);
+							
+		Func<Task> act = async () => await service.GetAllFromListAsync (itemIds);
+		
+		await act.Should().ThrowAsync<EntityNotFoundException>()
+							.WithMessage ($"Item with ID {itemIds[0]} was not found");
+		
+		mockCurrentUser.Verify (u => u.Id, Times.Once());
+		mockItemsRepository.Verify (i => i.GetAllFromListAsync (userId, It.Is<IEnumerable<Guid>> (ids => ids.SequenceEqual (itemIds))), Times.Once());
+		mockCurrentUser.VerifyNoOtherCalls();
+		mockItemsRepository.VerifyNoOtherCalls();
+		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
+	public async Task GetAllFromListAsyncWithExistingIdShouldReturnList ()
+	{
+		var userId = Guid.NewGuid();
+		var category = new Category
+		{
+			Id = 1,
+			Label = "Food"
+		};
+		var itemId = Guid.NewGuid();
+		var item = new Item
+		{
+			Id = itemId,
+			Name = "Sugar Cube",
+			Quantity = 0.1f,
+			Unit = Unit.Kilogramme,
+			UserId = userId,
+			ItemCategories = [
+				new ()
+				{
+					ItemId = itemId,
+					CategoryId = 1,
+					UserId = userId
+				}
+			]
+		};
+		var itemIds = new List<Guid> {itemId};
+		
+		mockCurrentUser.Setup (u => u.Id)
+						.Returns (userId);
+		mockItemsRepository.Setup (i => i.GetAllFromListAsync (userId, It.IsAny<IEnumerable<Guid>>()))
+							.ReturnsAsync ([item]);
+							
+		var res = await service.GetAllFromListAsync (itemIds);
+		
+		res.Should().HaveCount (1);
+		res.Should().Contain (i => i.Key == itemId);
+		
+		mockCurrentUser.Verify (u => u.Id, Times.Exactly (2));
+		mockItemsRepository.Verify (i => i.GetAllFromListAsync (userId, It.Is<IEnumerable<Guid>> (ids => ids.SequenceEqual (itemIds))), Times.Once());
+		mockCurrentUser.VerifyNoOtherCalls();
+		mockItemsRepository.VerifyNoOtherCalls();
+		mockCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCategoriesRepository.VerifyNoOtherCalls();
+		mockItemsCompositionsRepository.VerifyNoOtherCalls();
+	}
+	
+	[Fact]
 	public async Task GetItemWithNonExistentIdShouldReturnNull ()
 	{
 		var userId = Guid.NewGuid();
