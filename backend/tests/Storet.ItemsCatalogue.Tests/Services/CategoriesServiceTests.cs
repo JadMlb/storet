@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Storet.Core.Authorization;
+using Storet.Core.Exceptions;
 using Storet.Core.Mappers;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Contracts.Items;
@@ -436,15 +437,15 @@ public class CategoriesServiceTests
 		var userId = Guid.NewGuid();
 		mockCurrentUser.Setup (u => u.Id)
 						.Returns (userId);
-		var expectedException = new InvalidOperationException ("Cannot delete category with subcategories");
+		var expectedException = new EntityDependencyException (nameof (Category), 1);
 		mockRepository.Setup (r => r.DeleteAsync (1, userId))
 						.ThrowsAsync (expectedException);
 
 		Func<Task> act = async () => await service.DeleteAsync (1);
 
 		await act.Should()
-					.ThrowAsync<InvalidOperationException>()
-					.WithMessage ("Cannot delete category with subcategories");
+					.ThrowAsync<EntityDependencyException>()
+					.WithMessage ("Cannot delete Category with ID 1 because others depend on it");
 
 		mockCurrentUser.Verify (u => u.Id, Times.Once());
 		mockRepository.Verify (r => r.DeleteAsync (1, userId), Times.Once());

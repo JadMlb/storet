@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Storet.Core.Exceptions;
 using Storet.Core.Repository;
 using Storet.Modules.ItemsCatalogue.Data;
 using Storet.Modules.ItemsCatalogue.Models;
@@ -93,7 +94,7 @@ public class CategoriesRepository : BaseRepository<StoretItemsCatalogueDbContext
 			return false;
 
 		if (old.SubCategories.Count > 0)
-			throw new InvalidOperationException ("Cannot delete category with subcategories");
+			throw new EntityDependencyException (nameof (Category), key);
 		
 		try
 		{

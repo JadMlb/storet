@@ -1,23 +1,8 @@
 namespace Storet.Core.Exceptions;
 
-public class EntityNotFoundException : Exception
+public class EntityNotFoundException : StoretException
 {
-	public string EntityName { get; }
-	public object EntityId { get; }
-
-	public EntityNotFoundException (string entityName, object entityId) : base ($"{entityName} with ID {ConvertToString (entityId)} was not found")
-	{
-		EntityName = entityName;
-		EntityId = entityId;
-	}
-	
-	private static string? ConvertToString (object o)
-	{
-		return o switch
-		{
-			IEnumerable<int> list => string.Join (",", list.Select (i => i.ToString())),
-			IEnumerable<Guid> list => string.Join (",", list.Select (i => i.ToString())),
-			_ => o.ToString()
-		};
-	}
+	public EntityNotFoundException (string entityName, object entityId) :
+		base (entityName, entityId, $"{entityName} with ID {StringConverter.ConvertToString (entityId)} was not found")
+	{}
 }

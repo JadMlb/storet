@@ -5,6 +5,7 @@ using Storet.Modules.Inventory.Models;
 using Storet.Modules.Inventory.Repositories.Inventory;
 using Storet.Modules.Inventory.Repositories.InventoryMovements;
 using Storet.Modules.Inventory.Repositories.StorageLocations;
+using Storet.Modules.Inventory.Services.StorageLocations;
 
 namespace Storet.Modules.Inventory.Setup;
 
@@ -28,6 +29,7 @@ public static class InventorySetup
 		services.AddScoped<IInventoryRepository, InventoryRepository>();
 		
 		services.AddScoped<IStorageLocationsRepository, StorageLocationsRepository>();
+		services.AddScoped<IStorageLocationsService, StorageLocationsService>();
 		
 		services.AddScoped<IInventoryMovementsRepository, InventoryMovementsRepository>();
 		

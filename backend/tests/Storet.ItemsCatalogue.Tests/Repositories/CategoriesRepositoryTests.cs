@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Storet.Core.Exceptions;
 using Storet.Modules.ItemsCatalogue.Data;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Modules.ItemsCatalogue.Repositories.Categories;
@@ -265,8 +266,8 @@ public class CategoriesRepositoryTests : InMemoryRepositoryTestsBase<StoretItems
 		Func<Task> act = async () => await repository.DeleteAsync (parent.Id, userId);
 
 		await act.Should()
-					.ThrowAsync<InvalidOperationException>()
-					.WithMessage ("Cannot delete category with subcategories");
+					.ThrowAsync<EntityDependencyException>()
+					.WithMessage ("Cannot delete Category with ID 1 because others depend on it");
 
 		var parentStillExists = await context.Categories.FindAsync (parent.Id);
 		parentStillExists.Should().NotBeNull();
