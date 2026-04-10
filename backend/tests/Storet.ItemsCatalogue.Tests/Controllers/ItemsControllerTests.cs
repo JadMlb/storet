@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -8,30 +7,15 @@ using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Controllers;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Modules.ItemsCatalogue.Services.Items;
+using Storet.Tests.Common.Controller;
 
 namespace Storet.ItemsCatalogue.Tests.Controllers;
 
-public class ItemsControllerTests
+public class ItemsControllerTests : ControllerTestsBase<ItemsController, IItemsService>
 {
-	private readonly Mock<IItemsService> mockService;
-	private readonly ItemsController controller;
-	
-	public ItemsControllerTests ()
+	protected override ItemsController InitControllerInstance ()
 	{
-		mockService = new Mock<IItemsService>();
-		controller = new ItemsController (mockService.Object);
-	}
-	
-	private void ValidateModel<T> (T model)
-	{
-		var validationContext = new ValidationContext (model!);
-		var validationResults = new List<ValidationResult>();
-		
-		Validator.TryValidateObject (model!, validationContext, validationResults, true);
-		
-		foreach (var result in validationResults)
-			foreach (var memberName in result.MemberNames)
-				controller.ModelState.AddModelError (memberName, result.ErrorMessage ?? "");
+		return new ItemsController (mockService.Object);
 	}
 	
 	[Fact]

@@ -4,20 +4,17 @@ using Moq;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Controllers;
 using Storet.Modules.ItemsCatalogue.Services.Categories;
+using Storet.Tests.Common.Controller;
 
 namespace Storet.ItemsCatalogue.Tests.Controllers;
 
-public class CategoriesControllerTests
+public class CategoriesControllerTests : ControllerTestsBase<CategoriesController, ICategoriesService>
 {
-	private readonly Mock<ICategoriesService> mockService;
-	private readonly CategoriesController controller;
-
-	public CategoriesControllerTests ()
+	protected override CategoriesController InitControllerInstance ()
 	{
-		mockService = new Mock<ICategoriesService>();
-		controller = new CategoriesController (mockService.Object);
+		return new CategoriesController (mockService.Object);
 	}
-
+	
 	[Fact]
 	public async Task GetAllShouldReturnOkWithCategories ()
 	{
