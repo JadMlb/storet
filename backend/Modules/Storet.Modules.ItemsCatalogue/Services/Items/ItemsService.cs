@@ -90,6 +90,12 @@ public class ItemsService : IItemsService
 		return mapper.Map<Item, ItemResponse> (item);
 	}
 	
+	public async Task<Dictionary<Guid, ItemResponseWithUnit>> GetAllFromListWithUnitAsync (IEnumerable<Guid> ids)
+	{
+		var items = await itemsRepository.GetAllFromListAsync (user.Id, ids);
+		return items.ToDictionary (i => i.Id, mapper.Map<Item, ItemResponseWithUnit>);
+	}
+	
 	/// <summary>Separates the components to existsing and new, checks if provided item ids exist in the database and inserts new components as items</summary>
 	/// <param name = "components">The list of components to be sorted and checked</param>
 	/// <returns>A dictionnary that maps existing item ids to their quantity and unit and a list of item component models to be created in the database and added to the item</returns>

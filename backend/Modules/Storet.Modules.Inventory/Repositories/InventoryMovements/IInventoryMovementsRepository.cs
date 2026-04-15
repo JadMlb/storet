@@ -3,7 +3,5 @@ using Storet.Modules.Inventory.Models;
 
 namespace Storet.Modules.Inventory.Repositories.InventoryMovements;
 
-public interface IInventoryMovementsRepository : IPaginatedListRetrievable<InventoryMovement, Guid, DateTimeOffset?>
-{
-	public Task<int> BulkInsertAsync (IEnumerable<InventoryMovement> movements);
-}
+public interface IInventoryMovementsRepository : IPaginatedRetrievable<InventoryMovement, Guid, DateTimeOffset?>, IInsertable<InventoryMovement>
+{}

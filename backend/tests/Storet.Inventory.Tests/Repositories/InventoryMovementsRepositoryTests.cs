@@ -29,9 +29,6 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 	{
 		var actualReferenceTimestamp = referenceTimestamp ?? DateTimeOffset.Now;
 		
-		Guid sugarId = Guid.NewGuid(),
-			teaBagId = Guid.NewGuid();
-		
 		var cupboardId = Guid.NewGuid();
 		var cupboard = new StorageLocation
 		{
@@ -44,53 +41,48 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 		{
 			new ()
 			{
-				ItemId = sugarId,
 				UserId = userId,
 				Direction = MovementDirection.In,
 				Source = MovementSource.Purchase,
 				StorageLocationId = cupboardId,
 				ExecutedAt = actualReferenceTimestamp.AddDays (-1),
-				Quantity = 100
+				NumberOfItems = 1
 			},
 			new ()
 			{
-				ItemId = teaBagId,
 				UserId = userId,
 				Direction = MovementDirection.In,
 				Source = MovementSource.Purchase,
 				StorageLocationId = cupboardId,
-				ExecutedAt = actualReferenceTimestamp.AddDays (-1),
-				Quantity = 10
+				ExecutedAt = actualReferenceTimestamp.AddDays(-1).AddHours (1),
+				NumberOfItems = 1
 			},
 			new ()
 			{
-				ItemId = teaBagId,
 				UserId = userId,
 				Direction = MovementDirection.Out,
 				Source = MovementSource.Usage,
 				StorageLocationId = cupboardId,
 				ExecutedAt = actualReferenceTimestamp,
-				Quantity = 1
+				NumberOfItems = 1
 			},
 			new ()
 			{
-				ItemId = sugarId,
 				UserId = userId,
 				Direction = MovementDirection.Out,
 				Source = MovementSource.Usage,
 				StorageLocationId = cupboardId,
 				ExecutedAt = actualReferenceTimestamp,
-				Quantity = 2
+				NumberOfItems = 1
 			},
 			new ()
 			{
-				ItemId = sugarId,
 				UserId = userId,
 				Direction = MovementDirection.Out,
 				Source = MovementSource.Usage,
 				StorageLocationId = cupboardId,
 				ExecutedAt = actualReferenceTimestamp.AddHours (2),
-				Quantity = 1
+				NumberOfItems = 1
 			}
 		};
 		await context.AddRangeAsync (logs);
@@ -171,29 +163,16 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 		await context.StorageLocations.AddAsync (cupboard);
 		await context.SaveChangesAsync();
 		
-		var logs = new List<InventoryMovement>
+		var log = new InventoryMovement
 		{
-			new ()
-			{
-				ItemId = Guid.NewGuid(),
-				UserId = userId,
-				Direction = MovementDirection.In,
-				Source = MovementSource.Purchase,
-				StorageLocationId = cupboardId,
-				Quantity = 100
-			},
-			new ()
-			{
-				ItemId = Guid.NewGuid(),
-				UserId = userId,
-				Direction = MovementDirection.In,
-				Source = MovementSource.Purchase,
-				StorageLocationId = cupboardId,
-				Quantity = 10
-			},
+			UserId = userId,
+			Direction = MovementDirection.In,
+			Source = MovementSource.Purchase,
+			StorageLocationId = cupboardId,
+			NumberOfItems = 2
 		};
 		
-		var res = await repository.BulkInsertAsync (logs);
+		var res = await repository.InsertAsync (log);
 		
 		res.Should().Be (2);
 		
@@ -201,9 +180,9 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 									.AsNoTracking()
 									.Where (m => m.UserId == userId)
 									.ToListAsync();
-		inserted.Should().HaveCount (2);
-		inserted.Should().Contain (m => m.UserId == userId && m.Direction == MovementDirection.In && m.Source == MovementSource.Purchase && m.StorageLocationId == cupboardId && m.Quantity == 100);
-		inserted.Should().Contain (m => m.UserId == userId && m.Direction == MovementDirection.In && m.Source == MovementSource.Purchase && m.StorageLocationId == cupboardId && m.Quantity == 10);
+		inserted.Should().HaveCount (1);
+		inserted.Should().Contain (m => m.UserId == userId && m.Direction == MovementDirection.In && m.Source == MovementSource.Purchase && m.StorageLocationId == cupboardId && m.NumberOfItems == 2);
+		inserted.Should().Contain (m => m.UserId == userId && m.Direction == MovementDirection.In && m.Source == MovementSource.Purchase && m.StorageLocationId == cupboardId && m.NumberOfItems == 1);
 		inserted.Should().AllSatisfy (m => m.ExecutedAt.Should().BeCloseTo (DateTimeOffset.Now, TimeSpan.FromSeconds (1)));
 	}
 	
@@ -219,29 +198,16 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 		await context.StorageLocations.AddAsync (cupboard);
 		await context.SaveChangesAsync();
 		
-		var logs = new List<InventoryMovement>
+		var log = new InventoryMovement
 		{
-			new ()
-			{
-				ItemId = Guid.NewGuid(),
-				UserId = userId,
-				Direction = MovementDirection.In,
-				Source = MovementSource.Purchase,
-				StorageLocationId = cupboardId,
-				Quantity = 100
-			},
-			new ()
-			{
-				ItemId = Guid.NewGuid(),
-				UserId = userId,
-				Direction = MovementDirection.In,
-				Source = MovementSource.Purchase,
-				StorageLocationId = Guid.NewGuid(),
-				Quantity = 10
-			},
+			UserId = userId,
+			Direction = MovementDirection.In,
+			Source = MovementSource.Purchase,
+			StorageLocationId = cupboardId,
+			NumberOfItems = 2
 		};
 		
-		Func<Task> act = async () => await repository.BulkInsertAsync (logs);
+		Func<Task> act = async () => await repository.InsertAsync (log);
 		
 		await act.Should().ThrowAsync<DbUpdateException>();
 		

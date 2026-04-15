@@ -15,8 +15,6 @@ public class InventoryMovementConfiguration : IEntityTypeConfiguration<Inventory
 		builder.Property (m => m.Id)
 				.HasColumnName ("id")
 				.ValueGeneratedOnAdd();
-		builder.Property (m => m.ItemId)
-				.HasColumnName ("item_id");
 		builder.Property (m => m.UserId)
 				.HasColumnName ("user_id");
 		builder.Property (m => m.StorageLocationId)
@@ -25,8 +23,8 @@ public class InventoryMovementConfiguration : IEntityTypeConfiguration<Inventory
 				.WithMany()
 				.HasForeignKey (m => m.StorageLocationId)
 				.HasConstraintName ("fk_inventory_movements_storage_locations");
-		builder.Property (m => m.Quantity)
-				.HasColumnName ("quantity");
+		builder.Property (m => m.NumberOfItems)
+				.HasColumnName ("nb_items");
 		builder.Property (m => m.ExecutedAt)
 				.HasColumnName ("executed_at")
 				.HasColumnType ("timestamptz");
@@ -36,5 +34,10 @@ public class InventoryMovementConfiguration : IEntityTypeConfiguration<Inventory
 		builder.Property (m => m.Source)
 				.HasColumnName ("source")
 				.HasColumnType ("inventory.sources");
+		
+		builder.HasIndex (m => m.ExecutedAt)
+				.HasDatabaseName ("idx_inventory_movements_executed_at");
+		builder.HasIndex (m => m.UserId)
+				.HasDatabaseName ("idx_inventory_movements_user");
 	}
 }

@@ -132,18 +132,17 @@ public class InventoryService : IInventoryService
 	
 	public async Task<bool> UpdateInventoryQuantitiesAsync (Dictionary<Guid, float> quantities)
 	{
-		if (quantities.Values.Any (v => v < 0))
-			throw new ArgumentException ("Inventory quantity must be >= 0");
+		var changedQuantities = quantities.Where(q => q.Value != 0).ToDictionary();
 		
-		var inventories = await inventoryRepository.GetAllFromListAsync (user.Id, quantities.Keys);
-		if (inventories.Count < quantities.Count)
-			throw new EntityNotFoundException (nameof (Models.Inventory), quantities.Keys);
-		var items = await itemsService.GetAllFromListAsync (quantities.Keys);
-		if ((items?.Count ?? 0) < quantities.Count)
-			throw new EntityNotFoundException (nameof (Item), quantities.Keys);
+		var inventories = await inventoryRepository.GetAllFromListAsync (user.Id, changedQuantities.Keys);
+		if (inventories.Count < changedQuantities.Count)
+			throw new EntityNotFoundException (nameof (Models.Inventory), changedQuantities.Keys);
+		var items = await itemsService.GetAllFromListAsync (changedQuantities.Keys);
+		if ((items?.Count ?? 0) < changedQuantities.Count)
+			throw new EntityNotFoundException (nameof (Item), changedQuantities.Keys);
 			
 		List<Models.Inventory> updatedInventories = [];
-		foreach (var newQuantity in quantities)
+		foreach (var newQuantity in changedQuantities)
 		{
 			var inventory = inventories[newQuantity.Key];
 			inventory.QuantityInStock = newQuantity.Value;

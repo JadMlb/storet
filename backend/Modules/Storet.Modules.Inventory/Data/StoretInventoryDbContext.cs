@@ -10,6 +10,7 @@ public class StoretInventoryDbContext : DbContext
 	
 	public DbSet<StorageLocation> StorageLocations { get; set; }
 	public DbSet<InventoryMovement> InventoryMovements { get; set; }
+	public DbSet<InventoryMovementItem> InventoryMovementItems { get; set; }
 	public DbSet<Models.Inventory> Inventories { get; set; }
 	
 	protected override void OnModelCreating (ModelBuilder builder)

@@ -8,4 +8,5 @@ public interface IItemsService : IPaginatedCrudService<ItemResponse, ItemRespons
 	public Task<IEnumerable<ItemResponse>> GetAllComponentsAsync ();
 	public Task<ItemResponse?> CheckIfExistsAndGetMetadataAsync (Guid itemId);
 	public Task<Dictionary<Guid, ItemResponse>?> GetAllFromListAsync (IEnumerable<Guid> itemIds);
+	public Task<Dictionary<Guid, ItemResponseWithUnit>> GetAllFromListWithUnitAsync (IEnumerable<Guid> ids);
 }

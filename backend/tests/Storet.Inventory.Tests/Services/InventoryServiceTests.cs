@@ -612,21 +612,6 @@ public class InventoryServiceTests
 	}
 
 	[Fact]
-	public async Task UpdateQuantityWithInvalidQuantityShouldThrowArgumentException ()
-	{
-		var newQuantities = new Dictionary<Guid, float>
-		{
-			{Guid.NewGuid(), -1}
-		};
-		Func<Task> act = async () => await service.UpdateInventoryQuantitiesAsync (newQuantities);
-		
-		await act.Should().ThrowAsync<ArgumentException>()
-							.WithMessage ("Inventory quantity must be >= 0");
-		
-		VerifyNoOtherCalls();
-	}
-
-	[Fact]
 	public async Task UpdateQuantityWithValidQuantityShouldReturnTrue ()
 	{
 		var itemId = Guid.NewGuid();

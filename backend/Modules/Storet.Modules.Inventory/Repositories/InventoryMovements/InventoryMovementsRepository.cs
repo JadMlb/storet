@@ -16,7 +16,8 @@ public class InventoryMovementsRepository : BaseRepository<StoretInventoryDbCont
 							.AsNoTracking()
 							.Where (m => m.UserId == userId)
 							.OrderByDescending (m => m.ExecutedAt)
-							.PaginateQuery (query, "ExecutedAt")
+							.Include (m => m.StorageLocation)
+							.PaginateQuery (query, "ExecutedAt", reverseOrder: true)
 							.ToListAsync();
 	}
 	
@@ -28,16 +29,30 @@ public class InventoryMovementsRepository : BaseRepository<StoretInventoryDbCont
 		var previousCursorLog = await context.InventoryMovements
 												.AsNoTracking()
 												.Where (m => m.UserId == userId)
-												.Where (m => m.ExecutedAt < query.Key)
+												.Where (m => m.ExecutedAt > query.Key)
 												.OrderBy (m => m.ExecutedAt)
 												.Take (query.PageSize + 1)
 												.FirstOrDefaultAsync();
 		return previousCursorLog?.ExecutedAt;
 	}
 	
-	public async Task<int> BulkInsertAsync (IEnumerable<InventoryMovement> movements)
+	public async Task<InventoryMovement?> GetOneAsync (Guid id, Guid userId)
 	{
-		await context.InventoryMovements.AddRangeAsync (movements);
-		return await context.SaveChangesAsync();
+		return await context.InventoryMovements
+							.AsNoTracking()
+							.Include (m => m.Items)
+							.Include (m => m.StorageLocation)
+							.FirstOrDefaultAsync (m => m.Id == id && m.UserId == userId);
+	}
+	
+	public async Task<InventoryMovement?> InsertAsync (InventoryMovement model)
+	{
+		await context.InventoryMovements.AddAsync (model);
+		await context.SaveChangesAsync();
+		
+		return await context.InventoryMovements
+							.AsNoTracking()
+							.Include (m => m.StorageLocation)
+							.FirstOrDefaultAsync (m => m.Id == model.Id && m.UserId == m.UserId);
 	}
 }
