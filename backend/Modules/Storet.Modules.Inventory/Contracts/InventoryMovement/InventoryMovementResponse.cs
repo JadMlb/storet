@@ -8,6 +8,7 @@ namespace Storet.Modules.Inventory.Contracts.InventoryMovement;
 
 public class InventoryMovementResponse
 {
+	public Guid Id { get; set; }
 	public StorageLocationResponse? Location { get; set; }
 	public int NumberOfItems { get; set; }
 	public DateTimeOffset ExecutedAt { get; set; }
