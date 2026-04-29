@@ -119,76 +119,18 @@ public class InventoryServiceTests
 	}
 	
 	[Fact]
-	public async Task CreateInventoryWithInvalidMinQuantityInRequestShouldThrowArgumentException ()
-	{
-		var insertDto = new InventoryInsertRequest
-		{
-			ItemId = Guid.NewGuid(),
-			MinQuantity = -1
-		};
-		
-		Func<Task> act = async () => await service.InsertAsync (insertDto);
-		
-		await act.Should().ThrowAsync<ArgumentException>()
-							.WithMessage ("Minimum quantity must be positive (>= 0)");
-							
-		VerifyNoOtherCalls();
-	}
-	
-	[Fact]
-	public async Task CreateInventoryWithInvalidMaxQuantityInRequestShouldThrowArgumentException ()
-	{
-		var insertDto = new InventoryInsertRequest
-		{
-			ItemId = Guid.NewGuid(),
-			MaxQuantity = 0
-		};
-		
-		Func<Task> act = async () => await service.InsertAsync (insertDto);
-		
-		await act.Should().ThrowAsync<ArgumentException>()
-							.WithMessage ("Max quantity must be positive (> 0)");
-							
-		VerifyNoOtherCalls();
-	}
-	
-	[Fact]
-	public async Task CreateInventoryWithMaxQuantityLessThanMinQuantityInRequestShouldThrowArgumentException ()
-	{
-		var insertDto = new InventoryInsertRequest
-		{
-			ItemId = Guid.NewGuid(),
-			MinQuantity = 10,
-			MaxQuantity = 1
-		};
-		
-		Func<Task> act = async () => await service.InsertAsync (insertDto);
-		
-		await act.Should().ThrowAsync<ArgumentException>()
-							.WithMessage ("Max quantity must be greater than min quantity");
-							
-		VerifyNoOtherCalls();
-	}
-	
-	[Fact]
 	public async Task CreateInventoryWithNonExistingItemIdShouldThrowNotFoundException ()
 	{
 		var itemId = Guid.NewGuid();
-		var insertDto = new InventoryInsertRequest
-		{
-			ItemId = itemId,
-			MaxQuantity = 10
-		};
+		mockItemsService.Setup (i => i.GetAllFromListAsync (It.IsAny<IEnumerable<Guid>>()))
+						.ReturnsAsync ([]);
 		
-		mockItemsService.Setup (i => i.CheckIfExistsAndGetMetadataAsync (itemId))
-						.ReturnsAsync ((ItemResponse?) null);
-		
-		Func<Task> act = async () => await service.InsertAsync (insertDto);
+		Func<Task> act = async () => await service.BulkInsertAsync ([itemId]);
 		
 		await act.Should().ThrowAsync<EntityNotFoundException>()
 							.WithMessage ($"Item with ID {itemId} was not found");
 						
-		mockItemsService.Verify (i => i.CheckIfExistsAndGetMetadataAsync (itemId), Times.Once());
+		mockItemsService.Verify (i => i.GetAllFromListAsync (It.Is<IEnumerable<Guid>> (ids => ids.Contains (itemId))), Times.Once());
 		VerifyNoOtherCalls();
 	}
 	
@@ -196,10 +138,7 @@ public class InventoryServiceTests
 	public async Task CreateInventoryWithValidDataShouldReturnInventoryWithItem ()
 	{
 		var itemId = Guid.NewGuid();
-		var insertDto = new InventoryInsertRequest
-		{
-			ItemId = itemId
-		};
+		IEnumerable<Guid> itemIds = [itemId];
 		
 		var item = new ItemResponse
 		{
@@ -216,31 +155,38 @@ public class InventoryServiceTests
 			Status = Status.EmptyAccepted
 		};
 		
-		mockItemsService.Setup (i => i.CheckIfExistsAndGetMetadataAsync (itemId))
-						.ReturnsAsync (item);
-		mockInventoryRepository.Setup (i => i.InsertAsync (It.IsAny<Modules.Inventory.Models.Inventory>()))
-						.ReturnsAsync (inventory);
+		mockItemsService.Setup (i => i.GetAllFromListAsync (itemIds))
+						.ReturnsAsync (
+							new Dictionary<Guid, ItemResponse>
+							{
+								{itemId, item}
+							}
+						);
+		mockInventoryRepository.Setup (i => i.BulkInsertAsync (It.IsAny<IEnumerable<Modules.Inventory.Models.Inventory>>()))
+						.ReturnsAsync (1);
 		
-		var result = await service.InsertAsync (insertDto);
+		var result = await service.BulkInsertAsync ([itemId]);
 		
-		result.Should().NotBeNull();
-		result.Item.Should().NotBeNull();
-		result.Item.Id.Should().Be (itemId);
-		result.Item.Name.Should().Be ("Sugar");
-		result.Item.Description.Should().BeNull();
-		result.MaxQuantity.Should().BeNull();
-		result.MinQuantity.Should().Be (0);
-		result.QuantityInStock.Should().Be (0);
-		result.Status.Should().Be (Status.EmptyAccepted);
+		result.Should().HaveCount (1);
+		result.First().Item.Should().NotBeNull();
+		result.First().Item.Id.Should().Be (itemId);
+		result.First().Item.Name.Should().Be ("Sugar");
+		result.First().Item.Description.Should().BeNull();
+		result.First().MaxQuantity.Should().BeNull();
+		result.First().MinQuantity.Should().Be (0);
+		result.First().QuantityInStock.Should().Be (0);
+		result.First().Status.Should().Be (Status.EmptyAccepted);
 						
-		mockItemsService.Verify (i => i.CheckIfExistsAndGetMetadataAsync (itemId), Times.Once());
+		mockItemsService.Verify (i => i.GetAllFromListAsync (itemIds), Times.Once());
 		mockInventoryRepository.Verify (
-			i => i.InsertAsync (
-				It.Is<Modules.Inventory.Models.Inventory> (
-					i => i.ItemId == itemId
-						&& i.MaxQuantity == null
-						&& i.MinQuantity == 0
-						&& i.Status == Status.EmptyAccepted
+			i => i.BulkInsertAsync (
+				It.Is<IEnumerable<Modules.Inventory.Models.Inventory>> (
+					records => records.Any (
+						inventory => inventory.ItemId == itemId
+								&& inventory.MaxQuantity == null
+								&& inventory.MinQuantity == 0
+								&& inventory.Status == Status.EmptyAccepted
+					)
 				)
 			),
 			Times.Once()
@@ -669,14 +615,14 @@ public class InventoryServiceTests
 	[Fact]
 	public async Task DeleteWithNonExistentItemShouldReturnFalse ()
 	{
-		var itemId = Guid.NewGuid();
-		mockInventoryRepository.Setup (i => i.DeleteAsync (itemId, userId))
+		IEnumerable<Guid> itemIds = [Guid.NewGuid()];
+		mockInventoryRepository.Setup (i => i.BulkDeleteAsync (userId, itemIds))
 								.ReturnsAsync (false);
 		
-		var res = await service.DeleteAsync (itemId);
+		var res = await service.BulkDeleteAsync (itemIds);
 		res.Should().BeFalse();
 		
-		mockInventoryRepository.Verify (i => i.DeleteAsync (itemId, userId), Times.Once());
+		mockInventoryRepository.Verify (i => i.BulkDeleteAsync (userId, itemIds), Times.Once());
 		VerifyUserAccessedNTimes();
 		VerifyNoOtherCalls();
 	}
@@ -684,14 +630,14 @@ public class InventoryServiceTests
 	[Fact]
 	public async Task DeleteWithExistingItemShouldReturnTrue ()
 	{
-		var itemId = Guid.NewGuid();
-		mockInventoryRepository.Setup (i => i.DeleteAsync (itemId, userId))
+		IEnumerable<Guid> itemIds = [Guid.NewGuid()];
+		mockInventoryRepository.Setup (i => i.BulkDeleteAsync (userId, itemIds))
 								.ReturnsAsync (true);
 		
-		var res = await service.DeleteAsync (itemId);
+		var res = await service.BulkDeleteAsync (itemIds);
 		res.Should().BeTrue();
 		
-		mockInventoryRepository.Verify (i => i.DeleteAsync (itemId, userId), Times.Once());
+		mockInventoryRepository.Verify (i => i.BulkDeleteAsync (userId, itemIds), Times.Once());
 		VerifyUserAccessedNTimes();
 		VerifyNoOtherCalls();
 	}

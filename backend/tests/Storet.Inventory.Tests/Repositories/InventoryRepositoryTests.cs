@@ -35,20 +35,21 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 			Status = Status.Sufficient
 		};
 		
-		var result = await repository.InsertAsync (inventory);
+		var result = await repository.BulkInsertAsync ([inventory]);
 		
-		result.Should().NotBeNull();
-		result.ItemId.Should().Be (itemId);
-		result.UserId.Should().Be (userId);
-		result.MinQuantity.Should().Be (0);
-		result.MaxQuantity.Should().BeNull();
-		result.QuantityInStock.Should().Be (1);
-		result.Status.Should().Be (Status.Sufficient);
+		result.Should().Be (1);
 		
 		var inDb = await context.Inventories
 								.AsNoTracking()
 								.FirstOrDefaultAsync (i => i.ItemId == itemId && i.UserId == userId);
+		
 		inDb.Should().NotBeNull();
+		inDb.ItemId.Should().Be (itemId);
+		inDb.UserId.Should().Be (userId);
+		inDb.MinQuantity.Should().Be (0);
+		inDb.MaxQuantity.Should().BeNull();
+		inDb.QuantityInStock.Should().Be (1);
+		inDb.Status.Should().Be (Status.Sufficient);
 	}
 	
 	[Fact]
@@ -75,7 +76,7 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 			Status = Status.EmptyNotAccepted
 		};
 		
-		Func<Task> act = async () => await repository.InsertAsync (inventoryDuplicateKey);
+		Func<Task> act = async () => await repository.BulkInsertAsync ([inventoryDuplicateKey]);
 		
 		await act.Should().ThrowAsync<DbUpdateException>();
 	}
@@ -95,7 +96,7 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 			MinQuantity = -1
 		};
 		
-		Func<Task> act = async () => await repository.InsertAsync (toBeInserted);
+		Func<Task> act = async () => await repository.BulkInsertAsync ([toBeInserted]);
 		
 		await act.Should().ThrowAsync<DbUpdateException>();
 	}
@@ -115,7 +116,7 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 			MaxQuantity = 0
 		};
 		
-		Func<Task> act = async () => await repository.InsertAsync (toBeInserted);
+		Func<Task> act = async () => await repository.BulkInsertAsync ([toBeInserted]);
 		
 		await act.Should().ThrowAsync<DbUpdateException>();
 	}
@@ -324,7 +325,7 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 		var userId = Guid.NewGuid();
 		var itemId = Guid.NewGuid();
 		
-		var result = await repository.DeleteAsync (itemId, userId);
+		var result = await repository.BulkDeleteAsync (userId, [itemId]);
 		result.Should().BeFalse();
 	}
 	
@@ -345,7 +346,7 @@ public class InventoryRepositoryTests : SqliteRepositoryTestsBase<StoretInventor
 		await context.Inventories.AddAsync (originalValues);
 		await context.SaveChangesAsync();
 		
-		var result = await repository.DeleteAsync (itemId, userId);
+		var result = await repository.BulkDeleteAsync (userId, [itemId]);
 		result.Should().BeTrue();
 		
 		var deleted = await context.Inventories.AsNoTracking().FirstOrDefaultAsync (i => i.ItemId == itemId && i.UserId == userId);

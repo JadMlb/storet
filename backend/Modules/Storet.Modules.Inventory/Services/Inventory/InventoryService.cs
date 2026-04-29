@@ -80,25 +80,32 @@ public class InventoryService : IInventoryService
 		return Status.EmptyAccepted;
 	}
 	
-	public async Task<InventoryResponse?> InsertAsync (InventoryInsertRequest model)
+	public async Task<IEnumerable<InventoryResponse>> BulkInsertAsync (IEnumerable<Guid> itemIds)
 	{
-		if (model.MinQuantity < 0)
-			throw new ArgumentException ("Minimum quantity must be positive (>= 0)");
-		if (model.MaxQuantity != null && model.MaxQuantity <= 0)
-			throw new ArgumentException ("Max quantity must be positive (> 0)");
-		if (model.MaxQuantity != null && model.MaxQuantity < model.MinQuantity)
-			throw new ArgumentException ("Max quantity must be greater than min quantity");
+		var items = await itemsService.GetAllFromListAsync (itemIds);
+		var notFoundItems = itemIds.Except(items?.Select (i => i.Key) ?? []).ToList();
+		if (items == null || notFoundItems.Count > 0)
+			throw new EntityNotFoundException (nameof (Item), itemIds);
 		
-		var item = await itemsService.CheckIfExistsAndGetMetadataAsync (model.ItemId) ??
-					throw new EntityNotFoundException (nameof (Item), model.ItemId);
-		var inventory = mapper.Map<InventoryInsertRequest, Models.Inventory> (model);
+		var models = itemIds.Select (
+			id => new Models.Inventory
+			{
+				ItemId = id,
+				UserId = user.Id,
+				Status = GetStatusFromQuantity (0, 0)
+			}
+		)
+		.ToList();
 		
-		inventory.Status = GetStatusFromQuantity (0, minQuantity: model.MinQuantity, maxQuantity: model.MaxQuantity);
-		
-		var inserted = await inventoryRepository.InsertAsync (inventory);
-		var dto = mapper.Map<Models.Inventory, InventoryResponse> (inserted!);
-		dto.Item = item;
-		return dto;
+		var inserted = await inventoryRepository.BulkInsertAsync (models);
+		return models.Select (
+			i => new InventoryResponse
+			{
+				Item = items[i.ItemId],
+				Status = i.Status
+			}
+		)
+		.ToList();
 	}
 	
 	public async Task<InventoryResponse?> UpdateAsync (Guid key, InventoryUpdateRequest model)
@@ -154,11 +161,11 @@ public class InventoryService : IInventoryService
 		return true;
 	}
 	
-	public async Task<bool> DeleteAsync (Guid key)
+	public async Task<bool> BulkDeleteAsync (IEnumerable<Guid> keys)
 	{
 		try
 		{
-			return await inventoryRepository.DeleteAsync (key, user.Id);
+			return await inventoryRepository.BulkDeleteAsync (user.Id, keys);
 		}
 		catch (Exception)
 		{

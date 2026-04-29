@@ -39,11 +39,10 @@ public class InventoryRepository : BaseRepository<StoretInventoryDbContext>, IIn
 							.AnyAsync (i => i.ItemId == key && i.UserId == userId);
 	}
 	
-	public async Task<Models.Inventory?> InsertAsync (Models.Inventory model)
+	public async Task<int> BulkInsertAsync (IEnumerable<Models.Inventory> models)
 	{
-		await context.Inventories.AddAsync (model);
-		await context.SaveChangesAsync();
-		return model;
+		await context.Inventories.AddRangeAsync (models);
+		return await context.SaveChangesAsync();
 	}
 	
 	public async Task<Models.Inventory?> UpdateAsync (Guid key, Guid userId, Models.Inventory model)
@@ -85,15 +84,11 @@ public class InventoryRepository : BaseRepository<StoretInventoryDbContext>, IIn
 		return await context.SaveChangesAsync();
 	}
 	
-	public async Task<bool> DeleteAsync (Guid key, Guid userId)
+	public async Task<bool> BulkDeleteAsync (Guid userId, IEnumerable<Guid> itemIds)
 	{
-		var old = await context.Inventories.FirstOrDefaultAsync (i => i.ItemId == key && i.UserId == userId);
-		if (old == null)
-			return false;
-			
-		context.Inventories.Remove (old);
-		await context.SaveChangesAsync();
-		
-		return true;
+		var deletedRows = await context.Inventories
+										.Where (i => i.UserId == userId && itemIds.Contains (i.ItemId))
+										.ExecuteDeleteAsync();
+		return deletedRows == itemIds.Count();
 	}
 }
