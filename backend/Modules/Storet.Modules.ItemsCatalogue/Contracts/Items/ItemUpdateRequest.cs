@@ -12,11 +12,5 @@ public class ItemUpdateRequest
 	[MinLength (1)]
 	public string? Name { get; set; }
 	public string? Description { get; set; }
-	[PositiveValue]
-	public float? Quantity { get; set; }
-	[JsonConverter (typeof (LowercaseEnumConverter<Unit>))]
-	[EnumDataType (typeof (Unit))]
-	public Unit? Unit { get; set; }
 	public List<int>? Categories { get; set; }
-	public List<ItemCompositionRequest>? Components { get; set; }
 }

@@ -261,7 +261,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 
 		var result = await repository.DeleteAllForItemAsync (parent.Id, userId);
 		
-		result.Should().Be (1);
+		result.Should().Contain (c => c == component.Id);
 		
 		var deleted = await context.ItemsCompositions
 									.AsNoTracking()
@@ -308,7 +308,7 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 
 		var result = await repository.DeleteAllForItemAsync (nonExistingId, userId);
 		
-		result.Should().Be (0);
+		result.Should().BeEmpty();
 		
 		var deleted = await context.ItemsCompositions
 									.AsNoTracking()

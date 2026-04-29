@@ -23,6 +23,7 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 		var usedIds = await context.ItemsCompositions
 									.AsNoTracking()
 									.Where (i => i.UserId == userId)
+									.Where (i => items.Contains (i.ComponentItemId))
 									.Select (i => i.ComponentItemId)
 									.Distinct()
 									.ToListAsync();
@@ -61,10 +62,14 @@ public class ItemsCompositionsRepository : BaseRepository<StoretItemsCatalogueDb
 							.ExecuteDeleteAsync();
 	}
 	
-	public async Task<int> DeleteAllForItemAsync (Guid itemId, Guid userId)
+	public async Task<IEnumerable<Guid>> DeleteAllForItemAsync (Guid itemId, Guid userId)
 	{
-		return await context.ItemsCompositions
-							.Where (i => i.ParentItemId == itemId && i.UserId == userId)
-							.ExecuteDeleteAsync();
+		var toBeDeleted = await context.ItemsCompositions
+										.Where (i => i.ParentItemId == itemId && i.UserId == userId)
+										.ToListAsync();
+		context.ItemsCompositions.RemoveRange (toBeDeleted);
+		await context.SaveChangesAsync();
+		
+		return toBeDeleted.Select(c => c.ComponentItemId).ToList();
 	}
 }

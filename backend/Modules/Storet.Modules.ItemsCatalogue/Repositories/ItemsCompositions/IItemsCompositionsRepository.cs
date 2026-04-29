@@ -9,5 +9,5 @@ public interface IItemsCompositionRepository
 	public Task<int> BulkInsertAsync (IEnumerable<ItemComposition> itemCompositions);
 	public Task<bool> UpdateAsync (Guid parentItemId, Guid componentItemId, Guid userId, short quantity);
 	public Task<int> BulkDeleteForItemAsync (Guid parentItemId, Guid userId, IEnumerable<Guid> itemIds);
-	public Task<int> DeleteAllForItemAsync (Guid parentItemId, Guid userId);
+	public Task<IEnumerable<Guid>> DeleteAllForItemAsync (Guid parentItemId, Guid userId);
 }

@@ -1,9 +1,11 @@
 using AutoMapper;
+using MediatR;
 using Storet.Core.Authorization;
 using Storet.Core.Exceptions;
 using Storet.Core.Utils;
 using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Contracts.ItemsCompositions;
+using Storet.Modules.ItemsCatalogue.Events;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Modules.ItemsCatalogue.Repositories.Categories;
 using Storet.Modules.ItemsCatalogue.Repositories.Items;
@@ -20,8 +22,9 @@ public class ItemsService : IItemsService
 	private readonly IItemsCompositionRepository itemsCompositionRepository;
 	private readonly ICurrentUser user;
 	private readonly IMapper mapper;
+	private readonly IMediator mediator;
 	
-	public ItemsService (IItemsRepository itemsRepository, ICategoriesRepository categoriesRepository, IItemsCategoriesRepository itemsCategoriesRepository, IItemsCompositionRepository itemsCompositionRepository, ICurrentUser user, IMapper mapper)
+	public ItemsService (IItemsRepository itemsRepository, ICategoriesRepository categoriesRepository, IItemsCategoriesRepository itemsCategoriesRepository, IItemsCompositionRepository itemsCompositionRepository, ICurrentUser user, IMapper mapper, IMediator mediator)
 	{
 		this.itemsRepository = itemsRepository;
 		this.categoriesRepository = categoriesRepository;
@@ -29,6 +32,7 @@ public class ItemsService : IItemsService
 		this.itemsCompositionRepository = itemsCompositionRepository;
 		this.user = user;
 		this.mapper = mapper;
+		this.mediator = mediator;
 	}
 	
 	public async Task<PaginatedResponse<ItemResponse, string>> GetAllAsync (Query<string> query)
@@ -63,7 +67,7 @@ public class ItemsService : IItemsService
 	{
 		var items = await itemsRepository.GetAllFromListAsync (user.Id, itemIds);
 		var missingItems = itemIds.Except(items.Select (i => i.Id)).ToList();
-		if (missingItems.Count == 0)
+		if (missingItems.Count > 0)
 			throw new EntityNotFoundException (nameof (Item), missingItems);
 		
 		return items.ToDictionary (
@@ -133,22 +137,6 @@ public class ItemsService : IItemsService
 		return (providedExistingItemIds, newItemsToBeCreated);
 	}
 	
-	private async Task<(IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (Guid itemId, IEnumerable<ItemCompositionRequest>? components)
-	{
-		var rawComponents = await itemsCompositionRepository.GetAllForItemAsync (itemId, user.Id);
-		
-		var oldComponents = rawComponents?.Select (
-										c => new ItemCompositionRequest
-											{
-												Id = c.ComponentItemId,
-												Quantity = c.Quantity
-											}
-										);
-		
-		var (providedExistingItemIds, newItemsToBeCreated) = await CheckIfComponentsExist (components);
-		return (oldComponents, providedExistingItemIds, newItemsToBeCreated);
-	}
-	
 	private async Task InsertItemCategories (Guid insertedItemId, ItemInsertRequest model)
 	{
 		var itemsCategories = model.Categories
@@ -164,7 +152,7 @@ public class ItemsService : IItemsService
 		var insertedCategories = await itemsCategoriesRepository.BulkInsertAsync (itemsCategories);
 	}
 	
-	private async Task<IEnumerable<ItemComposition>> MergeComponentsForItem (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated, float parentItemQuantity, Unit parentItemUnit)
+	private async Task<IEnumerable<ItemComposition>> MergeComponentsForItem (Guid itemId, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated, float parentItemQuantity, Models.Unit parentItemUnit)
 	{
 		IEnumerable<ItemComposition> itemsCompositionsToBeAdded = [];
 		if (newItemsToBeCreated.Any())
@@ -182,6 +170,7 @@ public class ItemsService : IItemsService
 								)
 								.ToList();
 			var created = await itemsRepository.BulkInsertAsync (itemsModels);
+			await mediator.Publish (new ItemsCreatedEvent (created.Select (i => i.Id), user.Id));
 			itemsCompositionsToBeAdded = created.Join (
 													newItemsToBeCreated,
 													c => c.Name,
@@ -220,69 +209,17 @@ public class ItemsService : IItemsService
 			await itemsCompositionRepository.BulkInsertAsync (itemsCompositionsToBeAdded);
 	}
 	
-	private static (IEnumerable<Guid> removedIds, Dictionary<Guid, short> updatedValues) GetComponentsDiffForItem (IEnumerable<ItemCompositionRequest>? oldComposition, Dictionary<Guid, short> providedExistingItemIds)
+	private async Task DeleteItemComponents (IEnumerable<Guid> toBeDeleted)
 	{
-		IEnumerable<Guid> removedIds = [];
-		Dictionary<Guid, short> updatedValues = [];
+		if (!toBeDeleted.Any())
+			return;
+			
+		var notUsedItems = await itemsCompositionRepository.GetNotUsedByAnyAsync (toBeDeleted, user.Id);
+		if (!notUsedItems.Any())
+			return;
 		
-		if (oldComposition == null || !oldComposition.Any())
-			return (removedIds, updatedValues);
-		
-		// get removed components and remove from provided list
-		removedIds = oldComposition.Select (c => c.Id!.Value)
-									.Except (providedExistingItemIds.Keys)
-									.ToList();
-		foreach (var id in removedIds)
-			providedExistingItemIds.Remove (id);
-		
-		var oldCompositionDict = oldComposition.ToDictionary (
-									c => c.Id!.Value,
-									c => c.Quantity
-								);
-		
-		// get updated components and remove from provided list
-		updatedValues = providedExistingItemIds.Where (
-							pair => oldCompositionDict.ContainsKey (pair.Key)
-									&& oldCompositionDict.GetValueOrDefault(pair.Key)! != pair.Value
-						)
-						.ToDictionary (
-							p => p.Key,
-							p => p.Value
-						);
-		
-		foreach (var id in updatedValues.Keys)
-			providedExistingItemIds.Remove (id);
-
-		// get unchanged components and remove from provided list
-		var unchanged = providedExistingItemIds.Where (
-							pair => oldCompositionDict.ContainsKey (pair.Key)
-									&& oldCompositionDict.GetValueOrDefault(pair.Key)! == pair.Value
-						)
-						.Select (p => p.Key)
-						.ToList();
-		
-		foreach (var id in unchanged)
-			providedExistingItemIds.Remove (id);
-		
-		return (removedIds, updatedValues);
-	}
-	
-	private async Task UpdateComponentsForItem (Item item, IEnumerable<ItemCompositionRequest>? oldComponents, Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)
-	{
-		var (removedItemComponents, updatedValues) = GetComponentsDiffForItem (oldComponents, providedExistingItemIds);
-		if (removedItemComponents.Any())
-		{
-			await itemsCompositionRepository.BulkDeleteForItemAsync (item.Id, user.Id, removedItemComponents);
-			var notUsedItems = await itemsCompositionRepository.GetNotUsedByAnyAsync (removedItemComponents, user.Id);
-			if (notUsedItems.Any())
-				await itemsRepository.BulkDeleteAsync (notUsedItems, user.Id);
-		}
-		if (updatedValues.Count != 0)
-			foreach (var modification in updatedValues)
-				await itemsCompositionRepository.UpdateAsync (item.Id, modification.Key, user.Id, modification.Value);
-		
-		if (providedExistingItemIds.Count > 0)
-			await InsertItemComponents (item, providedExistingItemIds, newItemsToBeCreated);
+		await itemsRepository.BulkDeleteAsync (notUsedItems, user.Id);
+		await mediator.Publish (new ItemsDeletedEvent (notUsedItems, user.Id));
 	}
 	
 	public async Task<ItemResponseDetails?> InsertAsync (ItemInsertRequest model)
@@ -357,15 +294,11 @@ public class ItemsService : IItemsService
 		
 		var (deletedCategoryIds, addedCategoryIds) = await CheckIfCategoriesExistBeforeUpdatingItem (key, model);
 		
-		var (oldComponents, providedExistingItemIds, newItemsToBeCreated) = await CheckIfComponentsExist (key, model.Components);
-		
 		var updatedItem = await itemsRepository.UpdateAsync (key, user.Id, mapper.Map<ItemUpdateRequest, Item> (model));
 		if (updatedItem == null)
 			return null;
 		
 		await UpdateCategoriesForItem (key, deletedCategoryIds, addedCategoryIds);
-		
-		await UpdateComponentsForItem (updatedItem, oldComponents, providedExistingItemIds, newItemsToBeCreated);
 		
 		var finalEntity = await itemsRepository.GetOneAsync (key, user.Id);
 		return mapper.Map<Item, ItemResponseDetails> (finalEntity!);
@@ -376,7 +309,8 @@ public class ItemsService : IItemsService
 		try
 		{
 			await itemsCategoriesRepository.DeleteAllForItemAsync (key, user.Id);
-			await itemsCompositionRepository.DeleteAllForItemAsync (key, user.Id);
+			var itemsInDeletedRelations = await itemsCompositionRepository.DeleteAllForItemAsync (key, user.Id);
+			await DeleteItemComponents (itemsInDeletedRelations);
 			return await itemsRepository.DeleteAsync (key, user.Id);
 		}
 		catch (Exception)

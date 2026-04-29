@@ -300,40 +300,12 @@ public class ItemsControllerTests : ControllerTestsBase<ItemsController, IItemsS
 	}
 	
 	[Fact]
-	public async Task UpdateItemWithNonExistingItemComponentShouldReturnNotFound ()
-	{
-		var itemId = Guid.NewGuid();
-		var componentId = Guid.NewGuid();
-		var updatedValues = new ItemUpdateRequest
-		{
-			Description = "This is a test",
-			Components = [
-				new ()
-				{
-					Id = componentId,
-					Quantity = 1
-				}
-			],
-		};
-		mockService.Setup (s => s.UpdateAsync (itemId, updatedValues))
-					.ThrowsAsync (new EntityNotFoundException (nameof (Item), new List<Guid> {componentId}));
-		
-		ValidateModel (updatedValues);
-		var result = await controller.Update (itemId, updatedValues);
-		result.Result.Should().BeOfType<NotFoundObjectResult>();
-		
-		mockService.Verify (s => s.UpdateAsync (itemId, updatedValues), Times.Once());
-		mockService.VerifyNoOtherCalls();
-	}
-	
-	[Fact]
 	public async Task UpdateItemWithValidDataShouldReturnOkWithUpdatedItem ()
 	{
 		var itemId = Guid.NewGuid();
 		var updatedValues = new ItemUpdateRequest
 		{
 			Description = "This is a test",
-			Quantity = 2,
 			Categories = [2]
 		};
 		var item = new ItemResponseDetails
