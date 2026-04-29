@@ -11,10 +11,6 @@ public class MappingProfile : Profile
 {
 	public MappingProfile ()
 	{
-		CreateMap<InventoryInsertRequest, Models.Inventory>()
-			.ForMember (dest => dest.QuantityInStock, opts => opts.Ignore())
-			.ForMember (dest => dest.Status, opts => opts.Ignore())
-			.ForMember (dest => dest.UserId, opts => opts.MapFrom<CurrentUserResolver<InventoryInsertRequest, Models.Inventory>>());
 		CreateMap<InventoryUpdateRequest, Models.Inventory>()
 			.ForMember (dest => dest.ItemId, opts => opts.Ignore())
 			.ForMember (dest => dest.QuantityInStock, opts => opts.Ignore())

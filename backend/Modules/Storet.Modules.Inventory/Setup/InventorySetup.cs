@@ -36,7 +36,6 @@ public static class InventorySetup
 		);
 		
 		services.AddScoped (typeof (CurrentUserResolver<,>));
-		services.AddScoped<CurrentUserResolver<InventoryInsertRequest, Models.Inventory>>();
 		services.AddScoped<CurrentUserResolver<InventoryUpdateRequest, Models.Inventory>>();
 		services.AddScoped<CurrentUserResolver<StorageLocationInsertRequest, StorageLocation>>();
 		services.AddScoped<CurrentUserResolver<StorageLocationUpdateRequest, StorageLocation>>();
