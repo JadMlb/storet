@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Modules\Storet.Modules.ItemsCatalogue\Storet.Modules.ItemsCatalogue.csproj" />
     <ProjectReference Include="..\Storet.Core\Storet.Core.csproj" />
+    <ProjectReference Include="..\Modules\Storet.Modules.Inventory\Storet.Modules.Inventory.csproj" />
   </ItemGroup>
 
 </Project>

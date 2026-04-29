@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Storet.API.Authorization;
 using Storet.Core.Authorization;
+using Storet.Modules.Inventory.EventsHandlers;
+using Storet.Modules.Inventory.Setup;
+using Storet.Modules.ItemsCatalogue.Events;
 using Storet.Modules.ItemsCatalogue.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,12 +53,25 @@ builder.Services.AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
 					}
 				);
 
+builder.Services.AddMediatR (
+	cfg =>
+	{
+		cfg.LicenseKey = Environment.GetEnvironmentVariable ("MEDIATR") ??
+							throw new InvalidOperationException ("MediatR key not provided");
+		cfg.RegisterServicesFromAssemblies (
+			typeof(ItemsCreatedEvent).Assembly,
+			typeof(ItemsCreatedEventHandler).Assembly
+		);
+	}
+);
+
 var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") ??
 						throw new InvalidOperationException ("Connection string is not configured");
 						
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddItemsCatalogueModule (connectionString);
+builder.Services.AddInventoryModule (connectionString);
 
 var app = builder.Build();
 
