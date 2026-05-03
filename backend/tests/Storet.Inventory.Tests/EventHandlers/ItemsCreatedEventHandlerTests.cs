@@ -26,40 +26,9 @@ public class ItemsCreatedEventHandlerTests
 	}
 	
 	[Fact]
-	public async Task HandleWhenNotificationContainsNonExistingItemIdShouldThrowNotFoundException ()
-	{
-		mockService.Setup (s => s.BulkInsertAsync (It.IsAny<IEnumerable<Guid>>()))
-					.ThrowsAsync (
-						new EntityNotFoundException (nameof (Item), notification.ItemIds)
-					);
-		
-		Func<Task> act = async () => await handler.Handle (notification, default);
-		
-		await act.Should()
-					.ThrowAsync<EntityNotFoundException>()
-					.WithMessage ($"Item with ID {itemIds[0]},{itemIds[1]} was not found");
-		
-		mockService.Verify (s => s.BulkInsertAsync (It.Is<IEnumerable<Guid>> (ids => ids.ToHashSet().SetEquals (notification.ItemIds))), Times.Once());
-		mockService.VerifyNoOtherCalls();
-	}
-	
-	[Fact]
 	public async Task HandleWhenNotificationContainsExistingItemIdsShouldReturnVoid ()
 	{
-		mockService.Setup (s => s.BulkInsertAsync (It.IsAny<IEnumerable<Guid>>()))
-					.ReturnsAsync (
-						itemIds.Select (
-							id => new InventoryResponse ()
-							{
-								Item = new ()
-								{
-									Id = id,
-									Name = $"{id}"
-								},
-								Status = Status.EmptyAccepted
-							}
-						)
-					);
+		mockService.Setup (s => s.BulkInsertAsync (It.IsAny<IEnumerable<Guid>>()));
 		
 		await handler.Handle (notification, default);
 		

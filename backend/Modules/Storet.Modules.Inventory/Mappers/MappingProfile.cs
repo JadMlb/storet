@@ -18,8 +18,7 @@ public class MappingProfile : Profile
 			.ForMember (dest => dest.UserId, opts => opts.MapFrom<CurrentUserResolver<InventoryUpdateRequest, Models.Inventory>>())
 			.ForAllMembers (opts => opts.Condition ((src, dest, srcMember) => srcMember != null));
 		CreateMap<Models.Inventory, InventoryResponse>()
-			.ForSourceMember (src => src.UserId, opts => opts.DoNotValidate())
-			.ForMember (dest => dest.Item, opts => opts.Ignore());
+			.ForSourceMember (src => src.UserId, opts => opts.DoNotValidate());
 			
 		CreateMap<StorageLocation, StorageLocationResponse>()
 			.ForSourceMember (l => l.UserId, opts => opts.DoNotValidate())

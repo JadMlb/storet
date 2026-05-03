@@ -6,6 +6,7 @@ using Storet.Core.Utils;
 using Storet.Modules.Inventory.Contracts.Inventory;
 using Storet.Modules.Inventory.Controllers;
 using Storet.Modules.Inventory.Models;
+using Storet.Modules.Inventory.Queries;
 using Storet.Modules.Inventory.Services.Inventory;
 using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Models;
@@ -19,53 +20,177 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 	{
 		return new InventoryController (mockService.Object);
 	}
+
+	[Fact]
+	public async Task GetAllWithEmptyStringShouldReturnBadRequest ()
+	{
+		InventoryFilterQuery query = new ()
+		{
+			Items = ""
+		};
+
+		mockService.Setup (i => i.GetAllAsync (It.IsAny<InventoryFilterQuery>()))
+					.ThrowsAsync (new ArgumentException ("Cannot fetch inventories for empty items list"));
+
+		var result = await controller.GetAll (query);
+		result.Result.Should().BeOfType<BadRequestObjectResult>();
+
+		mockService.Verify (i => i.GetAllAsync (query), Times.Once());
+		mockService.VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task GetAllWithInvalidGuidStringShouldReturnBadRequest ()
+	{
+		InventoryFilterQuery query = new ()
+		{
+			Items = "123-4qdskjsd-kaskas"
+		};
+		
+		mockService.Setup (i => i.GetAllAsync (It.IsAny<InventoryFilterQuery>()))
+					.ThrowsAsync (new ArgumentException ("One or more provided ID is not a valid Guid"));
+
+		var result = await controller.GetAll (query);
+		result.Result.Should().BeOfType<BadRequestObjectResult>();
+
+		mockService.Verify (i => i.GetAllAsync (query), Times.Once());
+		mockService.VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task GetAllWithNoInventoryShouldReturnOkWithDictionaryWithEmptyArray ()
+	{
+		var itemId = Guid.NewGuid();
+		InventoryFilterQuery query = new ()
+		{
+			Items = itemId.ToString()
+		};
+		var inventories = new Dictionary<Guid, IEnumerable<InventoryResponse>>
+		{
+			{itemId, []}
+		};
+
+		mockService.Setup (i => i.GetAllAsync (It.IsAny<InventoryFilterQuery>()))
+					.ReturnsAsync (inventories);
+
+		var result = await controller.GetAll (query);
+		var okResult = result.Result as OkObjectResult;
+		okResult.Should().NotBeNull();
+		okResult.StatusCode.Should().Be (200);
+
+		var returned = okResult.Value as Dictionary<Guid, IEnumerable<InventoryResponse>>;
+
+		returned.Should().NotBeEmpty();
+		var resultForItemId = returned.GetValueOrDefault (itemId);
+		resultForItemId.Should().NotBeNull();
+		resultForItemId.Should().BeEmpty();
+
+		mockService.Verify (i => i.GetAllAsync (query), Times.Once());
+		mockService.VerifyNoOtherCalls();
+	}
 	
 	[Fact]
-	public async Task GetAllWithNoInventoryShouldReturnOkWithEmptyList ()
+	public async Task GetAllWithDataShouldReturnList ()
 	{
-		mockService.Setup (i => i.GetAllAsync())
+		Guid sugarBoxId = Guid.NewGuid(), sugarId = Guid.NewGuid(), soapId = Guid.NewGuid(), appleId = Guid.NewGuid();
+		InventoryFilterQuery query = new ()
+		{
+			Items = $"{sugarBoxId},{soapId}"
+		};
+		var inventory = new Dictionary<Guid, IEnumerable<InventoryResponse>>
+		{
+			{sugarBoxId, [new () {ItemId = sugarId, QuantityInStock = 0, Status = Status.EmptyAccepted}]},
+			{soapId, [new () {ItemId = soapId, QuantityInStock = 3, Status = Status.Sufficient}]},
+			{appleId, [new () {ItemId = appleId, MaxQuantity = 10, QuantityInStock = 3, Status = Status.Critical}]},
+		};
+		
+		mockService.Setup (i => i.GetAllAsync (It.IsAny<InventoryFilterQuery>()))
+								.ReturnsAsync (
+									(InventoryFilterQuery query) =>
+									{
+										IEnumerable<Guid> ids = query.Items.Split(",").Select (Guid.Parse);
+										return inventory.Where (kv => ids.Contains (kv.Key))
+														.ToDictionary();
+									}
+								);
+		
+		var result = await controller.GetAll (query);
+		var okResult = result.Result as OkObjectResult;
+		okResult.Should().NotBeNull();
+		okResult.StatusCode.Should().Be (200);
+
+		var returned = okResult.Value as Dictionary<Guid, IEnumerable<InventoryResponse>>;
+
+		returned.Should().NotBeEmpty();
+		returned.Should().HaveCount (2);
+		returned.Should().Contain (i =>
+			i.Key == sugarBoxId
+			&& i.Value.Count() == 1
+			&& i.Value.First().ItemId == sugarId
+			&& i.Value.First().QuantityInStock == 0
+			&& i.Value.First().Status == Status.EmptyAccepted
+		);
+		returned.Should().Contain (i =>
+			i.Key == soapId
+			&& i.Value.Count() == 1
+			&& i.Value.First().ItemId == soapId
+			&& i.Value.First().QuantityInStock == 3
+			&& i.Value.First().Status == Status.Sufficient
+		);
+
+		mockService.Verify (i => i.GetAllAsync (query), Times.Once());
+		mockService.VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task GetOneWithNonExistsingInventoryEntryOrItemIdOrComponentsShouldReturnEmptyList ()
+	{
+		var nonExistingItemId = Guid.NewGuid();
+
+		mockService.Setup (i => i.GetOneAsync (It.IsAny<Guid>()))
 					.ReturnsAsync ([]);
-								
-		var result = await controller.GetAll();
+		
+		var result = await controller.GetOne (nonExistingItemId);
 		var okResult = result.Result as OkObjectResult;
 		okResult.Should().NotBeNull();
 		okResult.StatusCode.Should().Be (200);
 
 		var returned = okResult.Value as IEnumerable<InventoryResponse>;
 		returned.Should().BeEmpty();
-		
-		mockService.Verify (i => i.GetAllAsync(), Times.Once());
+
+		mockService.Verify (i => i.GetOneAsync (It.Is<Guid> (id => id == nonExistingItemId)), Times.Once());
 		mockService.VerifyNoOtherCalls();
 	}
-	
+
 	[Fact]
-	public async Task GetAllWithDataShouldReturnOkWithList ()
+	public async Task GetOneWithExistingComponentsShouldReturnList ()
 	{
-		Guid sugarId = Guid.NewGuid(), soapId = Guid.NewGuid(), appleId = Guid.NewGuid();
-		var inventory = new List<InventoryResponse>
-		{
-			new () {Item = new ItemResponse {Id = sugarId, Name = "Sugar"}, QuantityInStock = 0, Status = Status.EmptyAccepted},
-			new () {Item = new ItemResponse {Id = soapId, Name = "Soap"}, QuantityInStock = 3, Status = Status.Sufficient},
-			new () {Item = new ItemResponse {Id = appleId, Name = "Apple"}, MaxQuantity = 10, QuantityInStock = 3, Status = Status.Critical},
-		};
+		var itemId = Guid.NewGuid();
+
+		mockService.Setup (i => i.GetOneAsync (It.IsAny<Guid>()))
+					.ReturnsAsync ([
+						new ()
+						{
+							ItemId = itemId,
+							QuantityInStock = 10,
+							Status = Status.Sufficient
+						}
+					]);
 		
-		mockService.Setup (i => i.GetAllAsync())
-					.ReturnsAsync (inventory);
-								
-		var result = await controller.GetAll();
+		var result = await controller.GetOne (itemId);
 		var okResult = result.Result as OkObjectResult;
 		okResult.Should().NotBeNull();
 		okResult.StatusCode.Should().Be (200);
 
 		var returned = okResult.Value as IEnumerable<InventoryResponse>;
-		returned.Should().HaveCount (3);
-		returned.Should().AllSatisfy (i => i.Should().NotBeNull());
-		returned.Should().AllSatisfy (i => i.Item.Should().NotBeNull());
-		returned.Should().Contain (i => i.Item.Id == sugarId && i.QuantityInStock == 0 && i.Status == Status.EmptyAccepted);
-		returned.Should().Contain (i => i.Item.Id == soapId && i.QuantityInStock == 3 && i.Status == Status.Sufficient);
-		returned.Should().Contain (i => i.Item.Id == appleId && i.MaxQuantity == 10 && i.QuantityInStock == 3 && i.Status == Status.Critical);
-		
-		mockService.Verify (i => i.GetAllAsync(), Times.Once());
+		returned.Should().HaveCount (1);
+		var first = returned.First();
+		first.Should().NotBeNull();
+		first.ItemId.Should().Be (itemId);
+		first.QuantityInStock.Should().Be (10);
+		first.Status.Should().Be (Status.Sufficient);
+
+		mockService.Verify (i => i.GetOneAsync (It.Is<Guid> (id => id == itemId)), Times.Once());
 		mockService.VerifyNoOtherCalls();
 	}
 	
@@ -179,11 +304,7 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 					.ReturnsAsync (
 						new InventoryResponse
 						{
-							Item = new ItemResponse
-							{
-								Id = itemId,
-								Name = "Cup"
-							},
+							ItemId = itemId,
 							MaxQuantity = 10,
 							QuantityInStock = 0,
 							Status = Status.EmptyAccepted
@@ -197,9 +318,7 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 
 		var returned = okResult.Value as InventoryResponse;
 		returned.Should().NotBeNull();
-		returned.Item.Should().NotBeNull();
-		returned.Item.Id.Should().Be (itemId);
-		returned.Item.Name.Should().Be ("Cup");
+		returned.ItemId.Should().Be (itemId);
 		returned.MaxQuantity.Should().Be (10);
 		returned.MinQuantity.Should().Be (0);
 		returned.QuantityInStock.Should().Be (0);
@@ -223,11 +342,7 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 					.ReturnsAsync (
 						new InventoryResponse
 						{
-							Item = new ItemResponse
-							{
-								Id = itemId,
-								Name = "Cup"
-							},
+							ItemId = itemId,
 							MaxQuantity = 10,
 							QuantityInStock = 6,
 							Status = Status.Sufficient
@@ -241,9 +356,7 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 
 		var returned = okResult.Value as InventoryResponse;
 		returned.Should().NotBeNull();
-		returned.Item.Should().NotBeNull();
-		returned.Item.Id.Should().Be (itemId);
-		returned.Item.Name.Should().Be ("Cup");
+		returned.ItemId.Should().Be (itemId);
 		returned.MaxQuantity.Should().Be (10);
 		returned.MinQuantity.Should().Be (0);
 		returned.QuantityInStock.Should().Be (6);
@@ -267,11 +380,7 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 					.ReturnsAsync (
 						new InventoryResponse
 						{
-							Item = new ItemResponse
-							{
-								Id = itemId,
-								Name = "Cup"
-							},
+							ItemId = itemId,
 							MaxQuantity = 10,
 							QuantityInStock = 2,
 							Status = Status.Critical
@@ -285,9 +394,7 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 
 		var returned = okResult.Value as InventoryResponse;
 		returned.Should().NotBeNull();
-		returned.Item.Should().NotBeNull();
-		returned.Item.Id.Should().Be (itemId);
-		returned.Item.Name.Should().Be ("Cup");
+		returned.ItemId.Should().Be (itemId);
 		returned.MaxQuantity.Should().Be (10);
 		returned.MinQuantity.Should().Be (0);
 		returned.QuantityInStock.Should().Be (2);

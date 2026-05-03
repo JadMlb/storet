@@ -63,19 +63,6 @@ public class ItemsService : IItemsService
 		return result.Select (mapper.Map<Item, ItemResponse>);
 	}
 	
-	public async Task<Dictionary<Guid, ItemResponse>?> GetAllFromListAsync (IEnumerable<Guid> itemIds)
-	{
-		var items = await itemsRepository.GetAllFromListAsync (user.Id, itemIds);
-		var missingItems = itemIds.Except(items.Select (i => i.Id)).ToList();
-		if (missingItems.Count > 0)
-			throw new EntityNotFoundException (nameof (Item), missingItems);
-		
-		return items.ToDictionary (
-			i => i.Id,
-			mapper.Map<Item, ItemResponse>
-		);
-	}
-	
 	public async Task<ItemResponseDetails?> GetOneAsync (Guid key)
 	{
 		var item = await itemsRepository.GetOneAsync (key, user.Id);
@@ -85,19 +72,25 @@ public class ItemsService : IItemsService
 		return mapper.Map<Item, ItemResponseDetails> (item);
 	}
 	
-	public async Task<ItemResponse?> CheckIfExistsAndGetMetadataAsync (Guid itemId)
+	public async Task<Dictionary<Guid, List<Guid>>> GetComponentIdsForItemsAsync (IEnumerable<Guid> itemsIds)
 	{
-		var item = await itemsRepository.GetOneAsync (itemId, user.Id);
-		if (item == null)
-			return null;
-			
-		return mapper.Map<Item, ItemResponse> (item);
+		return await itemsCompositionRepository.GetComponentIdsForItemsAsync (itemsIds, user.Id);
 	}
 	
 	public async Task<Dictionary<Guid, ItemResponseWithUnit>> GetAllFromListWithUnitAsync (IEnumerable<Guid> ids)
 	{
 		var items = await itemsRepository.GetAllFromListAsync (user.Id, ids);
 		return items.ToDictionary (i => i.Id, mapper.Map<Item, ItemResponseWithUnit>);
+	}
+
+	public async Task<bool> ExistsAsync (Guid itemId)
+	{
+		return await itemsRepository.ExistsAsync (itemId, user.Id);
+	}
+
+	public async Task<bool> AllExistAsync (IEnumerable<Guid> itemsIds)
+	{
+		return await itemsRepository.AllExistAsync (user.Id, itemsIds);
 	}
 	
 	/// <summary>Separates the components to existsing and new, checks if provided item ids exist in the database and inserts new components as items</summary>
@@ -243,6 +236,8 @@ public class ItemsService : IItemsService
 		
 		await InsertItemComponents (insertedItem, providedExistingItemIds, newItemsToBeCreated);
 		
+		if (model.Components == null || model.Components.Count == 0)
+			await mediator.Publish (new ItemsCreatedEvent ([insertedItem.Id], user.Id));
 		var fullEntity = await itemsRepository.GetOneAsync (insertedItem.Id, user.Id);
 		return mapper.Map<Item, ItemResponseDetails> (fullEntity!);
 	}

@@ -24,7 +24,6 @@ public class ItemsRepository : BaseRepository<StoretItemsCatalogueDbContext>, II
 	{
 		return await context.Items
 							.AsNoTracking()
-							.Where (i => !i.IsComponent)
 							.Where (i => i.UserId == userId)
 							.Where (i => itemIds.Contains (i.Id))
 							.ToListAsync();

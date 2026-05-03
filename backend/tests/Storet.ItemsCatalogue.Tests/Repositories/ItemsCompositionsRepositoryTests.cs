@@ -177,56 +177,6 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 	}
 	
 	[Fact]
-	public async Task UpdateWithExistingRelationshipShouldReturnTrueAndUpdateDatabase ()
-	{
-		var userId = Guid.NewGuid();
-		
-		var parent = new Item
-		{
-			Name = "Tea Box",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var component = new Item
-		{
-			Name = "Tea Bag",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		await context.Items.AddRangeAsync (parent, component);
-		await context.SaveChangesAsync();
-		
-		var composition = new ItemComposition
-		{
-			ParentItemId = parent.Id,
-			ComponentItemId = component.Id,
-			Quantity = 10,
-			UserId = userId
-		};
-		await context.ItemsCompositions.AddAsync (composition);
-		await context.SaveChangesAsync();
-		
-		var result = await repository.UpdateAsync (parent.Id, component.Id, userId, 100);
-		
-		result.Should().Be (true);
-		
-		var updated = await context.ItemsCompositions.FirstOrDefaultAsync (c => c.ParentItemId == parent.Id && c.ComponentItemId == component.Id);
-		updated.Should().NotBeNull();
-		updated.Quantity.Should().Be (100);
-	}
-	
-	[Fact]
-	public async Task UpdateWithNonExistingRelationshipShouldReturnFalse ()
-	{
-		var result = await repository.UpdateAsync (Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 100);
-		
-		result.Should().Be (false);
-	}
-	
-	[Fact]
 	public async Task DeleteAllForItemAsyncWithExistingParentItemShouldDeleteFromDatabase ()
 	{
 		var userId = Guid.NewGuid();
@@ -316,227 +266,108 @@ public class ItemsCompositionsRepositoryTests : SqliteRepositoryTestsBase<Storet
 		deleted.Should().NotBeNull();
 		deleted.Should().HaveCount (1);
 	}
-	
+
 	[Fact]
-	public async Task DeleteAsyncWithExistingParentAndComponentItemShouldDeleteFromDatabase ()
+	public async Task GetComponentIdsWithNonExistingItemOrNoComponentsShouldReturnEntryWithNull ()
 	{
 		var userId = Guid.NewGuid();
+		var itemId = Guid.NewGuid();
+		List<Guid> itemIdAsList = [itemId];
 		
-		var teaBox = new Item
-		{
-			Name = "Tea Box",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var teaBag = new Item
-		{
-			Name = "Tea Bag",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var sugarBox = new Item
-		{
-			Name = "Sugar Box",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var sugarCube = new Item
-		{
-			Name = "Sugar Cube",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		await context.Items.AddRangeAsync (teaBox, teaBag, sugarBox, sugarCube);
-		await context.SaveChangesAsync();
-		
-		var compositions = new List<ItemComposition>
-		{
-			new ()
-			{
-				ParentItemId = teaBox.Id,
-				ComponentItemId = teaBag.Id,
-				Quantity = 10,
-				UserId = userId
-			},
-			new ()
-			{
-				ParentItemId = sugarBox.Id,
-				ComponentItemId = sugarCube.Id,
-				Quantity = 100,
-				UserId = userId
-			},
-		};
-		await context.ItemsCompositions.AddRangeAsync (compositions);
-		await context.SaveChangesAsync();
-		
-		var toBeDeleted = new List<Guid>
-		{
-			sugarCube.Id
-		};
-		
-		var result = await repository.BulkDeleteForItemAsync (sugarBox.Id, userId, toBeDeleted);
-		
-		result.Should().Be (1);
-		
-		var left = await context.ItemsCompositions.AsNoTracking().ToListAsync();
-		left.Should().HaveCount (1);
-		left.Should().Contain (i => i.ParentItemId == teaBox.Id && i.ComponentItemId == teaBag.Id && i.UserId == userId);
+		var result = await repository.GetComponentIdsForItemsAsync (itemIdAsList, userId);
+
+		result.Should().NotBeEmpty();
+
+		var componentsForItem = result.GetValueOrDefault (itemId);
+		componentsForItem.Should().NotBeNull();
+		componentsForItem.Should().BeEmpty();
 	}
-	
+
 	[Fact]
-	public async Task DeleteAsyncWithNonExistingParentOrComponentItemShouldDoNothing ()
+	public async Task GetComponentIdsWithExistingItemAndComponentsShouldReturnEntry ()
 	{
 		var userId = Guid.NewGuid();
-		
-		var teaBox = new Item
+		var itemId = Guid.NewGuid();
+		List<Guid> itemIdAsList = [itemId];
+
+		var category = new Category
 		{
-			Name = "Tea Box",
+			Id = 1,
+			Label = "Hygiene",
+			UserId = userId
+		};
+		await context.Categories.AddAsync (category);
+		
+		var parentItem = new Item
+		{
+			Id = itemId,
+			Name = "Special pack",
 			Quantity = 1,
 			Unit = Unit.Unit,
 			UserId = userId
 		};
-		
-		var teaBag = new Item
+		var itemCategory = new ItemCategory
 		{
-			Name = "Tea Bag",
+			ItemId = itemId,
+			CategoryId = 1,
+			UserId = userId
+		};
+		await context.ItemsCategories.AddAsync (itemCategory);
+
+		Guid component1Id = Guid.NewGuid(), component2Id = Guid.NewGuid();
+		var component1 = new Item
+		{
+			Id = component1Id,
+			Name = "Shampoo",
 			Quantity = 1,
 			Unit = Unit.Unit,
 			UserId = userId
 		};
-		
-		var sugarBox = new Item
+
+		var component2 = new Item
 		{
-			Name = "Sugar Box",
+			Id = component2Id,
+			Name = "Shower Gel",
 			Quantity = 1,
 			Unit = Unit.Unit,
 			UserId = userId
 		};
-		
-		var sugarCube = new Item
-		{
-			Name = "Sugar Cube",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		await context.Items.AddRangeAsync (teaBox, teaBag, sugarBox, sugarCube);
-		await context.SaveChangesAsync();
-		
-		var compositions = new List<ItemComposition>
+
+		await context.Items.AddRangeAsync (parentItem, component1, component2);
+
+		var relationships = new List<ItemComposition>
 		{
 			new ()
 			{
-				ParentItemId = teaBox.Id,
-				ComponentItemId = teaBag.Id,
-				Quantity = 10,
+				ParentItemId = itemId,
+				ComponentItemId = component1Id,
+				Quantity = 1,
 				UserId = userId
 			},
 			new ()
 			{
-				ParentItemId = sugarBox.Id,
-				ComponentItemId = sugarCube.Id,
-				Quantity = 100,
+				ParentItemId = itemId,
+				ComponentItemId = component2Id,
+				Quantity = 1,
 				UserId = userId
-			},
+			}
 		};
-		await context.ItemsCompositions.AddRangeAsync (compositions);
+		await context.ItemsCompositions.AddRangeAsync (relationships);
+
 		await context.SaveChangesAsync();
+
+		context.Entry(parentItem).State = EntityState.Detached;
+		context.Entry(component1).State = EntityState.Detached;
+		context.Entry(component2).State = EntityState.Detached;
 		
-		var nonExistingId = Guid.NewGuid();
-		var toBeDeleted = new List<Guid>
-		{
-			Guid.NewGuid()
-		};
-		
-		var result = await repository.BulkDeleteForItemAsync (nonExistingId, userId, toBeDeleted);
-		
-		result.Should().Be (0);
-		
-		var left = await context.ItemsCompositions.AsNoTracking().ToListAsync();
-		left.Should().HaveCount (2);
-	}
-	
-	[Fact]
-	public async Task GetAllForItemAsyncWithExistingItemShouldReturnNonEmptyList ()
-	{
-		var userId = Guid.NewGuid();
-		
-		var teaBox = new Item
-		{
-			Name = "Tea Box",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var teaBag = new Item
-		{
-			Name = "Tea Bag",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var sugarBox = new Item
-		{
-			Name = "Sugar Box",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		
-		var sugarCube = new Item
-		{
-			Name = "Sugar Cube",
-			Quantity = 1,
-			Unit = Unit.Unit,
-			UserId = userId
-		};
-		await context.Items.AddRangeAsync (teaBox, teaBag, sugarBox, sugarCube);
-		await context.SaveChangesAsync();
-		
-		var compositions = new List<ItemComposition>
-		{
-			new ()
-			{
-				ParentItemId = teaBox.Id,
-				ComponentItemId = teaBag.Id,
-				Quantity = 10,
-				UserId = userId
-			},
-			new ()
-			{
-				ParentItemId = sugarBox.Id,
-				ComponentItemId = sugarCube.Id,
-				Quantity = 100,
-				UserId = userId
-			},
-		};
-		await context.ItemsCompositions.AddRangeAsync (compositions);
-		await context.SaveChangesAsync();
-		
-		var result = await repository.GetAllForItemAsync (teaBox.Id, userId);
-		
-		result.Should().NotBeNull();
-		result.Should().HaveCount (1);
-		result.Should().Contain (i => i.ParentItemId == teaBox.Id && i.ComponentItemId == teaBag.Id && i.UserId == userId);
-		result.First().ComponentItem.Should().NotBeNull();
-		result.First().Quantity.Should().Be (10);
-	}
-	
-	[Fact]
-	public async Task GetAllForItemAsyncWithNonExistingItemShouldReturnEmptyList ()
-	{
-		var result = await repository.GetAllForItemAsync (Guid.NewGuid(), Guid.NewGuid());
-		
-		result.Should().NotBeNull();
-		result.Should().BeEmpty();
+		var result = await repository.GetComponentIdsForItemsAsync (itemIdAsList, userId);
+
+		result.Should().NotBeEmpty();
+
+		var componentsForItem = result.GetValueOrDefault (itemId);
+		componentsForItem.Should().NotBeNull();
+		componentsForItem.Should().HaveCount (2);
+		componentsForItem.Should().Contain (cId => cId == component1Id);
+		componentsForItem.Should().Contain (cId => cId == component2Id);
 	}
 }

@@ -3,6 +3,7 @@ using Storet.Core.Authorization;
 using Storet.Core.Exceptions;
 using Storet.Modules.Inventory.Contracts.Inventory;
 using Storet.Modules.Inventory.Models;
+using Storet.Modules.Inventory.Queries;
 using Storet.Modules.Inventory.Repositories.Inventory;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Modules.ItemsCatalogue.Services.Items;
@@ -24,25 +25,53 @@ public class InventoryService : IInventoryService
 		this.mapper = mapper;
 	}
 	
-	public async Task<IEnumerable<InventoryResponse>> GetAllAsync ()
+	public async Task<Dictionary<Guid, IEnumerable<InventoryResponse>>> GetAllAsync (InventoryFilterQuery query)
 	{
-		var inventories = await inventoryRepository.GetAllAsync (user.Id);
+		if (string.IsNullOrWhiteSpace (query.Items))
+			throw new ArgumentException ("Cannot fetch inventories for empty items list");
 		
-		if (!inventories.Any())
-			return [];
-			
-		var itemIds = inventories.Select (i => i.ItemId);
-		var items = await itemsService.GetAllFromListAsync (itemIds);
-		
-		List<InventoryResponse> result = [];
-		foreach (var inventory in inventories)
+		var mayBeItemsIdsStrings = query.Items.Split (",", StringSplitOptions.RemoveEmptyEntries);
+		List<Guid> itemsIds = [];
+		foreach (var mayBeGuid in mayBeItemsIdsStrings)
 		{
-			var dto = mapper.Map<Models.Inventory, InventoryResponse> (inventory);
-			dto.Item = items?.GetValueOrDefault (inventory.ItemId)!;
-			result.Add (dto);
+			if (!Guid.TryParse (mayBeGuid, out var guid))
+				throw new ArgumentException ("One or more provided ID is not a valid Guid");
+			itemsIds.Add (guid);
+		}
+		
+		var componentsByItemId = await itemsService.GetComponentIdsForItemsAsync (itemsIds);
+		
+		var componentsIdsToFetchInventoriesFor = componentsByItemId.SelectMany(kv => kv.Value.Count == 0 ? [kv.Key] : kv.Value).ToList();
+		if (componentsIdsToFetchInventoriesFor.Count == 0)
+			return [];
+		
+		var inventoriesByComponentId = await inventoryRepository.GetAllFromListAsync (user.Id, componentsIdsToFetchInventoriesFor);
+		
+		Dictionary<Guid, IEnumerable<InventoryResponse>> result = [];
+		foreach (var parentItemId in itemsIds)
+		{
+			var componentsForParent = componentsByItemId.GetValueOrDefault (parentItemId, []);
+			if (componentsForParent.Count == 0)
+				componentsForParent = [parentItemId];
+
+			var componentInventories = inventoriesByComponentId.Where (kv => componentsForParent.Contains (kv.Key))
+																.Select (kv => mapper.Map<Models.Inventory, InventoryResponse> (kv.Value))
+																.ToList();
+			result.Add (parentItemId, componentInventories);
 		}
 		
 		return result;
+	}
+
+	public async Task<IEnumerable<InventoryResponse>> GetOneAsync (Guid itemId)
+	{
+		var componentsIdsByParentId = await itemsService.GetComponentIdsForItemsAsync ([itemId]);
+		var componentsIds = componentsIdsByParentId.GetValueOrDefault (itemId, []);
+		if (componentsIds.Count == 0)
+			componentsIds = [itemId];
+		var inventories = await inventoryRepository.GetAllFromListAsync (user.Id, componentsIds);
+		return inventories.Select (kv => mapper.Map<Models.Inventory, InventoryResponse> (kv.Value))
+							.ToList();
 	}
 	
 	private Status GetStatusFromQuantity (float quantity, float minQuantity = 0, float? maxQuantity = null)
@@ -80,13 +109,8 @@ public class InventoryService : IInventoryService
 		return Status.EmptyAccepted;
 	}
 	
-	public async Task<IEnumerable<InventoryResponse>> BulkInsertAsync (IEnumerable<Guid> itemIds)
+	public async Task BulkInsertAsync (IEnumerable<Guid> itemIds)
 	{
-		var items = await itemsService.GetAllFromListAsync (itemIds);
-		var notFoundItems = itemIds.Except(items?.Select (i => i.Key) ?? []).ToList();
-		if (items == null || notFoundItems.Count > 0)
-			throw new EntityNotFoundException (nameof (Item), itemIds);
-		
 		var models = itemIds.Select (
 			id => new Models.Inventory
 			{
@@ -97,15 +121,7 @@ public class InventoryService : IInventoryService
 		)
 		.ToList();
 		
-		var inserted = await inventoryRepository.BulkInsertAsync (models);
-		return models.Select (
-			i => new InventoryResponse
-			{
-				Item = items[i.ItemId],
-				Status = i.Status
-			}
-		)
-		.ToList();
+		await inventoryRepository.BulkInsertAsync (models);
 	}
 	
 	public async Task<InventoryResponse?> UpdateAsync (Guid key, InventoryUpdateRequest model)
@@ -123,8 +139,9 @@ public class InventoryService : IInventoryService
 		if (model.MaxQuantity != null && model.MaxQuantity < realMinQuantity)
 			throw new ArgumentException ("Max quantity must be greater than min quantity");
 
-		var item = await itemsService.CheckIfExistsAndGetMetadataAsync (key) ??
-						throw new EntityNotFoundException (nameof (Item), key);
+		var itemExists = await itemsService.ExistsAsync (key);
+		if (!itemExists)
+			throw new EntityNotFoundException (nameof (Item), key);
 		
 		var inventory = mapper.Map<InventoryUpdateRequest, Models.Inventory> (model);
 		
@@ -132,7 +149,6 @@ public class InventoryService : IInventoryService
 		
 		var updated = await inventoryRepository.UpdateAsync (key, user.Id, inventory);
 		var dto = mapper.Map<Models.Inventory, InventoryResponse> (updated!);
-		dto.Item = item;
 		
 		return dto;
 	}
@@ -144,8 +160,8 @@ public class InventoryService : IInventoryService
 		var inventories = await inventoryRepository.GetAllFromListAsync (user.Id, changedQuantities.Keys);
 		if (inventories.Count < changedQuantities.Count)
 			throw new EntityNotFoundException (nameof (Models.Inventory), changedQuantities.Keys);
-		var items = await itemsService.GetAllFromListAsync (changedQuantities.Keys);
-		if ((items?.Count ?? 0) < changedQuantities.Count)
+		var allItemsExist = await itemsService.AllExistAsync (changedQuantities.Keys);
+		if (!allItemsExist)
 			throw new EntityNotFoundException (nameof (Item), changedQuantities.Keys);
 			
 		List<Models.Inventory> updatedInventories = [];

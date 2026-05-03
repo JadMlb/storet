@@ -443,68 +443,148 @@ public class ItemsServiceTests
 		);
 		VerifyNoOtherCalls();
 	}
-	
+
 	[Fact]
-	public async Task GetAllFromListAsyncWithNonExistentIdShouldThrowNotFoundException ()
+	public async Task ExistsAsyncWithNonExistingItemShouldReturnFalse ()
 	{
 		var userId = Guid.NewGuid();
-		var itemIds = new List<Guid> {Guid.NewGuid()};
-		
 		mockCurrentUser.Setup (u => u.Id)
 						.Returns (userId);
-		mockItemsRepository.Setup (i => i.GetAllFromListAsync (userId, It.IsAny<IEnumerable<Guid>>()))
-							.ReturnsAsync ([]);
-							
-		Func<Task> act = async () => await service.GetAllFromListAsync (itemIds);
+		var nonExistentId = Guid.NewGuid();
+		mockItemsRepository.Setup (i => i.ExistsAsync (nonExistentId, userId))
+							.ReturnsAsync (false);
 		
-		await act.Should().ThrowAsync<EntityNotFoundException>()
-							.WithMessage ($"Item with ID {itemIds[0]} was not found");
-		
+		var result = await service.ExistsAsync (nonExistentId);
+
+		result.Should().BeFalse();
+
 		mockCurrentUser.Verify (u => u.Id, Times.Once());
-		mockItemsRepository.Verify (i => i.GetAllFromListAsync (userId, It.Is<IEnumerable<Guid>> (ids => ids.SequenceEqual (itemIds))), Times.Once());
+		mockItemsRepository.Verify (i => i.ExistsAsync (nonExistentId, userId), Times.Once());
 		VerifyNoOtherCalls();
 	}
-	
+
 	[Fact]
-	public async Task GetAllFromListAsyncWithExistingIdShouldReturnList ()
+	public async Task ExistsAsyncWithExistingItemShouldReturnTrue ()
 	{
 		var userId = Guid.NewGuid();
-		var category = new Category
-		{
-			Id = 1,
-			Label = "Food"
-		};
-		var itemId = Guid.NewGuid();
-		var item = new Item
-		{
-			Id = itemId,
-			Name = "Sugar Cube",
-			Quantity = 0.1f,
-			Unit = Modules.ItemsCatalogue.Models.Unit.Kilogramme,
-			UserId = userId,
-			ItemCategories = [
-				new ()
-				{
-					ItemId = itemId,
-					CategoryId = 1,
-					UserId = userId
-				}
-			]
-		};
-		var itemIds = new List<Guid> {itemId};
-		
 		mockCurrentUser.Setup (u => u.Id)
 						.Returns (userId);
-		mockItemsRepository.Setup (i => i.GetAllFromListAsync (userId, It.IsAny<IEnumerable<Guid>>()))
-							.ReturnsAsync ([item]);
-							
-		var res = await service.GetAllFromListAsync (itemIds);
+		var itemId = Guid.NewGuid();
+		mockItemsRepository.Setup (i => i.ExistsAsync (itemId, userId))
+							.ReturnsAsync (true);
 		
-		res.Should().HaveCount (1);
-		res.Should().Contain (i => i.Key == itemId);
-		
+		var result = await service.ExistsAsync (itemId);
+
+		result.Should().BeTrue();
+
 		mockCurrentUser.Verify (u => u.Id, Times.Once());
-		mockItemsRepository.Verify (i => i.GetAllFromListAsync (userId, It.Is<IEnumerable<Guid>> (ids => ids.SequenceEqual (itemIds))), Times.Once());
+		mockItemsRepository.Verify (i => i.ExistsAsync (itemId, userId), Times.Once());
+		VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task AllExistAsyncWithNonExistingItemShouldReturnFalse ()
+	{
+		var userId = Guid.NewGuid();
+		mockCurrentUser.Setup (u => u.Id)
+						.Returns (userId);
+		var ids = new List<Guid> {Guid.NewGuid(), Guid.NewGuid()};
+		mockItemsRepository.Setup (i => i.AllExistAsync (userId, ids))
+							.ReturnsAsync (false);
+		
+		var result = await service.AllExistAsync (ids);
+
+		result.Should().BeFalse();
+
+		mockCurrentUser.Verify (u => u.Id, Times.Once());
+		mockItemsRepository.Verify (i => i.AllExistAsync (userId, ids), Times.Once());
+		VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task AllExistAsyncWithExistingItemsShouldReturnTrue ()
+	{
+		var userId = Guid.NewGuid();
+		mockCurrentUser.Setup (u => u.Id)
+						.Returns (userId);
+		var ids = new List<Guid> {Guid.NewGuid(), Guid.NewGuid()};
+		mockItemsRepository.Setup (i => i.AllExistAsync (userId, ids))
+							.ReturnsAsync (true);
+		
+		var result = await service.AllExistAsync (ids);
+
+		result.Should().BeTrue();
+
+		mockCurrentUser.Verify (u => u.Id, Times.Once());
+		mockItemsRepository.Verify (i => i.AllExistAsync (userId, ids), Times.Once());
+		VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task GetComponentIdsForItemsWithNonExistingItemOrNoComponentsShouldReturnDictionaryWithEmptyArrayEntry ()
+	{
+		var userId = Guid.NewGuid();
+		mockCurrentUser.Setup (u => u.Id)
+						.Returns (userId);
+		var ids = new List<Guid> {Guid.NewGuid()};
+		mockItemsCompositionsRepository.Setup (i => i.GetComponentIdsForItemsAsync (It.IsAny<IEnumerable<Guid>>(), userId))
+										.ReturnsAsync (
+											(IEnumerable<Guid> ids, Guid userId) => ids.ToDictionary (
+												id => id,
+												_ => new List<Guid>()
+											)
+										);
+		
+		var result = await service.GetComponentIdsForItemsAsync (ids);
+
+		result.Should().NotBeEmpty();
+		result.GetValueOrDefault(ids[0]).Should().NotBeNull();
+		result.GetValueOrDefault(ids[0]).Should().BeEmpty();
+
+		mockCurrentUser.Verify (u => u.Id, Times.Once());
+		mockItemsCompositionsRepository.Verify (
+			i => i.GetComponentIdsForItemsAsync (
+				It.Is<IEnumerable<Guid>> (
+						givenIds => givenIds.Count() == 1 && givenIds.Contains (ids[0])
+				),
+				userId
+			),
+			Times.Once()
+		);
+		VerifyNoOtherCalls();
+	}
+
+	[Fact]
+	public async Task GetComponentIdsForItemsWithExistingItemComponentsShouldReturnDictionaryWithNonEmptyArrayEntry ()
+	{
+		var userId = Guid.NewGuid();
+		mockCurrentUser.Setup (u => u.Id)
+						.Returns (userId);
+		var ids = new List<Guid> {Guid.NewGuid()};
+		mockItemsCompositionsRepository.Setup (i => i.GetComponentIdsForItemsAsync (It.IsAny<IEnumerable<Guid>>(), userId))
+										.ReturnsAsync (
+											(IEnumerable<Guid> ids, Guid userId) => ids.ToDictionary (
+												id => id,
+												_ => new List<Guid> {Guid.NewGuid()}
+											)
+										);
+		
+		var result = await service.GetComponentIdsForItemsAsync (ids);
+
+		result.Should().NotBeEmpty();
+		result.GetValueOrDefault(ids[0]).Should().NotBeNull();
+		result.GetValueOrDefault(ids[0]).Should().NotBeEmpty();
+
+		mockCurrentUser.Verify (u => u.Id, Times.Once());
+		mockItemsCompositionsRepository.Verify (
+			i => i.GetComponentIdsForItemsAsync (
+				It.Is<IEnumerable<Guid>> (
+					givenIds => givenIds.Count() == 1 && givenIds.Contains (ids[0])
+				),
+				userId
+			),
+			Times.Once()
+		);
 		VerifyNoOtherCalls();
 	}
 	

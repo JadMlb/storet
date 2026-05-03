@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Storet.Core.Exceptions;
 using Storet.Core.Utils;
 using Storet.Modules.Inventory.Contracts.Inventory;
+using Storet.Modules.Inventory.Queries;
 using Storet.Modules.Inventory.Services.Inventory;
 
 namespace Storet.Modules.Inventory.Controllers;
@@ -20,9 +21,25 @@ public class InventoryController : ControllerBase
 	}
 	
 	[HttpGet]
-	public async Task<ActionResult<IEnumerable<InventoryResponse>>> GetAll ()
+	public async Task<ActionResult<IEnumerable<InventoryResponse>>> GetAll ([FromQuery] InventoryFilterQuery query)
 	{
-		return Ok (await service.GetAllAsync());
+		try
+		{	
+			return Ok (await service.GetAllAsync (query));
+		}
+		catch (ArgumentException e)
+		{
+			return BadRequest (e.Message);
+		}
+	}
+
+	[HttpGet ("{id:guid}")]
+	public async Task<ActionResult<InventoryResponse?>> GetOne (Guid id)
+	{
+		var inventory = await service.GetOneAsync (id);
+		if (inventory == null)
+			return NotFound();
+		return Ok (inventory);
 	}
 	
 	[HttpPut ("{id:guid}")]
