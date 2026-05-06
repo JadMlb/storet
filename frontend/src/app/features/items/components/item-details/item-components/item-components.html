@@ -22,12 +22,15 @@
     @for (component of components().controls; track $index; let i = $index)
     {
       <item-component
-        
         [index] = "i"
         [creating] = "creating()"
         [component] = "component"
         (onItemDelete) = "removeItem (i)"
       />
+    }
+    @empty
+    {
+      <p class = "no-components">No components</p>
     }
   </div>
 </div>

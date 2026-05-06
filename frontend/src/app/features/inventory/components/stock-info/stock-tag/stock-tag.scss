@@ -1,0 +1,39 @@
+@use "theme" as theme;
+
+:host
+{
+  width: fit-content;
+}
+
+.stock-tag
+{
+  font-size: small;
+  padding: theme.$spacing-xsmall;
+  border-radius: theme.$spacing-xsmall;
+  background-color: theme.$colour-gray;
+  color: theme.$colour-black;
+
+  &.red
+  {
+    background-color: theme.$colour-error;
+    color: theme.$colour-white;
+  }
+
+  &.green
+  {
+    background-color: #33673b;
+    color: theme.$colour-white;
+  }
+
+  &.orange
+  {
+    background-color: #e55934;
+    color: theme.$colour-white;
+  }
+
+  &.yellow
+  {
+    background-color: #f7ee7f;
+    color: theme.$colour-black;
+  }
+}

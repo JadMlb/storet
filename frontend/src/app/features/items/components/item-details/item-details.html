@@ -36,12 +36,12 @@
         (onAddNew) = "addNewComponent()"
         (onRemoveItem) = "removeComponent ($event)"
       />
-      <!--@if (shouldDisplayTotalStock())
+      
+      @if (shouldDisplayTotalStock())
       {
-        <hr/>
-        <label class = "label">Stock</label>
-        <stock-info [stock] = "totalStock"/>
-      }-->
+        <field-label text = "Stock"/>
+        <stock-info [stock] = "totalStock()"/>
+      }
     </suspense>
   </form>
 </list-view-item-details>

@@ -1,0 +1,14 @@
+@use "theme" as theme;
+
+.stock
+{
+  display: flex;
+  gap: theme.$spacing-medium;
+  align-items: center;
+  
+  .stock-count
+  {
+    font-size: small;
+    color: color(from theme.$colour-gray srgb calc(r / 2) calc(g / 2) calc(b / 2));
+  }
+}

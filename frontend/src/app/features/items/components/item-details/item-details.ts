@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Suspense } from '../../../../shared/components/suspense/suspense';
 import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { TextInput } from '../../../../shared/components/text-input/text-input';
@@ -8,11 +8,14 @@ import { ListViewDetailsFormLogicBase } from '../../../../shared/logic/ListViewD
 import { ItemsDetailsService } from '../../services/items-details';
 import { CategoriesService } from '../../../categories/services/categories';
 import { ItemMappingProfile } from '../../models/ItemMappingProfile';
-import { Button } from '../../../../shared/components/button/button';
 import { NumberInput } from '../../../../shared/components/number-input/number-input';
 import { ItemsService } from '../../services/items';
 import { NoEditWarning } from './no-edit-warning/no-edit-warning';
 import { ItemComponents } from './item-components/item-components';
+import { InventoryDetailsService } from '../../../inventory/services/inventory-details-service';
+import { calculateTotalStockFromArray } from '../../../inventory/models/Stock';
+import { FieldLabel } from '../../../../shared/components/field-label/field-label';
+import { StockInfo } from '../../../inventory/components/stock-info/stock-info';
 
 function positiveValueValidator (control: AbstractControl) : ValidationErrors | null
 {
@@ -26,7 +29,7 @@ function positiveValueValidator (control: AbstractControl) : ValidationErrors | 
 
 @Component ({
   selector: 'item-details',
-  imports: [Suspense, ReactiveFormsModule, TextInput, Combobox, ListViewItemDetails, NumberInput, NoEditWarning, ItemComponents],
+  imports: [Suspense, ReactiveFormsModule, TextInput, Combobox, ListViewItemDetails, NumberInput, NoEditWarning, ItemComponents, FieldLabel, StockInfo],
   templateUrl: './item-details.html',
   styleUrl: './item-details.scss',
   providers: [ItemsService]
@@ -36,6 +39,7 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   readonly itemsDetailsStore = inject (ItemsDetailsService);
   readonly itemsStore = inject (ItemsService);
   readonly categoriesStore = inject (CategoriesService);
+  readonly inventoryDetailsStore = inject (InventoryDetailsService);
   
   override form = new FormGroup ({
     name: new FormControl ("", [Validators.required]),
@@ -60,11 +64,19 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     }
   );
 
-  // shouldDisplayTotalStock = computed (
-  //   () => this.form.controls.components.length === 0 && this.itemsDetailsStore.data()?.stock
-  // );
+  totalStock = computed (
+    () =>
+    {
+      var inventoriesForComponent = this.inventoryDetailsStore.data();
+      return calculateTotalStockFromArray (inventoriesForComponent);
+    }
+  );
 
-  // totalStock = this.itemsDetailsStore.data()?.stock;
+  private numberOfComponents = signal (0);
+  
+  shouldDisplayTotalStock = computed (
+    () => this.numberOfComponents() === 0 && !this.creating()
+  );
   
   readonly units = [
     {value: "unit", display: "Unit"},
@@ -121,6 +133,10 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     
     if (!this.itemsStore.data())
       this.itemsStore.get ({path: "components"});
+
+    this.form.controls.components.valueChanges.subscribe (
+      value => this.numberOfComponents.set (value.length)
+    );
   }
   
   private arraysMatch<T> (apiDataArray?: T[], valueArray?: any) : boolean
