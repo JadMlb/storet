@@ -1,0 +1,27 @@
+<div class = "component" [formGroup] = "component()"> 
+  @if (creating())
+  {
+    <styled-button
+      class = "remove-button"
+      role = "warn"
+      (click) = "handleItemDelete()"
+    >
+      - Remove
+    </styled-button>
+  }
+  @if (component().get ("id"))
+  {
+    <combobox
+      label = "Item"
+      [options] = "items()"
+      formControlName = "id"
+    />
+  }
+  @else
+  {
+    <text-input formControlName = "name" label = "Name"/>
+    <text-input multiline = "true" formControlName = "description" label = "Description"/>
+  }
+  <number-input formControlName = "quantity" label = "Quantity" [min] = "1"/>
+  <!--<stock-info/>-->
+</div>

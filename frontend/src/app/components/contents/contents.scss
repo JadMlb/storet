@@ -1,8 +1,0 @@
-@use "../../../theme" as theme;
-
-:host
-{
-	grid-area: contents;
-	margin: theme.$spacing-large;
-	margin-left: unset;
-}

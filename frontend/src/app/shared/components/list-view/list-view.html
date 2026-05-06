@@ -1,0 +1,13 @@
+<section>
+	<header class = "list-view-header">
+		<h1><ng-content select = "[header-title-contents]"/></h1>
+		<styled-button
+			role = "primary"
+			(onClick) = "handleCreateRequest()"
+		>
+			<ng-content select = "[header-button-contents]"/>
+		</styled-button>
+	</header>
+	<ng-content/>
+</section>
+<router-outlet/>

@@ -1,0 +1,33 @@
+<div>
+  <field-label text = "Components"/>
+  <no-edit-warning [show] = "creating()"/>
+  @if (creating())
+  {
+    <div class = "buttons">
+      <styled-button
+        (click) = "addExistingComponent()"
+        [disabled] = "!creating()"
+      >
+        + Add existing component
+      </styled-button>
+      <styled-button
+        (click) = "addNewComponent()"
+        [disabled] = "!creating()"
+      >
+        + Add new component
+      </styled-button>
+    </div>
+  }
+  <div class = "components" [formArray] = "components()">
+    @for (component of components().controls; track $index; let i = $index)
+    {
+      <item-component
+        
+        [index] = "i"
+        [creating] = "creating()"
+        [component] = "component"
+        (onItemDelete) = "removeItem (i)"
+      />
+    }
+  </div>
+</div>

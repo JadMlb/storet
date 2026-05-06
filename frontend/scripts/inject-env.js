@@ -8,8 +8,8 @@ try
 catch (err) {}
 
 const files = [
-  path.join (__dirname, "../src/app/environments/environment.ts"),
-  path.join (__dirname, "../src/app/environments/environment.prod.ts")
+  path.join (__dirname, "../src/environments/environment.ts"),
+  path.join (__dirname, "../src/environments/environment.prod.ts")
 ];
 
 const authUrl = process.env.AUTH_URL;

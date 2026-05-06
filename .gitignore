@@ -24,6 +24,9 @@ yarn-error.log
 frontend/.vscode/*
 .history/*
 
+# Zed
+.zed
+
 # Miscellaneous
 frontend/.angular/cache
 frontend/.sass-cache/
@@ -33,8 +36,8 @@ frontend/libpeerconnection.log
 frontend/testem.log
 frontend/typings
 frontend/__screenshots__/
-frontend/src/app/environments/environment.ts
-frontend/src/app/environments/environment.prod.ts
+frontend/src/environments/environment.ts
+frontend/src/environments/environment.prod.ts
 
 # System files
 .DS_Store

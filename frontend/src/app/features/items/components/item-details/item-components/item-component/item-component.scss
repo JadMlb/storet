@@ -1,0 +1,14 @@
+@use "theme" as theme;
+
+.component
+{
+  padding-left: theme.$spacing-medium;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacing-small;
+  
+  .remove-button
+  {
+    align-self: flex-end;
+  }
+}

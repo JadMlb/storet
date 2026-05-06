@@ -1,0 +1,31 @@
+@use "theme" as theme;
+
+.input-wrapper
+{
+	display: flex;
+	flex-direction: column;
+	
+	.input
+	{
+		font: inherit;
+		padding: theme.$spacing-xsmall;
+		border-radius: theme.$spacing-small;
+		border: 1px solid theme.$colour-gray;
+
+		&:focus
+		{
+			outline: 2px solid theme.$colour-primary;
+			border-color: transparent;
+		}
+
+		&.disabled
+		{
+			border-color: transparent;
+		}
+		
+		&.multiline
+		{
+			resize: vertical;
+		}
+	}
+}

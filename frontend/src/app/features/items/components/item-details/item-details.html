@@ -1,0 +1,47 @@
+<list-view-item-details
+  [editing] = "editing()"
+  [creating] = "creating()"
+  [submitButtonDisabled] = "!form.valid || !form.dirty"
+  (onEditingEnabled) = "onEditingEnabled()"
+  (onDeleteItem) = "onItemDelete()"
+  (onCancel) = "onCancel()"
+  (onClose) = "navBack()"
+>
+  <span list-item-details-header-title-suffix>item</span>
+  <form body id = "edit-item-form" [formGroup] = "form" (ngSubmit) = "onFormSubmit()">
+    <suspense [loading] = "itemsDetailsStore.state() == 'loading'">
+     	<text-input formControlName = "name" label = "Name"/>
+     	<text-input multiline = "true" formControlName = "description" label = "Description"/>
+      <no-edit-warning [show] = "creating()"/>
+      <div class = "quantity">
+        <number-input formControlName = "quantity" label = "Quantity" [min] = "0"/>
+        <combobox
+          formControlName = "unit"
+          label = "Unit"
+          [options] = "units"
+        />
+      </div>
+     	<combobox
+          multiple = "true"
+      		label = "Categories"
+      		[options] = "options()"
+      		formControlName = "categories"
+     	/>
+
+      <item-components
+        [formArray] = "components"
+        [components] = "components"
+        [creating] = "creating()"
+        (onAddExisting) = "addExistingComponent()"
+        (onAddNew) = "addNewComponent()"
+        (onRemoveItem) = "removeComponent ($event)"
+      />
+      <!--@if (shouldDisplayTotalStock())
+      {
+        <hr/>
+        <label class = "label">Stock</label>
+        <stock-info [stock] = "totalStock"/>
+      }-->
+    </suspense>
+  </form>
+</list-view-item-details>

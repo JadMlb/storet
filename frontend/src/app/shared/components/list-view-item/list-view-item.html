@@ -1,0 +1,34 @@
+<article
+	[id] = "id"
+	class = "list-view-item-header"
+	[class.with-children] = "hasChildren()"
+	[style] = "styleMargin()"
+	(click) = "propagateClick ($event)"
+>
+	@if (hasChildren())
+	{
+		<list-view-item-toggle-expand-button (onToggle) = "handleToggleChange ($event)"/>
+	}
+	<section class = "list-view-item-content">
+  	<span
+      class = "list-view-item-title"
+      [class.bold] = "boldTitle()"
+    >
+      {{label}}
+    </span>
+  	<ng-content/>
+	</section>
+</article>
+@if (isExpanded())
+{
+	@for (item of children; track item.id)
+	{
+		<list-view-item
+			[id] = "item.id"
+			[label] = "item.label"
+			[children] = "item.children"
+			[depth] = "depth + 1"
+			(onClick) = "propagateClick ($event)"
+		/>
+	}
+}

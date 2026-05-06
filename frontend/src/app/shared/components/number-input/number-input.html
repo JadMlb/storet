@@ -1,0 +1,35 @@
+<div class = "input-wrapper">
+  <field-label [required] = "isRequired" [text] = "label"/>
+	<div
+	  class = "input"
+		[class.disabled] = "disabled()"
+	>
+	  @if (!disabled())
+		{
+   	  <button
+        (click) = "decrement ($event)"
+        [disabled] = "decrementDisabled()"
+        [class.disabled] = "decrementDisabled()"
+      >
+        -
+      </button>
+		}
+  	<input
+  		type = "number"
+  		[value] = "value()"
+  		(input) = "onInput ($event)"
+  		(blur) = "onBlur()"
+  		[disabled] = "disabled()"
+   	/>
+    @if (!disabled())
+    {
+      <button
+        (click) = "increment ($event)"
+        [disabled] = "incrementDisabled()"
+        [class.disabled] = "incrementDisabled()"
+      >
+        +
+      </button>
+    }
+	</div>
+</div>

@@ -1,0 +1,19 @@
+@use "theme" as theme;
+
+.buttons
+{
+  display: flex;
+  gap: theme.$spacing-medium;
+}
+
+.quantity
+{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: theme.$spacing-medium;
+  width: 100%;
+  > *
+  {
+    flex: 1;
+  }
+}

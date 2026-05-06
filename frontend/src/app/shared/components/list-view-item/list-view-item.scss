@@ -1,0 +1,48 @@
+@use "theme" as theme;
+
+:host, .list-view-item-header
+{
+ 	gap: theme.$spacing-small;
+}
+
+:host
+{
+ 	display: flex;
+ 	flex-direction: column;
+ 	cursor: pointer;
+}
+
+.list-view-item-header
+{
+ 	padding: theme.$spacing-small;
+ 	border-radius: theme.$spacing-small + theme.$spacing-xsmall;
+
+  border: 1px solid theme.$colour-primary-light;
+  background-color: theme.$colour-white;
+
+  &.with-children
+  {
+    display: grid;
+   	grid-template-areas: "expand label";
+    grid-template-columns: 20px 1fr;
+  }
+
+ 	&:hover
+ 	{
+		background-color: theme.$colour-primary;
+		color: theme.$colour-white;
+ 	}
+
+ 	.list-view-item-content
+ 	{
+    grid-area: label;
+    display: flex;
+    flex-direction: column;
+    gap: theme.$spacing-small;
+ 	}
+
+  .list-view-item-title.bold
+  {
+    font-weight: bold;
+  }
+}

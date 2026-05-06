@@ -1,0 +1,81 @@
+@use "theme" as theme;
+@use "sass:math";
+
+.backdrop
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100dvw;
+	height: 100dvh;
+	
+	background-color: color(from theme.$colour-gray srgb r g b / 0.75);
+	backdrop-filter: blur(10px);
+
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.drawer
+{
+	padding: theme.$spacing-medium;
+
+	width: 50dvh;
+
+	background-color: theme.$colour-white;
+	border-radius: theme.$spacing-medium;
+
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	gap: theme.$spacing-large;
+	
+	.header, .body, .footer
+	{
+		display: flex;
+		gap: theme.$spacing-small;
+	}
+	
+	.header, .footer
+	{
+		justify-content: space-between;
+		align-items: center;
+	}
+	
+	.body
+	{
+		flex-direction: column;
+		overflow-y: auto;
+	}
+	
+	button.close-button
+	{
+		all: unset;
+		width: 20px;
+		height: 20px;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		$width: 1px;
+	
+		&::before, &::after
+		{
+			content: "";
+			display: block;
+			width: $width;
+			height: 12px;
+			background-color: theme.$colour-black;
+		}
+
+		&::before
+		{
+			transform: rotate(45deg) translateY(math.div(-$width, 2));
+		}
+
+		&::after
+		{
+			transform: rotate(-45deg) translateY(math.div(-$width, 2));
+		}
+	}
+}

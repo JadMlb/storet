@@ -30,8 +30,14 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
-            ]
+              "src/styles/styles.scss",
+              "src/styles/theme.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/styles"
+              ]
+            }
           },
           "configurations": {
             "production": {

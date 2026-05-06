@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { Categories } from './pages/categories/categories';
-import { CategoryDetails } from './pages/category-details/category-details';
-import { Items } from './pages/items/items';
-import { ItemDetails } from './pages/item-details/item-details';
-import { AppLayout } from './components/app-layout/app-layout';
-import { authGuard } from './guards/auth-guard';
-import { Login } from './pages/auth/login/login';
-import { Signup } from './pages/auth/signup/signup';
+import { Categories } from './features/categories/components/categories/categories';
+import { CategoryDetails } from './features/categories/components/category-details/category-details';
+import { Items } from './features/items/components/items/items';
+import { ItemDetails } from './features/items/components/item-details/item-details';
+import { AppLayout } from './layout/app-layout';
+import { authGuard } from './features/auth/guards/auth-guard';
+import { Login } from './features/auth/pages/login/login';
+import { Signup } from './features/auth/pages/signup/signup';
 
 export const routes: Routes = [
   {

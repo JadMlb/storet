@@ -1,0 +1,10 @@
+@use "theme" as theme;
+
+.components
+{
+  border-left: 2px solid theme.$colour-gray;
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacing-medium;
+  margin-top: theme.$spacing-medium;
+}

@@ -1,0 +1,14 @@
+@use "theme" as theme;
+
+:host
+{
+	display: grid;
+	grid-template-areas: "nav header"
+						"nav contents";
+	grid-template-columns: minmax(auto, 25dvw) 1fr;
+	grid-template-rows: auto 1fr;
+	column-gap: theme.$spacing-small;
+	height: 100dvh;
+	max-height: 100dvh;
+	background-color: color(from theme.$colour-primary-light srgb r g b / 0.1);
+}
