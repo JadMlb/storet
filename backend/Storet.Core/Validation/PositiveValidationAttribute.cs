@@ -8,6 +8,7 @@ public class PositiveValueAttribute : ValidationAttribute
 	
 	public PositiveValueAttribute (bool include = false)
 	{
+		this.include = include;
 		ErrorMessage = $"Value must be positive (>{(include ? "=" : "")} 0)";
 	}
 

@@ -55,6 +55,9 @@ export class StockInfo implements OnInit
 
   public saveData (data: StockBounds) : void
   {
-    console.log (data);
+    this.inventoryDetailsStore.put ({
+      path: this.itemId(),
+      body: data
+    });
   }
 }

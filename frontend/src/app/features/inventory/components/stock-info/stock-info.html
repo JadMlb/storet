@@ -15,11 +15,14 @@
   }
 </div>
 
-<inventory-bounds-editor
-  [open] = "editDialogOpen()"
-  [itemId] = "itemId()"
-  [itemName] = "itemName()"
-  (onSave) = "saveData ($event)"
-  (onClose) = "closeDialog()"
-  [bounds] = "stock"
-/>
+@if (!disableEditing())
+{
+  <inventory-bounds-editor
+    [open] = "editDialogOpen()"
+    [itemId] = "itemId()"
+    [itemName] = "itemName()"
+    (onClose) = "closeDialog()"
+    (onSave) = "saveData ($event)"
+    [bounds] = "stock"
+  />
+}
