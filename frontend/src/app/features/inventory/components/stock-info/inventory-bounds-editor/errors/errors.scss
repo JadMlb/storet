@@ -1,0 +1,15 @@
+@use "theme" as theme;
+
+.errors
+{
+  padding: theme.$spacing-medium;
+  background-color: color(from theme.$colour-error srgb r g b / 0.2);
+  border-radius: theme.$spacing-small;
+  border: 1px solid theme.$colour-error;
+  
+  ul
+  {
+    margin: unset;
+    padding-left: theme.$spacing-large;
+  }
+}

@@ -5,6 +5,7 @@ import { NumberInput } from '../../../../../shared/components/number-input/numbe
 import { Switch } from '../../../../../shared/components/switch/switch';
 import { StockBounds, StockWithBounds } from '../../../models/Stock';
 import { positiveValueValidator } from '../../../../../shared/validation/positive-value';
+import { Errors } from './errors/errors';
 
 function minLessThanMax (control: AbstractControl) : ValidationErrors | null
 {
@@ -18,7 +19,7 @@ function minLessThanMax (control: AbstractControl) : ValidationErrors | null
 
 @Component ({
   selector: 'inventory-bounds-editor',
-  imports: [ReactiveFormsModule, Button, NumberInput, Switch],
+  imports: [ReactiveFormsModule, Button, NumberInput, Switch, Errors],
   templateUrl: './inventory-bounds-editor.html',
   styleUrl: './inventory-bounds-editor.scss',
 })
@@ -53,6 +54,15 @@ export class InventoryBoundsEditor implements OnInit, OnChanges
       return formPristine || formInvalid || noRealChangesHappened;
     }
   );
+
+  protected get errors ()
+  {
+    return [
+      ["form", Object.keys (this.boundsForm.errors ?? {})?.[0] ?? null],
+      ["min", Object.keys (this.boundsForm.controls.min.errors ?? {})?.[0] ?? null],
+      ["max", Object.keys (this.boundsForm.controls.max.errors ?? {})?.[0] ?? null]
+    ];
+  }
 
   public close (e: Event) : void
   {
