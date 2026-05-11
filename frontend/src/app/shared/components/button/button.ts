@@ -9,7 +9,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class Button
 {
-  @Input() className: string | null = null;
+  @Input() smallerPadding: boolean = false;
+  @Input() smallerBorderRadius: boolean = false;
   @Input() form: string | null = null;
   @Input() disabled: boolean = false;
   @Input() type: "reset" | "submit" | "button" = "button";

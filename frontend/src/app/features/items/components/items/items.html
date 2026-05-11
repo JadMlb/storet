@@ -12,7 +12,7 @@
 				(onClick) = "navigateToDetails ($event)"
 				[boldTitle] = "true"
 			>
-			  <stock-info [stock] = "stock()?.[item.id]?.[0]"/>
+			  <stock-info [itemId] = "item.id" [prefetchedInfo] = "stock()?.[item.id]?.[0]" [disableEditing] = "true"/>
 			</list-view-item>
 		}
 		@empty

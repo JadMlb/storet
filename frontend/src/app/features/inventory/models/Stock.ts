@@ -24,10 +24,12 @@ export const EMPTY_OR_NULL_STOCK = {
   status: "empty_accepted"
 } satisfies Stock;
 
-export type ItemStockWithBounds = Stock & {
+export type StockBounds = {
   minQuantity: number;
-  maxQuantity?: number;
+  maxQuantity?: number | null;
 };
+
+export type StockWithBounds = Stock & StockBounds;
 
 function getWorseStockStatus (stockA: Stock, stockB: Stock)
 {

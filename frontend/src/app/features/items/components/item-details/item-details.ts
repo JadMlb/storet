@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Suspense } from '../../../../shared/components/suspense/suspense';
-import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TextInput } from '../../../../shared/components/text-input/text-input';
 import { Combobox } from '../../../../shared/components/combobox/combobox';
 import { ListViewItemDetails } from '../../../../shared/components/list-view-item-details/list-view-item-details';
@@ -16,16 +16,7 @@ import { InventoryDetailsService } from '../../../inventory/services/inventory-d
 import { calculateTotalStockFromArray } from '../../../inventory/models/Stock';
 import { FieldLabel } from '../../../../shared/components/field-label/field-label';
 import { StockInfo } from '../../../inventory/components/stock-info/stock-info';
-
-function positiveValueValidator (control: AbstractControl) : ValidationErrors | null
-{
-  const value = control.value;
-  const castedValue = +value;
-  const numericalValue = Number.isNaN (castedValue) ? 0 : castedValue;
-  if (numericalValue === 0)
-    return {noPositiveValue: true};
-  return null;
-}
+import { positiveValueValidator } from '../../../../shared/validation/positive-value';
 
 @Component ({
   selector: 'item-details',
@@ -39,12 +30,11 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   readonly itemsDetailsStore = inject (ItemsDetailsService);
   readonly itemsStore = inject (ItemsService);
   readonly categoriesStore = inject (CategoriesService);
-  readonly inventoryDetailsStore = inject (InventoryDetailsService);
   
   override form = new FormGroup ({
     name: new FormControl ("", [Validators.required]),
     description: new FormControl<string | null> (null),
-    quantity: new FormControl (1, [Validators.required, positiveValueValidator]),
+    quantity: new FormControl (1, [Validators.required, positiveValueValidator()]),
     unit: new FormControl ("unit", [Validators.required]),
     categories: new FormControl<string[]> ([], this.creating() ? [Validators.required] : undefined),
     components: new FormArray ([])
@@ -61,14 +51,6 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     {
       const apiData = this.itemsStore.data();
       return apiData?.flatMap (ItemMappingProfile.mapItemToOption) ?? []
-    }
-  );
-
-  totalStock = computed (
-    () =>
-    {
-      var inventoriesForComponent = this.inventoryDetailsStore.data();
-      return calculateTotalStockFromArray (inventoriesForComponent);
     }
   );
 

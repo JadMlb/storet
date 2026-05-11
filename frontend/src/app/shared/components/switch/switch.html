@@ -1,0 +1,21 @@
+@if (label())
+{
+  <label class = "switch-label" for = "switch-checkbox">{{label()}}</label>
+}
+<div
+  class = "background"
+  [class.disabled] = "disabled"
+  [class.on] = "value"
+  (click) = "toggle()"
+  (blur) = "touch()"
+  (focus) = "touch()"
+>
+  <div class = "handle"></div>
+  <input
+    id = "switch-checkbox"
+    type = "checkbox"
+    [(checked)] = "value"
+    [disabled] = "disabled"
+    hidden
+  />
+</div>

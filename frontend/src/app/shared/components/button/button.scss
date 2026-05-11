@@ -8,6 +8,16 @@
 	border-radius: theme.$spacing-small;
 	padding: theme.$spacing-small;
 	text-align: center;
+
+	&.border-xsmall
+	{
+	  border-radius: theme.$spacing-xsmall;
+	}
+
+	&.padding-xsmall
+	{
+  	padding: theme.$spacing-xsmall;
+	}
 	
 	&.fill
 	{

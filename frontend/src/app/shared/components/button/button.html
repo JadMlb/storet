@@ -1,5 +1,7 @@
 <button
 	class = "button"
+	[class.border-xsmall] = "smallerBorderRadius"
+	[class.padding-xsmall] = "smallerPadding"
 	[class.fill] = "fill"
 	[class.filled] = "renderStyle === 'filled'"
 	[class.outlined] = "renderStyle === 'outlined'"
@@ -7,7 +9,6 @@
 	[class.normal] = "role === 'normal'"
 	[class.warn] = "role === 'warn'"
 	[class.disabled] = "disabled"
-	[ngClass] = "className"
 	[attr.form] = "form"
 	[disabled] = "disabled"
 	[type] = "type"

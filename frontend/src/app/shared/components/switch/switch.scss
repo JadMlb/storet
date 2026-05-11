@@ -1,0 +1,78 @@
+@use "theme" as theme;
+
+:host
+{
+  display: flex;
+  gap: theme.$spacing-medium;
+  align-items: center;
+}
+
+.switch-label
+{
+  user-select: none;
+}
+
+.background
+{
+  $size: 20px;
+  $radius: 100px;
+  
+  background-color: theme.$colour-gray;
+  width: $size * 2;
+  height: $size;
+
+  display: flex;
+  align-items: center;
+
+  padding: calc(theme.$spacing-xsmall / 2) calc(theme.$spacing-xsmall / 2);
+
+  border: 1px solid transparent;
+  border-radius: $radius;
+
+  transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+
+  &.disabled
+  {
+    background-color: theme.$colour-white;
+    border-color: theme.$colour-gray;
+    padding-inline: calc(theme.$spacing-xsmall / 2 - 1px) calc(theme.$spacing-xsmall / 2 + 1px);
+
+    .handle, &:hover .handle
+    {
+      border: 1px solid theme.$colour-gray !important;
+    }
+
+    &.on
+    {
+      background-color: theme.$colour-gray;
+    }
+  }
+
+  &:hover
+  {
+    .handle
+    {
+      border-color: theme.$colour-primary;
+    }
+  }
+
+  &.on
+  {
+    background-color: green;
+
+    .handle
+    {
+      transform: translateX($size);
+    }
+  }
+
+  .handle
+  {
+    width: $size;
+    height: $size;
+    border-radius: $radius;
+    background-color: theme.$colour-white;
+
+    transition: transform 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  }
+}

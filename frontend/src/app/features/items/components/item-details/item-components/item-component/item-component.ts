@@ -7,7 +7,6 @@ import { NumberInput } from '../../../../../../shared/components/number-input/nu
 import { ItemsService } from '../../../../services/items';
 import { ItemMappingProfile } from '../../../../models/ItemMappingProfile';
 import { StockInfo } from '../../../../../inventory/components/stock-info/stock-info';
-import { InventoryDetailsService } from '../../../../../inventory/services/inventory-details-service';
 
 @Component ({
   selector: 'item-component',
@@ -15,7 +14,7 @@ import { InventoryDetailsService } from '../../../../../inventory/services/inven
   templateUrl: './item-component.html',
   styleUrl: './item-component.scss',
 })
-export class ItemComponent implements OnInit
+export class ItemComponent
 {
   index = input.required<number>();
   component = input.required<FormGroup>();
@@ -24,7 +23,6 @@ export class ItemComponent implements OnInit
   onItemDelete = output<number>();
 
   readonly itemsStore = inject (ItemsService);
-  readonly inventoryDetailsStore = inject (InventoryDetailsService);
 
   items = computed (
     () =>
@@ -34,24 +32,8 @@ export class ItemComponent implements OnInit
     }
   );
 
-  public get stock ()
-  {
-    return this.inventoryDetailsStore.data()?.[0];
-  }
-
   handleItemDelete ()
   {
     this.onItemDelete.emit (this.index());
-  }
-
-  ngOnInit () : void
-  {
-    const componentId = this.component().get("id")?.value;
-    console.log (componentId);
-    if (!componentId)
-      return;
-
-    if (this.inventoryDetailsStore.data()?.[0]?.itemId !== componentId)
-      this.inventoryDetailsStore.get ({path: componentId});
   }
 }

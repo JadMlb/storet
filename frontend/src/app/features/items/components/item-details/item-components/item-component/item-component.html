@@ -23,5 +23,7 @@
     <text-input multiline = "true" formControlName = "description" label = "Description"/>
   }
   <number-input formControlName = "quantity" label = "Quantity" [min] = "1"/>
-  <stock-info [stock] = "stock"/>
+  <stock-info
+    [itemId] = "component().get('id')?.value"
+  />
 </div>

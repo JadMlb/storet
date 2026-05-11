@@ -1,4 +1,25 @@
 <div class = "stock">
-  <stock-tag [status] = "stock()?.status"/>
-  <span class = "stock-count">{{stock()?.quantityInStock ?? "-"}} in stock</span>
+  <stock-tag [status] = "stock?.status"/>
+  <span class = "stock-count">{{stock?.quantityInStock ?? "-"}} in stock</span>
+  @if (!disableEditing())
+  {
+    <styled-button
+      class = "edit-stock"
+      [smallerBorderRadius] = "true"
+      [smallerPadding] = "true"
+      [disabled] = "!stock"
+      (onClick) = "openEditDialog ($event)"
+    >
+      Edit bounds
+    </styled-button>
+  }
 </div>
+
+<inventory-bounds-editor
+  [open] = "editDialogOpen()"
+  [itemId] = "itemId()"
+  [itemName] = "itemName()"
+  (onSave) = "saveData ($event)"
+  (onClose) = "closeDialog()"
+  [bounds] = "stock"
+/>
