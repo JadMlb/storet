@@ -14,6 +14,79 @@
 
 	display: flex;
 	flex-direction: row-reverse;
+
+	transition: opacity 0.3s ease-in-out;
+}
+
+@keyframes fadeIn
+{
+  from
+  {
+    opacity: 0;
+  }
+  to
+  {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut
+{
+  from
+  {
+    opacity: 1;
+  }
+  to
+  {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInLeft
+{
+  from
+  {
+    transform: translateX(100%);
+  }
+  to
+  {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft
+{
+  from
+  {
+    transform: translateX(0);
+  }
+  to
+  {
+    transform: translateX(100%);
+  }
+}
+
+$animationTime: 0.2s;
+
+.fade-in
+{
+  animation: fadeIn $animationTime ease-in-out;
+
+  .drawer
+  {
+    animation: slideInLeft $animationTime ease-in-out;
+  }
+}
+
+
+.fade-out
+{
+  animation: fadeOut $animationTime ease-in-out;
+
+  .drawer
+  {
+    animation: slideOutLeft $animationTime ease-in-out forwards;
+  }
 }
 
 .drawer
@@ -28,6 +101,8 @@
 	display: grid;
 	grid-template-rows: auto 1fr auto;
 	gap: theme.$spacing-large;
+
+	transition: transform 1s ease-in-out;
 	
 	.header, .body, .footer
 	{

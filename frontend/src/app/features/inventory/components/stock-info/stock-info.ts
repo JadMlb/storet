@@ -1,9 +1,10 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { StockWithBounds, Stock, StockBounds } from '../../models/Stock';
 import { StockTag } from './stock-tag/stock-tag';
 import { Button } from '../../../../shared/components/button/button';
 import { InventoryBoundsEditor } from './inventory-bounds-editor/inventory-bounds-editor';
 import { InventoryDetailsService } from '../../services/inventory-details-service';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component ({
   selector: 'stock-info',
@@ -11,7 +12,7 @@ import { InventoryDetailsService } from '../../services/inventory-details-servic
   templateUrl: './stock-info.html',
   styleUrl: './stock-info.scss',
 })
-export class StockInfo implements OnInit
+export class StockInfo
 {
   prefetchedInfo = input<Stock | null>();
   itemId = input.required<string>();
@@ -22,13 +23,19 @@ export class StockInfo implements OnInit
 
   private readonly inventoryDetailsStore = inject (InventoryDetailsService);
 
-  public ngOnInit () : void
+  constructor ()
   {
     if (this.prefetchedInfo())
       return;
 
-    if (this.stock?.itemId !== this.itemId())
-      this.inventoryDetailsStore.get ({path: this.itemId()});
+    const itemId = toObservable (this.itemId);
+    itemId.subscribe (
+      () =>
+      {
+        if (this.itemId() && this.stock?.itemId !== this.itemId())
+          this.inventoryDetailsStore.get ({path: this.itemId()});
+      }
+    );
   }
 
   protected get stock () : StockWithBounds | null

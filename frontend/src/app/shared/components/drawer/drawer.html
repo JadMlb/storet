@@ -1,6 +1,6 @@
-@if (open)
+@if (open())
 {
-	<div class = "backdrop" (click) = "handleClose()">
+	<div class = "backdrop" (click) = "handleClose()" animate.enter = "fade-in" animate.leave = "fade-out">
 		<article class = "drawer" (click) = "blockPropagate ($event)">
 			<section class = "header">
 				<ng-content select = "[header]"/>

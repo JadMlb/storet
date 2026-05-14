@@ -12,8 +12,6 @@ import { NumberInput } from '../../../../shared/components/number-input/number-i
 import { ItemsService } from '../../services/items';
 import { NoEditWarning } from './no-edit-warning/no-edit-warning';
 import { ItemComponents } from './item-components/item-components';
-import { InventoryDetailsService } from '../../../inventory/services/inventory-details-service';
-import { calculateTotalStockFromArray } from '../../../inventory/models/Stock';
 import { FieldLabel } from '../../../../shared/components/field-label/field-label';
 import { StockInfo } from '../../../inventory/components/stock-info/stock-info';
 import { positiveValueValidator } from '../../../../shared/validation/positive-value';
@@ -57,7 +55,7 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   private numberOfComponents = signal (0);
   
   shouldDisplayTotalStock = computed (
-    () => this.numberOfComponents() === 0 && !this.creating()
+    () => this.numberOfComponents() === 0 && !this.creating
   );
   
   readonly units = [
@@ -102,15 +100,14 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   protected override executeOnInitIfNotCreating (): void
   {
     this.itemsDetailsStore
-        .get ({path: this.id});
+        .get ({path: this.navigation.id()});
   }
   
-  override ngOnInit () : void
+  override initialiseData (creating: boolean = false) : void
   {
-    this.itemsDetailsStore.setForm(this.form).setRouting (this.router, this.activatedRoute);
-
-    super.ngOnInit();
+    super.initialiseData (creating);
     
+    this.itemsDetailsStore.setForm(this.form).setRouting (this.navigation);
     this.categoriesStore.get();
     
     if (!this.itemsStore.data())
@@ -156,10 +153,11 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   public override onEditingEnabled () : void
   {
     super.onEditingEnabled();
-    
-    this.ONLY_ALLOW_EDIT_ON_INSERT_FIELDS.forEach (
-      field => this.form.controls[field].disable()
-    );
+
+    if (!this.creating())
+      this.ONLY_ALLOW_EDIT_ON_INSERT_FIELDS.forEach (
+        field => this.form.controls[field].disable()
+      );
   }
   
   protected override resetFormOnCancelEditing () : void
@@ -174,7 +172,7 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   public override onItemDelete (): void
   {
     this.itemsDetailsStore
-        .delete ({path: this.id});
+        .delete ({path: this.navigation.id()});
   }
   
   public override handleFormSubmission (): void
@@ -186,6 +184,6 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
       return;
     }
 
-    this.itemsDetailsStore.put ({path: this.id, body: this.form.value});
+    this.itemsDetailsStore.put ({path: this.navigation.id(), body: this.form.value});
   }
 }

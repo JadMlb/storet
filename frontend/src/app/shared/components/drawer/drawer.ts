@@ -1,4 +1,4 @@
-import { booleanAttribute, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component ({
   selector: 'drawer',
@@ -8,11 +8,9 @@ import { booleanAttribute, Component, EventEmitter, Input, Output } from '@angul
 })
 export class Drawer
 {
-  @Input ({transform: booleanAttribute})
-  open: boolean = false;
+  open = input.required<boolean>();
 
-  @Output()
-  onClose = new EventEmitter<undefined>();
+  onClose = output<void>();
 
   handleClose ()
   {

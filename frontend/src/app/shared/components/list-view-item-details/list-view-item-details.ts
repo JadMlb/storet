@@ -1,7 +1,8 @@
-import { booleanAttribute, Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { Drawer } from '../drawer/drawer';
 import { Button } from '../button/button';
+import { NavigationService } from '../../services/navigation-service';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 @Component ({
   selector: 'list-view-item-details',
@@ -11,18 +12,32 @@ import { Button } from '../button/button';
 })
 export class ListViewItemDetails
 {
-  protected readonly activatedRoute = inject (ActivatedRoute);
-  protected readonly router = inject (Router);
-  protected readonly id = this.activatedRoute.snapshot.paramMap.get ("id");
+  private readonly navigation = inject (NavigationService);
+  private readonly destroyRef = inject (DestroyRef);
   
-  @Input ({transform: booleanAttribute}) editing: boolean = false;
-  @Input ({transform: booleanAttribute}) creating: boolean = false;
-  @Input ({transform: booleanAttribute}) submitButtonDisabled: boolean = true;
+  editing = input (false);
+  creating = input (false);
+  submitButtonDisabled = input (false);
 
-  @Output() onEditingEnabled = new EventEmitter<void>();
-  @Output() onDeleteItem = new EventEmitter<void>();
-  @Output() onCancel = new EventEmitter<void>();
-  @Output() onClose = new EventEmitter<void>();
+  onEditingEnabled = output<void>();
+  onDeleteItem = output<void>();
+  onCancel = output<void>();
+  onClose = output<void>();
+
+  protected drawerOpen = signal (false);
+
+  constructor ()
+  {
+    const id = toObservable (this.navigation.id);
+
+    id.pipe (takeUntilDestroyed (this.destroyRef))
+      .subscribe (
+        value =>
+        {
+          this.drawerOpen.set (!!value);
+        }
+      );
+  }
   
   handleCancel () : void
   {

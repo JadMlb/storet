@@ -1,6 +1,7 @@
 import { DestroyRef, inject, Injectable, OnInit, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { NavigationService } from "../services/navigation-service";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 @Injectable()
 export abstract class ListViewDetailsFormLogicBase implements OnInit
@@ -10,25 +11,34 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
   protected readonly editing = signal (false);
   protected editsHappened = false;
   
-  protected readonly activatedRoute = inject (ActivatedRoute);
-  protected readonly router = inject (Router);
-  protected readonly id = this.activatedRoute.snapshot.paramMap.get ("id");
+  protected readonly navigation = inject (NavigationService);
   
   protected form!: FormGroup;
+
+  constructor ()
+  {
+    const navigationId = toObservable (this.navigation.id);
+    navigationId.subscribe (
+      value =>
+      {
+        if (!value)
+        {
+          this.creating.set (false);
+          this.editing.set (false);
+          this.editsHappened = false;
+          this.form.reset();
+          return;
+        }
+        
+        const isCreating = value === "new";
+        this.creating.set (isCreating);
+        this.initialiseData (isCreating);
+      }
+    );
+  }
   
   ngOnInit () : void
   {
-    this.creating.set (this.activatedRoute.snapshot.url[0].path === "new");
-    if (this.creating())
-    {
-      this.editing.set (true);
-      this.executeOnInitIfCreating();
-    }
-    else
-    {
-      this.executeOnInitIfNotCreating();
-      this.form.disable();
-    }
     this.subscribeToFormChanges();
   }
   
@@ -47,6 +57,20 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
                     this.editsHappened = true;
                 }
               );
+  }
+
+  public initialiseData (creating: boolean = false) : void
+  {
+    if (creating)
+    {
+      this.onEditingEnabled();
+      this.executeOnInitIfCreating();
+    }
+    else
+    {
+      this.executeOnInitIfNotCreating();
+      this.form.disable();
+    }
   }
   
   protected abstract executeOnInitIfNotCreating () : void;
@@ -76,13 +100,7 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
   
   navBack (): void
   {
-    this.router.navigate (
-      ["../"],
-      {
-        relativeTo: this.activatedRoute,
-        state: {refresh: this.editsHappened, timestamp: Date.now()}
-      }
-    );
+    this.navigation.navigateBack ({refresh: this.editsHappened, timestamp: Date.now()});
   }
   
   onFormSubmit ()

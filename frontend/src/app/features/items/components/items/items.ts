@@ -10,10 +10,11 @@ import { InventoryService } from '../../../inventory/services/inventory-service'
 import { switchMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ItemStock } from '../../../inventory/models/Stock';
+import { ItemDetails } from '../item-details/item-details';
 
 @Component ({
   selector: 'items',
-  imports: [ListView, ListViewItem, Button, Suspense, StockInfo],
+  imports: [ListView, ListViewItem, Button, Suspense, StockInfo, ItemDetails],
   templateUrl: './items.html',
   styleUrl: './items.scss',
 })
@@ -26,7 +27,8 @@ export class Items extends ListViewLogicBase
     switchMap (
       items =>
       {
-        this.stockStore.getInventories (items?.map (i => i.id) ?? []);
+        if (items && items.length > 0)
+          this.stockStore.getInventories (items?.map (i => i.id) ?? []);
         return this.stockStore.data$;
       }
     )

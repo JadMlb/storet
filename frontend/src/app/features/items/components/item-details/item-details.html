@@ -40,7 +40,7 @@
       @if (shouldDisplayTotalStock())
       {
         <field-label text = "Stock"/>
-        <stock-info [itemId] = "id!" [itemName] = "form.value.name"/>
+        <stock-info [itemId] = "navigation.id()!" [itemName] = "form.value.name"/>
       }
     </suspense>
   </form>

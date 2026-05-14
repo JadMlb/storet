@@ -1,12 +1,11 @@
 import { FormGroup } from "@angular/forms";
 import { ActionType, Service } from "./service";
-import { ActivatedRoute, Router } from "@angular/router";
+import { NavigationService } from "./navigation-service";
 
 export abstract class DetailsService<TData> extends Service<TData>
 {
   protected form?: FormGroup;
-  protected router?: Router;
-  protected route?: ActivatedRoute;
+  protected navigationService?: NavigationService;
   
   public setForm (form?: FormGroup)
   {
@@ -14,10 +13,9 @@ export abstract class DetailsService<TData> extends Service<TData>
     return this;
   }
   
-  public setRouting (router?: Router, activatedRoute?: ActivatedRoute)
+  public setRouting (navigationService?: NavigationService)
   {
-    this.router = router;
-    this.route = activatedRoute;
+    this.navigationService = navigationService;
     return this;
   }
   
@@ -33,13 +31,7 @@ export abstract class DetailsService<TData> extends Service<TData>
     }
     else if (actionType === "POST" || actionType === "PUT" || actionType === "DELETE" && response === null)
     {
-      this.router?.navigate (
-        ["../"],
-        {
-          relativeTo: this.route,
-          state: {refresh: true, timestamp: Date.now()}
-        }
-      );
+      this.navigationService?.navigateBack ({refresh: true, timestamp: Date.now()});
     }
   }
 }

@@ -5,10 +5,11 @@ import { CategoriesService } from '../../services/categories';
 import { ListView } from '../../../../shared/components/list-view/list-view';
 import { Button } from '../../../../shared/components/button/button';
 import { ListViewLogicBase } from '../../../../shared/logic/ListViewLogicBase';
+import { CategoryDetails } from '../category-details/category-details';
 
 @Component ({
   selector: 'categories',
-  imports: [ListViewItem, Suspense, Button, ListView],
+  imports: [ListViewItem, Suspense, Button, ListView, CategoryDetails],
   templateUrl: './categories.html',
   styleUrl: './categories.scss',
 })

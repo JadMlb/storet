@@ -1,10 +1,10 @@
-import { DestroyRef, inject, Injectable, signal } from "@angular/core";
+import { DestroyRef, inject, Injectable, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { filter } from "rxjs";
 
 @Injectable()
-export abstract class ListViewLogicBase
+export abstract class ListViewLogicBase implements OnInit
 {
   private readonly router = inject (Router);
   private readonly route = inject (ActivatedRoute);

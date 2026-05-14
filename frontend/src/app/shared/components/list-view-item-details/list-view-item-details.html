@@ -1,6 +1,6 @@
-<drawer open = "true" (onClose) = "handleClose()">
+<drawer [open] = "drawerOpen()" (onClose) = "handleClose()">
 	<h1 class = "list-item-details-header" header>
-		@if (creating)
+		@if (creating())
 		{
 			New
 		}
@@ -14,7 +14,7 @@
   	<ng-content select = "[body]"/>
 	</div>
 	<div class = "list-item-details-footer" footer>
-		@if (editing)
+		@if (editing())
 		{
 			<styled-button
 				(onClick) = "handleCancel()"
@@ -25,7 +25,7 @@
 			<styled-button
 				type = "submit"
 				form = "edit-item-form"
-				[disabled] = "submitButtonDisabled"
+				[disabled] = "submitButtonDisabled()"
 				role = "primary"
 			>
 				Done

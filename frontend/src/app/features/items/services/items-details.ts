@@ -29,8 +29,8 @@ export class ItemsDetailsService extends DetailsService<ItemType>
       description: response.description,
       quantity: response.quantity,
       unit: response.unit,
-      categories: response.categories.map ((c: CategoryMetadataType) => c.id),
-      components: response.components.map ((c: ItemCompositionType) => ({id: c.id, quantity: c.quantity})),
+      categories: response.categories?.map ((c: CategoryMetadataType) => c.id),
+      components: response.components?.map ((c: ItemCompositionType) => ({id: c.id, quantity: c.quantity})),
     } satisfies ItemType;
     
     super.handleSuccess (actionType, mappedItem);
@@ -43,13 +43,13 @@ export class ItemsDetailsService extends DetailsService<ItemType>
       description: response.description,
       quantity: response.quantity,
       unit: response.unit,
-      categories: [...response.categories]
+      categories: response.categories ? [...response.categories] : []
     };
     
     const components = this.form!.get ("components") as FormArray;
     components.clear();
     
-    (response.components as ItemCompositionType[]).forEach (
+    (response.components as ItemCompositionType[])?.forEach (
       component =>
       {
         const formGroup = new FormGroup ({

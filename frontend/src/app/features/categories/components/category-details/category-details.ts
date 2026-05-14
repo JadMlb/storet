@@ -27,23 +27,23 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
 
   options = computed (
     () => (this.categoriesStore.data()?.flatMap (CategoryMappingProfile.mapCategoryToOption) ?? [])
-            .filter (o => o.value !== this.id)
+            .filter (o => o.value !== this.navigation.id())
   );
   
   override executeOnInitIfNotCreating () : void
   {
     this.categoriesDetailsStore
         .setForm (this.form)
-        .get ({path: this.id});
+        .get ({path: this.navigation.id()});
   }
   
   override executeOnInitIfCreating () : void
   {
   }
   
-  override ngOnInit () : void
+  override initialiseData (creating: boolean = false) : void
   {
-    super.ngOnInit();
+    super.initialiseData (creating);
     
     if (this.categoriesStore.data())
       return;
@@ -56,19 +56,19 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
     if (this.creating())
     {
       this.categoriesDetailsStore
-          .setRouting (this.router, this.activatedRoute)
+          .setRouting (this.navigation)
           .post ({body: this.form.value});
       return;
     }
 
-    this.categoriesDetailsStore.put ({path: this.id, body: this.form.value});
+    this.categoriesDetailsStore.put ({path: this.navigation.id(), body: this.form.value});
   }
 
   override onItemDelete (): void
   {
     this.categoriesDetailsStore
-        .setRouting (this.router, this.activatedRoute)
-        .delete ({path: this.id});
+        .setRouting (this.navigation)
+        .delete ({path: this.navigation.id()});
   }
   
   override shouldMarkFormAsPristine (value: any): boolean
