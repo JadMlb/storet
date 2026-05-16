@@ -9,14 +9,99 @@
 	padding: theme.$spacing-small;
 	text-align: center;
 
-	&.border-xsmall
+	$outline-width: 1px;
+
+	&.padding-inline-xsmall
 	{
-	  border-radius: theme.$spacing-xsmall;
+		padding-inline: theme.$spacing-xsmall;
+		&.warn, &.outlined
+		{
+			padding-inline: theme.$spacing-xsmall - $outline-width;
+		}
 	}
 
-	&.padding-xsmall
+	&.padding-inline-small
 	{
-  	padding: theme.$spacing-xsmall;
+		padding-inline: theme.$spacing-small;
+		&.warn, &.outlined
+		{
+			padding-inline: theme.$spacing-small - $outline-width;
+		}
+	}
+
+	&.padding-inline-medium
+	{
+		padding-inline: theme.$spacing-medium;
+
+		&.warn, &.outlined
+		{
+			padding-inline: theme.$spacing-medium - $outline-width;
+		}
+	}
+
+	&.padding-inline-large
+	{
+		padding-inline: theme.$spacing-large;
+		&.warn, &.outlined
+		{
+			padding-inline: theme.$spacing-large - $outline-width;
+		}
+	}
+
+	&.padding-block-xsmall
+	{
+		padding-block: theme.$spacing-xsmall;
+		&.warn, &.outlined
+		{
+			padding-block: theme.$spacing-xsmall - $outline-width;
+		}
+	}
+
+	&.padding-block-small
+	{
+		padding-block: theme.$spacing-small;
+		&.warn, &.outlined
+		{
+			padding-block: theme.$spacing-small - $outline-width;
+		}
+	}
+
+	&.padding-block-medium
+	{
+		padding-block: theme.$spacing-medium;
+		&.warn, &.outlined
+		{
+			padding-block: theme.$spacing-medium - $outline-width;
+		}
+	}
+
+	&.padding-block-large
+	{
+		padding-block: theme.$spacing-large;
+		&.warn, &.outlined
+		{
+			padding-block: theme.$spacing-large - $outline-width;
+		}
+	}
+
+	&.border-xsmall
+	{
+		border-radius: theme.$spacing-xsmall;
+	}
+
+	&.border-small
+	{
+		border-radius: theme.$spacing-small;
+	}
+
+	&.border-medium
+	{
+		border-radius: theme.$spacing-medium;
+	}
+
+	&.border-large
+	{
+		border-radius: theme.$spacing-large;
 	}
 	
 	&.fill
@@ -25,7 +110,7 @@
 		
 		&.outlined
 		{
-	    width: calc(100% - 2 * theme.$spacing-small - 2px);
+			width: calc(100% - 2 * theme.$spacing-small - 2 * $outline-width);
 		}
 	}
 
@@ -38,7 +123,7 @@
 		
 		&.outlined
 		{
-		  border-width: 1px;
+			border-width: $outline-width;
 			border-style: solid;
 			border-color: $background-color;
 			color: $background-color;
@@ -51,7 +136,7 @@
 			
 			&.outlined
 			{
-			  border-color: theme.$colour-secondary-dark;
+				border-color: theme.$colour-secondary-dark;
 			}
 		}
 	}
@@ -64,7 +149,7 @@
 		
 		&.outlined
 		{
-		  border-width: 1px;
+			border-width: $outline-width;
 			border-style: solid;
 			border-color: $background-color;
 			color: $background-color;
@@ -78,7 +163,8 @@
 			
 			&.outlined
 			{
-			  border-color: theme.$colour-black;
+				border-color: theme.$colour-black;
+				color: theme.$colour-white;
 			}
 		}
 	}
@@ -86,13 +172,25 @@
 	&.warn
 	{
 		color: theme.$colour-black;
-		border: 1px solid theme.$colour-error;
+		border: $outline-width solid theme.$colour-error;
 		
 		&:hover
 		{
 			background-color: theme.$colour-error-dark;
 			color: theme.$colour-white;
 			border-color: transparent;
+		}
+	}
+
+	&.danger
+	{
+		background-color: theme.$colour-error;
+		color: theme.$colour-white;
+		
+		&:hover
+		{
+			background-color: theme.$colour-error-dark;
+			color: theme.$colour-white;
 		}
 	}
 

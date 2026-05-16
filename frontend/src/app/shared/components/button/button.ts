@@ -1,26 +1,35 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
+import { ButtonRole } from './Role';
+
+type Size = "xsmall" | "small" | "medium" | "large";
 
 @Component ({
-  selector: 'styled-button',
-  imports: [CommonModule],
-  templateUrl: './button.html',
-  styleUrl: './button.scss',
+	selector: 'styled-button',
+	imports: [CommonModule],
+	templateUrl: './button.html',
+	styleUrl: './button.scss',
 })
 export class Button
 {
-  @Input() smallerPadding: boolean = false;
-  @Input() smallerBorderRadius: boolean = false;
-  @Input() form: string | null = null;
-  @Input() disabled: boolean = false;
-  @Input() type: "reset" | "submit" | "button" = "button";
-  @Input() role: "primary" | "normal" | "warn" = "normal";
-  @Input() renderStyle: "filled" | "outlined" = "filled";
-  @Input() fill: boolean = false;
-  @Output() onClick = new EventEmitter<any>();
+	paddingInline = input<Size> ("medium");
+	paddingBlock = input<Size> ("xsmall");
+	borderRadius = input<Size> ("small");
+	form = input<string | null> (null);
+	disabled = input (false);
+	type = input<"reset" | "submit" | "button"> ("button");
+	role = input<ButtonRole> ("normal");
+	renderStyle = input<"filled" | "outlined"> ("filled");
+	fill = input (false);
 
-  handleClick (event: Event)
-  {
-    this.onClick.emit (event);
-  }
+	onClick = output<Event>();
+
+	paddingAndBorderClasses = computed (
+		() => `padding-block-${this.paddingBlock()} padding-inline-${this.paddingInline()} border-${this.borderRadius()}`
+	);
+
+	handleClick (event: Event)
+	{
+		this.onClick.emit (event);
+	}
 }

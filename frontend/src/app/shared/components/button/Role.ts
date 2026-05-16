@@ -1,0 +1,1 @@
+export type ButtonRole = "primary" | "normal" | "warn" | "danger";
