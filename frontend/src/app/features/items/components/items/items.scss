@@ -1,8 +1,0 @@
-@use "theme" as theme;
-
-.items-list
-{
-  display: flex;
-  flex-direction: column;
-  gap: theme.$spacing-medium;
-}

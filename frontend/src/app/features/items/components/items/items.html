@@ -3,7 +3,7 @@
 >
   <span header-title-contents>Items</span>
   <span header-button-contents>+ New Item</span>
-  <suspense [loading] = "itemsStore.state() == 'loading'" class = "items-list">
+  <suspense [loading] = "itemsStore.state() == 'loading'">
 		@for (item of itemsStore.data(); track item.id)
 		{
 			<list-view-item

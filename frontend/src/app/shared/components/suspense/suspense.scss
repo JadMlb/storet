@@ -1,0 +1,8 @@
+@use "theme" as theme;
+
+:host
+{
+  display: flex;
+  flex-direction: column;
+  gap: theme.$spacing-medium;
+}
