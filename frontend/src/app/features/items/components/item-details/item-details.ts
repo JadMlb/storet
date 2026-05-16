@@ -55,7 +55,7 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   private numberOfComponents = signal (0);
   
   shouldDisplayTotalStock = computed (
-    () => this.numberOfComponents() === 0 && !this.creating
+    () => this.numberOfComponents() === 0 && !this.creating()
   );
   
   readonly units = [
