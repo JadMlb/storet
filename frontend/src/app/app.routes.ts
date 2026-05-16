@@ -6,6 +6,7 @@ import { authGuard } from './features/auth/guards/auth-guard';
 import { Login } from './features/auth/pages/login/login';
 import { Signup } from './features/auth/pages/signup/signup';
 import { Empty } from './shared/components/empty/empty';
+import { Locations } from './features/storage-locations/components/locations/locations';
 
 export const routes: Routes = [
   {
@@ -39,6 +40,20 @@ export const routes: Routes = [
      	{
     		path: "items",
     		component: Items,
+    		children: [
+     			{
+    				path: ":id",
+    				component: Empty
+     			},
+     			{
+    				path: "new",
+    				component: Empty
+     			}
+    		]
+     	},
+      {
+    		path: "locations",
+    		component: Locations,
     		children: [
      			{
     				path: ":id",

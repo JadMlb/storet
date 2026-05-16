@@ -1,0 +1,21 @@
+<list-view-item-details
+  [editing] = "editing()"
+  [creating] = "creating()"
+  [submitButtonDisabled] = "!form.valid || !form.dirty"
+  (onEditingEnabled) = "onEditingEnabled()"
+  (onDeleteItem) = "onItemDelete()"
+  (onCancel) = "onCancel()"
+  (onClose) = "navBack()"
+>
+  <span list-item-details-header-title-suffix>location</span>
+  <form body id = "edit-item-form" [formGroup] = "form" (ngSubmit) = "onFormSubmit()">
+    <suspense [loading] = "locationDetailsStore.state() == 'loading'">
+     	<text-input formControlName = "name" label = "Name"/>
+     	<text-input
+        formControlName = "description"
+        label = "Description"
+        [multiline] = "true"
+      />
+    </suspense>
+  </form>
+</list-view-item-details>

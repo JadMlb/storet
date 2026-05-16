@@ -1,0 +1,27 @@
+<list-view
+  (onCreateRequest) = "navigateToNew()"
+>
+  <span header-title-contents>Locations</span>
+  <span header-button-contents>+ New Location</span>
+  <suspense [loading] = "locationsStore.state() == 'loading'">
+		@for (location of locationsStore.data(); track location.id)
+		{
+			<list-view-item
+				[id] = "`${location.id}`"
+				[label] = "location.name"
+				(onClick) = "navigateToDetails ($event)"
+			/>
+		}
+		@empty
+		{
+			<p>Looks like you don't have any location defined. Locations are essential to track where your items are.</p>
+			<styled-button
+				role = "primary"
+				(onClick) = "navigateToNew()"
+			>
+				Start by declaring a new location
+			</styled-button>
+		}
+	</suspense>
+	<location-details drawer/>
+</list-view>
