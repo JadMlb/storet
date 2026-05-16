@@ -1,5 +1,21 @@
 @use "theme" as theme;
 
+.buttons
+{
+	display: flex;
+	gap: theme.$spacing-medium;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	font-size: small;
+
+	> *
+	{
+		flex: 1;
+		flex-grow: 1;
+	}
+}
+
 .components
 {
   border-left: 2px solid theme.$colour-gray;
