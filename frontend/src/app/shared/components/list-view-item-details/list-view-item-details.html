@@ -8,7 +8,7 @@
 		{
 			Edit
 		}
-		<ng-content select = "[list-item-details-header-title-suffix]"/>
+		{{entity()}}
 	</h1>
 	<div body>
   	<ng-content select = "[body]"/>
@@ -48,3 +48,9 @@
 		}
 	</div>
 </drawer>
+<confirm-delete
+	[open] = "deleteDialogOpen()"
+	[entity] = "entity()"
+	(onDelete) = "deleteItem()"
+	(onCancel) = "handleCancelDelete()"
+/>

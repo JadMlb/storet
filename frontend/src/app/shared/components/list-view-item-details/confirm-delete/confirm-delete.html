@@ -1,0 +1,13 @@
+<styled-dialog
+	[open] = "open()"
+	(onSubmitRequest) = "handleDelete()"
+	(onClose) = "handleCancel()"
+	submitButtonRole = "danger"
+	cancelButtonRole = "primary"
+>
+	<h2 header>Are you sure you want to delete this {{entity() ?? "instance"}}?</h2>
+	<p body>
+		This action is irreversible and will result in permanent loss of this {{entity() ?? "instance"}}.
+	</p>
+	<span primary-action-button-label>Delete</span>
+</styled-dialog>

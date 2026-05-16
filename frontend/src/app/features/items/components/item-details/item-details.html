@@ -1,4 +1,5 @@
 <list-view-item-details
+  entity = "item"
   [editing] = "editing()"
   [creating] = "creating()"
   [submitButtonDisabled] = "!form.valid || !form.dirty"
@@ -7,7 +8,6 @@
   (onCancel) = "onCancel()"
   (onClose) = "navBack()"
 >
-  <span list-item-details-header-title-suffix>item</span>
   <form body id = "edit-item-form" [formGroup] = "form" (ngSubmit) = "onFormSubmit()">
     <suspense [loading] = "itemsDetailsStore.state() == 'loading'">
      	<text-input formControlName = "name" label = "Name"/>

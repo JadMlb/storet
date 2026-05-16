@@ -3,10 +3,11 @@ import { Drawer } from '../drawer/drawer';
 import { Button } from '../button/button';
 import { NavigationService } from '../../services/navigation-service';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { ConfirmDelete } from './confirm-delete/confirm-delete';
 
 @Component ({
   selector: 'list-view-item-details',
-  imports: [Drawer, Button],
+  imports: [Drawer, Button, ConfirmDelete],
   templateUrl: './list-view-item-details.html',
   styleUrl: './list-view-item-details.scss',
 })
@@ -14,7 +15,8 @@ export class ListViewItemDetails
 {
   private readonly navigation = inject (NavigationService);
   private readonly destroyRef = inject (DestroyRef);
-  
+
+  entity = input<string>();
   editing = input (false);
   creating = input (false);
   submitButtonDisabled = input (false);
@@ -25,6 +27,7 @@ export class ListViewItemDetails
   onClose = output<void>();
 
   protected drawerOpen = signal (false);
+  protected deleteDialogOpen = signal (false);
 
   constructor ()
   {
@@ -46,7 +49,18 @@ export class ListViewItemDetails
   
   handleDeleteItem () : void
   {
+    this.deleteDialogOpen.set (true);
+  }
+
+  handleCancelDelete () : void
+  {
+  	this.deleteDialogOpen.set (false);
+  }
+
+  deleteItem () : void
+  {
     this.onDeleteItem.emit();
+    this.deleteDialogOpen.set (false);
   }
   
   handleEditingEnabled () : void
