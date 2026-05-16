@@ -1,42 +1,29 @@
-@if (open())
-{
-  <div class = "backdrop" (click) = "close ($event)" animate.enter = "entering" animate.leave = "leaving">
-    <div class = "dialog" (click) = "$event.stopPropagation()">
-      <h2 class = "title">Edit inventory bounds for {{itemName() ?? "component"}}</h2>
-      <form class = "contents" [formGroup] = "boundsForm">
-        <number-input
-          formControlName = "min"
-          label = "Min quantity"
-        />
-        <switch
-          label = "Set a max quantity"
-          formControlName = "hasMaxValue"
-        />
-        @if (boundsForm.controls.hasMaxValue.value)
-        {
-          <number-input
-            formControlName = "max"
-            label = "Max quantity"
-          />
-        }
-      </form>
-      <errors [errors] = "errors"/>
-      <div class = "footer">
-        <styled-button
-          renderStyle = "outlined"
-          role = "warn"
-          (onClick) = "close ($event)"
-        >
-          Cancel
-        </styled-button>
-        <styled-button
-          role = "primary"
-          [disabled] = "submissionDisabled()"
-          (onClick) = "save ($event)"
-        >
-          Edit bounds
-        </styled-button>
-      </div>
-    </div>
-  </div>
-}
+<styled-dialog
+	[open] = "open()"
+	[submissionDisabled] = "submissionDisabled()"
+	(onSubmitRequest) = "save()"
+	(onClose) = "close()"
+>
+	<h2 header class = "title">Edit inventory bounds for {{itemName() ?? "component"}}</h2>
+	<div body>
+		<form class = "contents" [formGroup] = "boundsForm">
+		<number-input
+			formControlName = "min"
+			label = "Min quantity"
+		/>
+		<switch
+			label = "Set a max quantity"
+			formControlName = "hasMaxValue"
+		/>
+		@if (boundsForm.controls.hasMaxValue.value)
+		{
+			<number-input
+				formControlName = "max"
+				label = "Max quantity"
+			/>
+		}
+		</form>
+		<errors [errors] = "errors"/>
+	</div>
+	<span primary-action-button-label>Edit bounds</span>
+</styled-dialog>

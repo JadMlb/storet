@@ -1,0 +1,29 @@
+@if (open())
+{
+	<div class = "backdrop" (click) = "close ($event)" animate.enter = "entering" animate.leave = "leaving">
+		<div class = "dialog" (click) = "$event.stopPropagation()">
+			<div class = "header">
+				<ng-content select = "[header]"/>
+			</div>
+			<div class = "body">
+				<ng-content select = "[body]"/>
+			</div>
+			<div class = "footer">
+				<styled-button
+					renderStyle = "outlined"
+					[role] = "cancelButtonRole()"
+					(onClick) = "close ($event)"
+				>
+					Cancel
+				</styled-button>
+				<styled-button
+					[role] = "submitButtonRole()"
+					[disabled] = "submissionDisabled()"
+					(onClick) = "save ($event)"
+				>
+					<ng-content select = "[primary-action-button-label]"/>
+				</styled-button>
+			</div>
+		</div>
+	</div>
+}

@@ -1,11 +1,11 @@
 import { Component, computed, input, OnChanges, OnInit, output, signal, SimpleChanges } from '@angular/core';
-import { Button } from '../../../../../shared/components/button/button';
 import { AbstractControl, FormControl, FormGroup, PristineChangeEvent, ReactiveFormsModule, StatusChangeEvent, ValidationErrors, Validators, ValueChangeEvent } from '@angular/forms';
 import { NumberInput } from '../../../../../shared/components/number-input/number-input';
 import { Switch } from '../../../../../shared/components/switch/switch';
 import { StockBounds, StockWithBounds } from '../../../models/Stock';
 import { positiveValueValidator } from '../../../../../shared/validation/positive-value';
 import { Errors } from './errors/errors';
+import { Dialog } from '../../../../../shared/components/dialog/dialog';
 
 function minLessThanMax (control: AbstractControl) : ValidationErrors | null
 {
@@ -19,7 +19,7 @@ function minLessThanMax (control: AbstractControl) : ValidationErrors | null
 
 @Component ({
   selector: 'inventory-bounds-editor',
-  imports: [ReactiveFormsModule, Button, NumberInput, Switch, Errors],
+  imports: [Dialog, ReactiveFormsModule, NumberInput, Switch, Errors],
   templateUrl: './inventory-bounds-editor.html',
   styleUrl: './inventory-bounds-editor.scss',
 })
@@ -64,11 +64,8 @@ export class InventoryBoundsEditor implements OnInit, OnChanges
     ];
   }
 
-  public close (e: Event) : void
+  public close () : void
   {
-    e.preventDefault();
-    e.stopPropagation();
-
     this.onClose.emit();
   }
 
@@ -80,16 +77,13 @@ export class InventoryBoundsEditor implements OnInit, OnChanges
     };
   }
 
-  public save (e: Event)
+  public save ()
   {
-    e.stopPropagation();
-    e.preventDefault();
-
     if (!this.boundsForm.valid)
       return;
 
     this.onSave.emit (this.mapFormValueToStockBounds());
-    this.close (e);
+    this.close();
   }
 
   private patchBoundsValue () : void
