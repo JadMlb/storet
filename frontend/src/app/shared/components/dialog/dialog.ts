@@ -1,6 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { Button } from '../button/button';
 import { ButtonRole } from '../button/Role';
+import { ResponsiveService } from '../../services/responsive-service';
 	
 @Component ({
 	selector: 'styled-dialog',
@@ -10,6 +11,8 @@ import { ButtonRole } from '../button/Role';
 })
 export class Dialog
 {
+	private readonly responsiveness = inject (ResponsiveService);
+	
 	public open = input.required<boolean>();
 	public submissionDisabled = input (false);
 	public submitButtonRole = input<ButtonRole> ("primary");
@@ -17,6 +20,10 @@ export class Dialog
 
 	public onSubmitRequest = output<void>();
 	public onClose = output<void>();
+
+	protected buttonPaddingBlock = computed (
+		() => this.responsiveness.isSmallScreen() ? "medium" : "xsmall"
+	);
 	
 	public close (e: Event) : void
 	{

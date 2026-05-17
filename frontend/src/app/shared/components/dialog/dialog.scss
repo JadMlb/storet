@@ -5,8 +5,8 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
+	width: 100dvw;
+	height: 100dvh;
 	z-index: 1000;
 
 	background-color: color(from theme.$colour-black srgb r g b / 0.5);
@@ -15,6 +15,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
+	overflow: hidden;
 }
 
 .dialog
@@ -24,11 +26,17 @@
 	padding: theme.$spacing-large;
 	border-radius: theme.$spacing-large + theme.$spacing-small;
 
-	max-width: 50dvw;
+	margin: 2 * theme.$spacing-large;
 
 	display: flex;
 	flex-direction: column;
 	gap: theme.$spacing-medium;
+
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		max-width: 400px;
+		margin: unset;
+	}
 
 	.header
 	{
@@ -48,8 +56,19 @@
 	{
 		display: flex;
 		gap: theme.$spacing-medium;
-		justify-content: flex-end;
-		align-items: center;
+		flex-direction: column;
+
+		> *
+		{
+			width: 100%;
+		}
+
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			flex-direction: row;
+			justify-content: flex-end;
+			align-items: center;
+		}
 	}
 }
 

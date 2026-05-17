@@ -2,30 +2,34 @@
 
 .stock
 {
-  display: flex;
-  gap: theme.$spacing-medium;
-  align-items: center;
-  
-  .stock-count
-  {
-    font-size: small;
-    color: color(from theme.$colour-gray srgb calc(r / 2) calc(g / 2) calc(b / 2));
-  }
+	display: flex;
+	gap: theme.$spacing-medium;
+	align-items: center;
+	
+	.stock-count
+	{
+		font-size: small;
+		color: color(from theme.$colour-gray srgb calc(r / 2) calc(g / 2) calc(b / 2));
+	}
 
-  .edit-stock
-  {
-    font-size: small;
-    display: none;
-    margin-left: auto;
+	.edit-stock
+	{
+		font-size: small;
+		margin-left: auto;
+		display: block;
+		
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			display: none;
+		}
+	}
+	.edit-stock-button
+	{
+		padding: theme.$spacing-xsmall !important;
+	}
 
-  }
-  .edit-stock-button
-  {
-    padding: theme.$spacing-xsmall !important;
-  }
-
-  &:hover .edit-stock
-  {
-    display: block;
-  }
+	&:hover .edit-stock
+	{
+		display: block;
+	}
 }

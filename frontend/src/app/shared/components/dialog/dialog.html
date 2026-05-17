@@ -12,6 +12,8 @@
 				<styled-button
 					renderStyle = "outlined"
 					[role] = "cancelButtonRole()"
+					[fill] = "true"
+					[paddingBlock] = "buttonPaddingBlock()"
 					(onClick) = "close ($event)"
 				>
 					Cancel
@@ -19,6 +21,8 @@
 				<styled-button
 					[role] = "submitButtonRole()"
 					[disabled] = "submissionDisabled()"
+					[fill] = "true"
+					[paddingBlock] = "buttonPaddingBlock()"
 					(onClick) = "save ($event)"
 				>
 					<ng-content select = "[primary-action-button-label]"/>
