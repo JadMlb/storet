@@ -16,7 +16,7 @@ aside
 	align-items: center;
 	position: relative;
 	border-bottom: 1px solid color(from theme.$colour-primary-light srgb r b g / 0.2);
-	z-index: 101;
+	z-index: theme.$stacking-menu + 1;
 
 	@media only screen and (min-width: theme.$break-point-tablet)
 	{
@@ -58,7 +58,7 @@ aside
 	width: calc(100dvw - 2 * theme.$spacing-large);
 	left: 0;
 	top: calc(2em + 2 * theme.$spacing-large);
-	z-index: 100;
+	z-index: theme.$stacking-menu;
 	background-color: color(from theme.$colour-white srgb r g b / 0.1);
 	backdrop-filter: blur(10px);
 	box-shadow: 0 5px 5px color(from theme.$colour-black srgb r g b / 0.2);

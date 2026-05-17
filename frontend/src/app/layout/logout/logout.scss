@@ -36,7 +36,7 @@ $icon-size: 30px;
   
   right: theme.$spacing-large;
   width: calc(100dvw - 2 * theme.$spacing-medium - 2 * theme.$spacing-large);
-  z-index: 999;
+  z-index: theme.$stacking-menu;
   
   padding: theme.$spacing-medium;
   border-radius: theme.$spacing-medium + theme.$spacing-small;

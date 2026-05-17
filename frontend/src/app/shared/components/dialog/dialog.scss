@@ -7,7 +7,7 @@
 	left: 0;
 	width: 100dvw;
 	height: 100dvh;
-	z-index: 1000;
+	z-index: theme.$stacking-dialog;
 
 	background-color: color(from theme.$colour-black srgb r g b / 0.5);
 	backdrop-filter: blur(10px);

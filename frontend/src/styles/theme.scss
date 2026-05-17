@@ -16,6 +16,12 @@ $spacing-small: 7px;
 $spacing-medium: 10px;
 $spacing-large: 15px;
 
+// **Stacking**
+$stacking-default: 0;
+$stacking-menu: 100;
+$stacking-drawer: 200;
+$stacking-dialog: 300;
+
 // **Breakpoints**
 $break-point-tablet: 640px;
 $break-point-desktop: 1024px;
