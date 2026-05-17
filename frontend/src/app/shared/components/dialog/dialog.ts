@@ -1,4 +1,4 @@
-import { Component, input, OnChanges, output, SimpleChanges } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { Button } from '../button/button';
 import { ButtonRole } from '../button/Role';
 	
@@ -8,7 +8,7 @@ import { ButtonRole } from '../button/Role';
 	templateUrl: './dialog.html',
 	styleUrl: './dialog.scss',
 })
-export class Dialog implements OnChanges
+export class Dialog
 {
 	public open = input.required<boolean>();
 	public submissionDisabled = input (false);
@@ -32,11 +32,5 @@ export class Dialog implements OnChanges
 		e.preventDefault();
 		
 		this.onSubmitRequest.emit();
-	}
-
-	ngOnChanges (changes: SimpleChanges) : void
-	{
-		if (changes["open"])
-			console.log (changes["open"])
 	}
 }

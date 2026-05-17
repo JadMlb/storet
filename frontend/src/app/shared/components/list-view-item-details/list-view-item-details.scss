@@ -6,4 +6,8 @@
 .list-item-details-footer
 {
 	display: contents;
+	> *
+	{
+		width: 100%;
+	}
 }

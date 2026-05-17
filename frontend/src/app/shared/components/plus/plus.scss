@@ -1,0 +1,56 @@
+@use "theme" as theme;
+
+:host
+{
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+}
+
+svg
+{
+	$size: 30px;
+	width: $size;
+	height: $size;
+
+	path
+	{
+		fill: theme.$colour-white;
+	}
+
+	&.fill-white
+	{
+		path
+		{
+			fill: theme.$colour-white;
+		}
+	}
+	&.fill-black
+	{
+		path
+		{
+			fill: theme.$colour-black;
+		}
+	}
+	&.fill-primary
+	{
+		path
+		{
+			fill: theme.$colour-primary;
+		}
+	}
+	&.fill-primary-light
+	{
+		path
+		{
+			fill: theme.$colour-primary-light;
+		}
+	}
+
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		$size: 20px;
+		width: $size;
+		height: $size;
+	}
+}

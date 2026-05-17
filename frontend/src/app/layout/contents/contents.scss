@@ -4,5 +4,11 @@
 {
 	grid-area: contents;
 	margin: theme.$spacing-large;
-	margin-left: unset;
+	margin-top: unset;
+
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		margin: theme.$spacing-large;
+		margin-left: unset;
+	}
 }

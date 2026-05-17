@@ -1,5 +1,7 @@
 @use "theme" as theme;
 
+$icon-size: 30px;
+
 :host
 {
   position: relative;
@@ -9,8 +11,8 @@
 {
   all: unset;
   
-  width: 30px;
-  height: 30px;
+  width: $icon-size;
+  height: $icon-size;
   text-align: center;
   
   border-radius: 100%;
@@ -27,13 +29,13 @@
 
 .menu
 {
-  position: absolute;
+  position: fixed;
   display: flex;
   flex-direction: column;
   gap: theme.$spacing-small;
   
-  bottom: calc(100% + 4px);
-  left: 0;
+  right: theme.$spacing-large;
+  width: calc(100dvw - 2 * theme.$spacing-medium - 2 * theme.$spacing-large);
   z-index: 999;
   
   padding: theme.$spacing-medium;
@@ -41,4 +43,87 @@
   
   border: 1px solid theme.$colour-gray;
   background-color: theme.$colour-white;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+  @media only screen and (min-width: theme.$break-point-tablet)
+  {
+ 	right: unset;
+   	left: theme.$spacing-large;
+   	bottom: calc(theme.$spacing-large + $icon-size);
+    width: fit-content;
+  }
+}
+
+@keyframes slideDownEntering
+{
+	from
+	{
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+	to
+	{
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideUpLeaving
+{
+	from
+	{
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to
+	{
+		opacity: 0;
+		transform: translateY(-100%);
+	}
+}
+
+@keyframes slideDownLeaving
+{
+	from
+	{
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to
+	{
+		opacity: 0;
+		transform: translateY(100%);
+	}
+}
+
+@keyframes slideUpEntering
+{
+	from
+	{
+		opacity: 0;
+		transform: translateY(100%);
+	}
+	to
+	{
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.enter
+{
+	animation: slideDownEntering 0.3s ease-in-out;
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		animation-name: slideUpEntering;
+	}
+}
+
+.leave
+{
+	animation: slideUpLeaving 0.3s ease-in-out;
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		animation-name: slideDownLeaving;
+	}
 }

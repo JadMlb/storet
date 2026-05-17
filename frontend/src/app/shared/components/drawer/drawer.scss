@@ -6,6 +6,7 @@
 	position: fixed;
 	top: 0;
 	left: 0;
+	z-index: 110;
 	width: 100dvw;
 	height: 100dvh;
 	
@@ -20,89 +21,133 @@
 
 @keyframes fadeIn
 {
-  from
-  {
-    opacity: 0;
-  }
-  to
-  {
-    opacity: 1;
-  }
+	from
+	{
+		opacity: 0;
+	}
+	to
+	{
+		opacity: 1;
+	}
 }
 
 @keyframes fadeOut
 {
-  from
-  {
-    opacity: 1;
-  }
-  to
-  {
-    opacity: 0;
-  }
+	from
+	{
+	opacity: 1;
+	}
+	to
+	{
+		opacity: 0;
+	}
 }
 
 @keyframes slideInLeft
 {
-  from
-  {
-    transform: translateX(100%);
-  }
-  to
-  {
-    transform: translateX(0);
-  }
+	from
+	{
+		transform: translateX(100%);
+	}
+	to
+	{
+		transform: translateX(0);
+	}
 }
 
 @keyframes slideOutLeft
 {
-  from
-  {
-    transform: translateX(0);
-  }
-  to
-  {
-    transform: translateX(100%);
-  }
+	from
+	{
+		transform: translateX(0);
+	}
+	to
+	{
+		transform: translateX(100%);
+	}
+}
+
+@keyframes slideInBottom
+{
+	from
+	{
+		transform: translateY(100%);
+	}
+	to
+	{
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideOutBottom
+{
+	from
+	{
+		transform: translateY(0);
+	}
+	to
+	{
+		transform: translateY(100%);
+	}
 }
 
 $animationTime: 0.2s;
 
 .fade-in
 {
-  animation: fadeIn $animationTime ease-in-out;
-
-  .drawer
-  {
-    animation: slideInLeft $animationTime ease-in-out;
-  }
+	animation: fadeIn $animationTime ease-in-out;
+	
+	.drawer
+	{
+		animation: slideInBottom $animationTime ease-in-out;
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			animation-name: slideInLeft;
+		}
+	}
 }
-
 
 .fade-out
 {
-  animation: fadeOut $animationTime ease-in-out;
+	animation: fadeOut $animationTime ease-in-out;
+	
+	.drawer
+	{
+		animation: slideOutBottom $animationTime ease-in-out forwards;
 
-  .drawer
-  {
-    animation: slideOutLeft $animationTime ease-in-out forwards;
-  }
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			animation-name: slideOutLeft;
+		}
+	}
 }
 
 .drawer
 {
 	padding: theme.$spacing-medium;
 
-	width: 50dvh;
+	width: 100dvw;
+	margin-top: theme.$spacing-large;
 
 	background-color: theme.$colour-white;
-	border-radius: theme.$spacing-medium;
+	border-radius: 10px + theme.$spacing-xsmall + theme.$spacing-medium;
+	border-bottom-left-radius: unset;
+	border-bottom-right-radius: unset;
 
 	display: grid;
 	grid-template-rows: auto 1fr auto;
 	gap: theme.$spacing-large;
 
 	transition: transform 1s ease-in-out;
+
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		width: 50dvw;
+		max-width: 400px;
+		min-width: 200px;
+		margin-top: unset;
+		border-radius: theme.$spacing-medium;
+	}
 	
 	.header, .body, .footer
 	{
@@ -113,7 +158,11 @@ $animationTime: 0.2s;
 	.header, .footer
 	{
 		justify-content: space-between;
-		align-items: center;
+	}
+
+	.header
+	{
+		align-items: flex-start;
 	}
 	
 	.body
@@ -121,12 +170,26 @@ $animationTime: 0.2s;
 		flex-direction: column;
 		overflow-y: auto;
 	}
+
+	.footer
+	{
+		flex-direction: column;
+		align-items: center;
+
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			flex-direction: row;
+		}
+	}
 	
 	button.close-button
 	{
 		all: unset;
 		width: 20px;
 		height: 20px;
+		padding: theme.$spacing-xsmall;
+		border-radius: 10px + theme.$spacing-xsmall;
+		background-color: color(from theme.$colour-gray srgb r g b / 0.4);
 
 		display: flex;
 		justify-content: center;
@@ -151,6 +214,14 @@ $animationTime: 0.2s;
 		&::after
 		{
 			transform: rotate(-45deg) translateY(math.div(-$width, 2));
+		}
+
+		&:hover
+		{
+			&::before, &::after
+			{
+				background-color: theme.$colour-error;
+			}
 		}
 	}
 }

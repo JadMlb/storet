@@ -9,7 +9,12 @@
 		padding: theme.$spacing-small;
 		border-radius: theme.$spacing-small;
 		text-decoration: none;
-		color: theme.$colour-gray;
+		color: theme.$colour-black;
+
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			color: theme.$colour-gray;
+		}
 		
 		&:hover
 		{

@@ -1,0 +1,7 @@
+@if (responsiveness.isSmallScreen())
+{
+	<button
+		[class.open] = "open()"
+		(click) = "handleClick ($event)"
+	></button>
+}

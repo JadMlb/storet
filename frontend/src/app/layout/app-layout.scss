@@ -3,12 +3,20 @@
 :host
 {
 	display: grid;
-	grid-template-areas: "nav header"
-						"nav contents";
-	grid-template-columns: minmax(auto, 25dvw) 1fr;
-	grid-template-rows: auto 1fr;
-	column-gap: theme.$spacing-small;
+	grid-template-areas: "nav"
+						"header"
+						"contents";
+	grid-template-rows: auto auto 1fr;
 	height: 100dvh;
 	max-height: 100dvh;
 	background-color: color(from theme.$colour-primary-light srgb r g b / 0.1);
+
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		grid-template-areas: "nav header"
+							"nav contents";
+		grid-template-columns: minmax(auto, 25dvw) 1fr;
+		grid-template-rows: auto 1fr;
+		column-gap: theme.$spacing-small;
+	}
 }

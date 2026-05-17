@@ -9,6 +9,11 @@
 	padding: theme.$spacing-small;
 	text-align: center;
 
+	display: flex;
+	gap: theme.$spacing-small;
+	align-items: center;
+	justify-content: center;
+
 	$outline-width: 1px;
 
 	&.padding-inline-xsmall

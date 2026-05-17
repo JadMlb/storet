@@ -2,7 +2,7 @@
   (onCreateRequest) = "navigateToNew()"
 >
   <span header-title-contents>Categories</span>
-  <span header-button-contents>+ New Category</span>
+  <span header-button-contents>New Category</span>
   <suspense [loading] = "categoriesStore.state() == 'loading'">
 		@for (category of categoriesStore.data(); track category.id)
 		{

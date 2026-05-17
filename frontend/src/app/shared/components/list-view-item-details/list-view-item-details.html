@@ -19,6 +19,8 @@
 			<styled-button
 				(onClick) = "handleCancel()"
 				role = "warn"
+				[fill] = "true"
+				[paddingBlock] = "buttonsPaddingBlock()"
 			>
 				Cancel
 			</styled-button>
@@ -27,6 +29,8 @@
 				form = "edit-item-form"
 				[disabled] = "submitButtonDisabled()"
 				role = "primary"
+				[fill] = "true"
+				[paddingBlock] = "buttonsPaddingBlock()"
 			>
 				Done
 			</styled-button>
@@ -36,11 +40,15 @@
 			<styled-button
 				(onClick) = "handleDeleteItem()"
 				role = "warn"
+				[fill] = "true"
+				[paddingBlock] = "buttonsPaddingBlock()"
 			>
 				Delete
 			</styled-button>
 			<styled-button
 				role = "primary"
+				[fill] = "true"
+				[paddingBlock] = "buttonsPaddingBlock()"
 				(onClick) = "handleEditingEnabled()"
 			>
 				Edit

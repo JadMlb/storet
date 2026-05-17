@@ -1,12 +1,19 @@
 <aside>
 	<h1>Storet</h1>
 	<nav>
-		<ul class = "nav-list">
-			<nav-link to = "inventory" text = "Inventory"/>
-			<nav-link to = "locations" text = "Locations"/>
-			<nav-link to = "categories" text = "Categories"/>
-			<nav-link to = "items" text = "Items"/>
-		</ul>
+		@if (navbarOpen())
+		{
+			<ul class = "nav-list" animate.enter = "expand" animate.leave = "shrink">
+				<nav-link to = "inventory" text = "Inventory" (onClick) = "onLinkClick()"/>
+				<nav-link to = "locations" text = "Locations" (onClick) = "onLinkClick()"/>
+				<nav-link to = "categories" text = "Categories" (onClick) = "onLinkClick()"/>
+				<nav-link to = "items" text = "Items" (onClick) = "onLinkClick()"/>
+			</ul>
+		}
 	</nav>
+	<hamburger
+		[open] = "navbarOpen()"
+		(onClick) = "toggleNavbarOpenState()"
+	/>
 	<logout/>
 </aside>

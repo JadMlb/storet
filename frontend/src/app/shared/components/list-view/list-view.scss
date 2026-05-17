@@ -1,6 +1,30 @@
+@use "theme" as theme;
+
 .list-view-header
 {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+
+	> h1
+	{
+		margin-top: unset;
+
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			margin-top: 0.67em;
+		}
+	}
+
+	.cta
+	{
+		position: fixed;
+		bottom: theme.$spacing-large;
+		right: theme.$spacing-large;
+
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			position: unset;
+		}
+	}
 }

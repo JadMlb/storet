@@ -1,0 +1,43 @@
+@use "theme" as theme;
+@use 'sass:math';
+
+button
+{
+	all: unset;
+	$size: 30px;
+	width: $size;
+	height: $size;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: math.div($size, 4);
+
+	&::before, &::after
+	{
+		content: "";
+		display: block;
+
+		width: $size - 10px;
+		height: 2px;
+		border-radius: 10px;
+		background-color: theme.$colour-black;
+		transition: transform 0.4s ease-in-out;
+	}
+
+	&.open
+	{
+		gap: 0;
+		
+		&::before
+		{
+			transform: translateY(1px) rotate(45deg);
+		}
+
+		&::after
+		{
+			transform: translateY(-1px) rotate(-45deg);
+		}
+	}
+}

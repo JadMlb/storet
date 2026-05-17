@@ -1,9 +1,10 @@
 <li class = "nav-link">
 	<a
-		[routerLinkActiveOptions] = "{exact: exact}"
+		[routerLinkActiveOptions] = "{exact: exact()}"
 		routerLinkActive = "active"
-		[routerLink] = "to"
+		[routerLink] = "to()"
+		(click) = "handleClick()"
 	>
-	{{text}}
+	{{text()}}
 	</a>
 </li>

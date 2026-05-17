@@ -2,7 +2,7 @@
   (onCreateRequest) = "navigateToNew()"
 >
   <span header-title-contents>Locations</span>
-  <span header-button-contents>+ New Location</span>
+  <span header-button-contents>New Location</span>
   <suspense [loading] = "locationsStore.state() == 'loading'">
 		@for (location of locationsStore.data(); track location.id)
 		{
