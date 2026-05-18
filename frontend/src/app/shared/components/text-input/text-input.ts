@@ -1,70 +1,65 @@
-import { booleanAttribute, Component, Input, Optional, Self } from '@angular/core';
+import { Component, input, Optional, Self } from '@angular/core';
 import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
-import { FieldLabel } from '../field-label/field-label';
+import { InputBase } from '../input-base/input-base';
 
 @Component ({
-  selector: 'text-input',
-  imports: [FieldLabel],
-  templateUrl: './text-input.html',
-  styleUrl: './text-input.scss',
-  providers: []
+	selector: 'text-input',
+	imports: [InputBase],
+	templateUrl: './text-input.html',
+	styleUrl: './text-input.scss',
+	providers: []
 })
 export class TextInput implements ControlValueAccessor
 {
-  @Input ({transform: booleanAttribute})
-  multiline: boolean = false;
-  
-  @Input()
-  label: string = "";
+	multiline = input (false);
+	label = input ("");
+	placeholder = input ("");
 
-  @Input()
-  placeholder: string = "";
+	onChange: any = () => {};
+	onTouched: any = () => {};
+	disabled = false;
 
-  onChange: any = () => {};
-  onTouched: any = () => {};
-  disabled = false;
+	value: string = "";
 
-  value: string = "";
+	constructor (@Self() @Optional() private parent?: NgControl)
+	{
+		if (this.parent)
+			this.parent.valueAccessor = this;
+	}
 
-  constructor (@Self() @Optional() private parent?: NgControl)
-  {
-    if (this.parent)
-      this.parent.valueAccessor = this;
-  }
+	public get isRequired (): boolean
+	{
+		return Boolean (this.parent?.control?.hasValidator (Validators.required));
+	}
 
-  public get isRequired (): boolean
-  {
-    return Boolean (this.parent?.control?.hasValidator (Validators.required));
-  }
+	writeValue (value: string): void
+	{
+		this.value = value;
+	}
 
-  writeValue (value: string): void
-  {
-    this.value = value;
-  }
+	registerOnChange (fn: any): void
+	{
+		this.onChange = fn;
+	}
 
-  registerOnChange (fn: any): void
-  {
-    this.onChange = fn;
-  }
+	registerOnTouched (fn: any): void
+	{
+		this.onTouched = fn;
+	}
 
-  registerOnTouched (fn: any): void
-  {
-    this.onTouched = fn;
-  }
+	setDisabledState? (isDisabled: boolean): void
+	{
+		this.disabled = isDisabled;
+	}
 
-  setDisabledState? (isDisabled: boolean): void
-  {
-    this.disabled = isDisabled;
-  }
+	onInput (event: Event)
+	{
+		this.value = (event.target as HTMLInputElement).value;
+		this.onChange (this.value);
+	}
 
-  onInput (event: Event)
-  {
-    this.value = (event.target as HTMLInputElement).value;
-    this.onChange (this.value);
-  }
-
-  onBlur ()
-  {
-    this.onTouched();
-  }
+	onBlur ()
+	{
+		this.onTouched();
+	}
 }

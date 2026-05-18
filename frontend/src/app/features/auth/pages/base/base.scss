@@ -7,8 +7,9 @@
   align-items: center;
   width: 100dvw;
   height: 100dvh;
-  
-  background: linear-gradient(to bottom, #acedff 5%, #fff);
+
+  $azure: #acedff;
+  background: linear-gradient(to bottom, light-dark($azure, color(from $azure srgb r g b / 0.4)) 5%, theme.$colour-card-background);
 }
 
 .app-name
@@ -26,9 +27,9 @@
   width: 300px;
   padding: theme.$spacing-large;
   border-radius: theme.$spacing-medium + theme.$spacing-small;
-  border: 1px solid theme.$colour-white;
+  border: 1px solid theme.$colour-card-background;
   backdrop-filter: blur(10px);
-  background-color: color(from theme.$colour-white srgb r g b / 0.5);
+  background-color: color(from theme.$colour-card-background srgb r g b / 0.5);
   
   flex: 1;
   display: flex;
@@ -42,7 +43,7 @@
   
   .error
   {
-    color: theme.$colour-error-dark;
+    color: theme.$colour-error;
     margin: unset;
   }
 }

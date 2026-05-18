@@ -1,0 +1,6 @@
+@use "theme" as theme;
+
+svg path
+{
+	fill: theme.$colour-text;
+}

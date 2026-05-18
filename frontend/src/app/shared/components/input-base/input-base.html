@@ -1,0 +1,8 @@
+<div class = "wrapper">
+	<field-label [required] = "required()" [text] = "label()"/>
+	<div class = "body" [class.disabled] = "disabled()" [class.resize] = "resize()">
+		<ng-content select = "[leading]"/>
+		<span class = "input"><ng-content select = "[input]"/></span>
+		<ng-content select = "[trailing]"/>
+	</div>
+</div>

@@ -18,7 +18,7 @@
 
 .components
 {
-  border-left: 2px solid theme.$colour-gray;
+  border-left: 2px solid theme.$colour-gray-static;
   display: flex;
   flex-direction: column;
   gap: theme.$spacing-medium;

@@ -1,31 +1,23 @@
 @use "theme" as theme;
 
-.input-wrapper
+span
 {
-	display: flex;
-	flex-direction: column;
+	height: 100%;
+}
+
+input, textarea
+{
+	all: unset;
+	font: inherit;
+	width: 100%;
 	
-	.input
+	&::placeholder
 	{
-		font: inherit;
-		padding: theme.$spacing-xsmall;
-		border-radius: theme.$spacing-small;
-		border: 1px solid theme.$colour-gray;
-
-		&:focus
-		{
-			outline: 2px solid theme.$colour-primary;
-			border-color: transparent;
-		}
-
-		&.disabled
-		{
-			border-color: transparent;
-		}
-		
-		&.multiline
-		{
-			resize: vertical;
-		}
+		color: theme.$colour-gray-dark-static;
 	}
+}
+
+textarea
+{
+	resize: vertical;
 }

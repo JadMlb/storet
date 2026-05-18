@@ -9,7 +9,7 @@
 	height: 100dvh;
 	z-index: theme.$stacking-dialog;
 
-	background-color: color(from theme.$colour-black srgb r g b / 0.5);
+	background-color: color(from theme.$colour-black-static srgb r g b / 0.5);
 	backdrop-filter: blur(10px);
 
 	display: flex;
@@ -21,10 +21,15 @@
 
 .dialog
 {
-	background-color: theme.$colour-white;
-	color: theme.$colour-black;
+	background-color: theme.$colour-card-background;
+	color: theme.$colour-text;
 	padding: theme.$spacing-large;
 	border-radius: theme.$spacing-large + theme.$spacing-small;
+
+	@media screen and (prefers-color-scheme: dark)
+	{
+		border: 1px solid hsl(from theme.$colour-black-static h s calc(l + 5));
+	}
 
 	margin: 2 * theme.$spacing-large;
 

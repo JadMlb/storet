@@ -33,7 +33,7 @@
 
   &.disabled
   {
-    background-color: theme.$colour-white;
+    background-color: theme.$colour-white-static;
     border-color: theme.$colour-gray;
     padding-inline: calc(theme.$spacing-xsmall / 2 - 1px) calc(theme.$spacing-xsmall / 2 + 1px);
 
@@ -71,7 +71,7 @@
     width: $size;
     height: $size;
     border-radius: $radius;
-    background-color: theme.$colour-white;
+    background-color: theme.$colour-white-static;
 
     transition: transform 0.3s ease-in-out, border-color 0.3s ease-in-out;
   }

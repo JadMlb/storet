@@ -9,7 +9,7 @@
 		padding: theme.$spacing-small;
 		border-radius: theme.$spacing-small;
 		text-decoration: none;
-		color: theme.$colour-black;
+		color: theme.$colour-text;
 
 		@media only screen and (min-width: theme.$break-point-tablet)
 		{
@@ -24,7 +24,7 @@
 		&.active
 		{
 			background-color: theme.$colour-primary;
-			color: theme.$colour-white;
+			color: theme.$colour-white-static;
 		}
 	}
 

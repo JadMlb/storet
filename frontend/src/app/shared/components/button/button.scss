@@ -150,8 +150,8 @@
 
 	&.normal
 	{
-		color: theme.$colour-white;
-		$background-color: theme.$colour-black;
+		color: theme.$colour-card-background;
+		$background-color: theme.$colour-text;
 		
 		background-color: $background-color;
 		
@@ -166,18 +166,18 @@
 
 		&:hover
 		{
-			background-color: theme.$colour-secondary-dark;
+			background-color: theme.$colour-secondary-dark-static;
 			
 			&.outlined
 			{
-				border-color: theme.$colour-secondary-dark;
+				border-color: theme.$colour-secondary-dark-static;
 			}
 		}
 	}
 
 	&.primary
 	{
-		color: theme.$colour-white;
+		color: theme.$colour-white-static;
 		$background-color: theme.$colour-primary;
 		background-color: $background-color;
 		
@@ -186,32 +186,32 @@
 			border-width: $outline-width;
 			border-style: solid;
 			border-color: $background-color;
-			color: $background-color;
+			color: light-dark($background-color, theme.$colour-white-static);
 			background-color: transparent;
 		}
 		
 		&:hover
 		{
-			background-color: theme.$colour-primary-light;
-			color: theme.$colour-black;
+			background-color: light-dark(theme.$colour-primary-light-static, color(from theme.$colour-primary-static srgb r g b / 0.4));
+			color: theme.$colour-white-static;
 			
 			&.outlined
 			{
-				border-color: theme.$colour-black;
-				color: theme.$colour-white;
+				border-color: theme.$colour-black-static;
+				color: theme.$colour-white-static;
 			}
 		}
 	}
 	
 	&.warn
 	{
-		color: theme.$colour-black;
+		color: theme.$colour-text;
 		border: $outline-width solid theme.$colour-error;
 		
 		&:hover
 		{
-			background-color: theme.$colour-error-dark;
-			color: theme.$colour-white;
+			background-color: theme.$colour-error-dark-static;
+			color: theme.$colour-white-static;
 			border-color: transparent;
 		}
 	}
@@ -219,24 +219,26 @@
 	&.danger
 	{
 		background-color: theme.$colour-error;
-		color: theme.$colour-white;
+		color: theme.$colour-white-static;
 		
 		&:hover
 		{
-			background-color: theme.$colour-error-dark;
-			color: theme.$colour-white;
+			background-color: light-dark(theme.$colour-error-dark-static, theme.$colour-error-static);
+			color: theme.$colour-white-static;
 		}
 	}
 
 	&.disabled
 	{
-		color: theme.$colour-white;
-		background-color: theme.$colour-gray;
+		$color: light-dark(theme.$colour-gray-dark-static, theme.$colour-gray-static);
+		$bg: theme.$colour-gray;
+		color: $color;
+		background-color: $bg;
 		
 		&:hover
 		{
-			color: theme.$colour-white;
-			background-color: theme.$colour-gray;
+			color: $color;
+			background-color: $bg;
 		}
 	}
 }

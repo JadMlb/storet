@@ -1,7 +1,14 @@
+@use "theme" as theme;
+
 :host
 {
 	height: 20px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+svg path
+{
+	fill: theme.$colour-text;
 }

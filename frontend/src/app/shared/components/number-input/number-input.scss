@@ -1,71 +1,40 @@
 @use "theme" as theme;
 
-.input-wrapper
+input
 {
-	display: flex;
-	flex-direction: column;
-	
-	.input
+	all: unset;
+	font: inherit;
+	width: 5ch;
+
+	&::-webkit-inner-spin-button, &::-webkit-outer-spin-button
 	{
-		font: inherit;
-		padding: theme.$spacing-xsmall;
-		border-radius: theme.$spacing-small;
-		border: 1px solid theme.$colour-gray;
-		
-		display: flex;
-		gap: theme.$spacing-small;
-		align-items: center;
+		-webkit-appearance: none;
+		margin: 0;
+	}
+}
 
-		&:focus-within
-		{
-			outline: 2px solid theme.$colour-primary;
-			border-color: transparent;
-		}
-
-		&.disabled
-		{
-			border-color: transparent;
-		}
+button
+{
+	all: unset;
+	font: inherit;
+	width: 20px;
+	height: 20px;
+	border-radius: theme.$spacing-xsmall;
+	text-align: center;
+	
+	&:hover
+	{
+		background-color: light-dark(theme.$colour-primary-light-static, theme.$colour-primary-static);
+		color: theme.$colour-text;
+	}
+	
+	&.disabled
+	{
+		color: theme.$colour-gray;
 		
-		input
+		&:hover
 		{
-		  all: unset;
-			font: inherit;
-			width: 5ch;
-			flex: 1;
-			
-			&::-webkit-inner-spin-button,
-      &::-webkit-outer-spin-button
-      {
-        -webkit-appearance: none;
-        margin: 0;
-      }
-		}
-		
-		button
-		{
-		  all: unset;
-			font: inherit;
-			width: 20px;
-			height: 20px;
-			border-radius: theme.$spacing-xsmall;
-			text-align: center;
-			
-			&:hover
-			{
-			  background-color: theme.$colour-primary-light;
-				color: theme.$colour-black;
-			}
-			
-			&.disabled
-			{
-				color: theme.$colour-gray;
-				
-				&:hover
-				{
-					background-color: transparent;
-				}
-			}
+			background-color: transparent;
 		}
 	}
 }

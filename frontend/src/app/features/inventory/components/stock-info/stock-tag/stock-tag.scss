@@ -11,29 +11,29 @@
   padding: theme.$spacing-xsmall;
   border-radius: theme.$spacing-xsmall;
   background-color: theme.$colour-gray;
-  color: theme.$colour-black;
+  color: theme.$colour-text;
 
   &.red
   {
     background-color: theme.$colour-error;
-    color: theme.$colour-white;
+    color: theme.$colour-white-static;
   }
 
   &.green
   {
     background-color: #33673b;
-    color: theme.$colour-white;
+    color: theme.$colour-white-static;
   }
 
   &.orange
   {
     background-color: #ef946c;
-    color: theme.$colour-white;
+    color: theme.$colour-white-static;
   }
 
   &.yellow
   {
     background-color: #f7ee7f;
-    color: theme.$colour-black;
+    color: theme.$colour-black-static;
   }
 }

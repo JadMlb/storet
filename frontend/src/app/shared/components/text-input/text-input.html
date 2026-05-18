@@ -1,27 +1,33 @@
-<div class = "input-wrapper">
-  <field-label [required] = "isRequired" [text] = "label"/>
-	@if (multiline)
+<input-base
+	[required] = "isRequired"
+	[label] = "label()"
+	[disabled] = "disabled"
+	[resize] = "multiline()"
+>
+	@if (multiline())
 	{
-    <textarea
-      class = "input multiline"
-  		[class.disabled] = "disabled"
-  		[placeholder] = "placeholder"
-  		(input) = "onInput ($event)"
-  		(blur) = "onBlur()"
-  		[disabled] = "disabled"
-  	>{{value}}</textarea>
+		<textarea
+			input
+			class = "input multiline"
+			[class.disabled] = "disabled"
+			[placeholder] = "placeholder()"
+			(input) = "onInput ($event)"
+			(blur) = "onBlur()"
+			[disabled] = "disabled"
+		>{{value}}</textarea>
 	}
 	@else
 	{
-  	<input
-      class = "input"
-  		[class.disabled] = "disabled"
-  		type = "text"
-  		[placeholder] = "placeholder"
-  		[value] = "value"
-  		(input) = "onInput ($event)"
-  		(blur) = "onBlur()"
-  		[disabled] = "disabled"
-  	/>
+		<input
+			input
+			class = "input"
+			[class.disabled] = "disabled"
+			type = "text"
+			[placeholder] = "placeholder()"
+			[value] = "value"
+			(input) = "onInput ($event)"
+			(blur) = "onBlur()"
+			[disabled] = "disabled"
+		/>
 	}
-</div>
+</input-base>

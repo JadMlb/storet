@@ -1,0 +1,42 @@
+@use "theme" as theme;
+
+.wrapper
+{
+	display: flex;
+	flex-direction: column;
+
+	.body
+	{
+		font: inherit;
+		padding: theme.$spacing-small;
+		border-radius: theme.$spacing-small;
+		border: 1px solid theme.$colour-gray;
+		background-color: theme.$colour-card-background;
+
+		display: flex;
+		gap: theme.$spacing-small;
+		align-items: center;
+		justify-content: space-between;
+
+		@media only screen and (min-width: theme.$break-point-tablet)
+		{
+			padding: theme.$spacing-xsmall;
+		}
+
+		.input
+		{
+			flex: 1;
+		}
+
+		&:focus-within
+		{
+			outline: 2px solid theme.$colour-primary;
+			border-color: transparent;
+		}
+
+		&.disabled
+		{
+			border-color: transparent;
+		}
+	}
+}

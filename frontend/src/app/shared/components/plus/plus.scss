@@ -15,35 +15,35 @@ svg
 
 	path
 	{
-		fill: theme.$colour-white;
+		fill: theme.$colour-white-static;
 	}
 
 	&.fill-white
 	{
 		path
 		{
-			fill: theme.$colour-white;
+			fill: theme.$colour-white-static;
 		}
 	}
 	&.fill-black
 	{
 		path
 		{
-			fill: theme.$colour-black;
+			fill: theme.$colour-black-static;
 		}
 	}
 	&.fill-primary
 	{
 		path
 		{
-			fill: theme.$colour-primary;
+			fill: theme.$colour-primary-static;
 		}
 	}
 	&.fill-primary-light
 	{
 		path
 		{
-			fill: theme.$colour-primary-light;
+			fill: theme.$colour-primary-light-static;
 		}
 	}
 

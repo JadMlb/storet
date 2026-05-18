@@ -20,7 +20,7 @@
   @else
   {
     <text-input formControlName = "name" label = "Name"/>
-    <text-input multiline = "true" formControlName = "description" label = "Description"/>
+    <text-input [multiline] = "true" formControlName = "description" label = "Description"/>
   }
   <number-input formControlName = "quantity" label = "Quantity" [min] = "1"/>
   <stock-info

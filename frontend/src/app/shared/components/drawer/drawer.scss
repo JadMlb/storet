@@ -10,7 +10,7 @@
 	width: 100dvw;
 	height: 100dvh;
 	
-	background-color: color(from theme.$colour-gray srgb r g b / 0.75);
+	background-color: color(from theme.$colour-black-static srgb r g b / 0.5);
 	backdrop-filter: blur(10px);
 
 	display: flex;
@@ -124,12 +124,10 @@ $animationTime: 0.2s;
 
 .drawer
 {
-	padding: theme.$spacing-medium;
-
 	width: 100dvw;
 	margin-top: theme.$spacing-large;
 
-	background-color: theme.$colour-white;
+	background-color: theme.$colour-card-background;
 	border-radius: 10px + theme.$spacing-xsmall + theme.$spacing-medium;
 	border-bottom-left-radius: unset;
 	border-bottom-right-radius: unset;
@@ -148,11 +146,14 @@ $animationTime: 0.2s;
 		margin-top: unset;
 		border-radius: theme.$spacing-medium;
 	}
+
+	$padding: theme.$spacing-large;
 	
 	.header, .body, .footer
 	{
 		display: flex;
 		gap: theme.$spacing-small;
+		padding-inline: $padding;
 	}
 	
 	.header, .footer
@@ -163,6 +164,7 @@ $animationTime: 0.2s;
 	.header
 	{
 		align-items: flex-start;
+		padding-top: $padding;
 	}
 	
 	.body
@@ -175,6 +177,7 @@ $animationTime: 0.2s;
 	{
 		flex-direction: column;
 		align-items: center;
+		padding-bottom: $padding;
 
 		@media only screen and (min-width: theme.$break-point-tablet)
 		{
@@ -203,7 +206,7 @@ $animationTime: 0.2s;
 			display: block;
 			width: $width;
 			height: 12px;
-			background-color: theme.$colour-black;
+			background-color: theme.$colour-text;
 		}
 
 		&::before

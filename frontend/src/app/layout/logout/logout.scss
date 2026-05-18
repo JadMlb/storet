@@ -42,7 +42,7 @@ $icon-size: 30px;
   border-radius: theme.$spacing-medium + theme.$spacing-small;
   
   border: 1px solid theme.$colour-gray;
-  background-color: theme.$colour-white;
+  background-color: theme.$colour-card-background;
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 
   @media only screen and (min-width: theme.$break-point-tablet)

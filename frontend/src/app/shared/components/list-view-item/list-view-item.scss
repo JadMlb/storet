@@ -17,8 +17,8 @@
  	padding: theme.$spacing-small;
  	border-radius: theme.$spacing-small + theme.$spacing-xsmall;
 
-  border: 1px solid theme.$colour-primary-light;
-  background-color: theme.$colour-white;
+  border: 1px solid theme.$colour-primary;
+  background-color: theme.$colour-card-background;
 
   &.with-children
   {
@@ -30,7 +30,7 @@
  	&:hover
  	{
 		background-color: theme.$colour-primary;
-		color: theme.$colour-white;
+		color: theme.$colour-white-static;
  	}
 
  	.list-view-item-content

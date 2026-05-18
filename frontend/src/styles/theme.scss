@@ -1,14 +1,23 @@
 // **Colours**
-$colour-white: #fff;
-$colour-gray: #bbb;
-$colour-black: #04151f;
-$colour-primary: #183a37;
-$colour-primary-light: #6d8885;
-$colour-secondary: #efd6ac;
-$colour-secondary-light: #efe6d6;
-$colour-secondary-dark: #8e7245;
-$colour-error: #e84855;
-$colour-error-dark: #8a111b;
+$colour-white-static: #fafafa;
+$colour-gray-static: #bbb;
+$colour-gray-dark-static: #777;
+$colour-black-static: #04151f;
+$colour-primary-static: #183a37;
+$colour-primary-light-static: #6d8885;
+$colour-secondary-static: #efd6ac;
+$colour-secondary-light-static: #efe6d6;
+$colour-secondary-dark-static: #8e7245;
+$colour-error-static: #e84855;
+$colour-error-dark-static: #8a111b;
+
+$colour-background: light-dark(color(from $colour-primary-light-static srgb r g b / 0.1), color(from $colour-primary-static srgb r g b / 0.1));
+$colour-card-background: light-dark($colour-white-static, $colour-black-static);
+$colour-text: light-dark($colour-black-static, $colour-white-static);
+$colour-primary: light-dark($colour-primary-static, hsl(from $colour-primary-static h s calc(l + 5)));
+$colour-secondary: light-dark($colour-secondary-static, $colour-secondary-dark-static);
+$colour-error: light-dark($colour-error-static, $colour-error-dark-static);
+$colour-gray: light-dark($colour-gray-static, $colour-gray-dark-static);
 
 // **Spacing**
 $spacing-xsmall: 4px;

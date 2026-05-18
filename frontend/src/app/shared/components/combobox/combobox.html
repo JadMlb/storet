@@ -1,45 +1,43 @@
 <div class = "combobox-wrapper">
-	<field-label [required] = "isRequired" [text] = "label"/>
-
-	<div
-		class = "combobox-select"
-		[class.open] = "isOpen()"
-		[class.disabled] = "disabled"
+	<input-base
+		[required] = "isRequired"
+		[label] = "label()"
+		[disabled] = "disabled"
 		(click) = "toggleDropdown()"
 	>
-		<div class = "combobox-value">
+		<div input class = "combobox-value">
 			@if (showPlaceholder())
 			{
-				<span>{{placeholder}}</span>
+				<span>{{placeholder()}}</span>
 			}
-			@else if (multiple)
+			@else if (multiple())
 			{
-    		@for (option of displayValues(); track option.value)
-        {
-          <div class = "combobox-option-tag">
-            {{option?.display}}
-            @if (!disabled)
-            {
-              <button
-    						class = "combobox-button"
-    						(click) = "removeItem ($event, option)"
-                [disabled] = "disabled"
-     					>
-       					✕
-     					</button>
-            }
-          </div>
-        }
+				@for (option of displayValues(); track option.value)
+				{
+					<div class = "combobox-option-tag">
+						{{option?.display}}
+						@if (!disabled)
+						{
+							<button
+								class = "combobox-button"
+								(click) = "removeItem ($event, option)"
+								[disabled] = "disabled"
+							>
+								✕
+							</button>
+						}
+					</div>
+				}
 			}
 			@else
 			{
-			  <span>{{displayValues()[0]?.display}}</span>
+				<span>{{displayValues()[0]?.display}}</span>
 			}
 		</div>
 		@if (!disabled)
 		{
-			<div class = "combobox-trailing">
-				@if (!required)
+			<div class = "combobox-trailing" trailing>
+				@if (!required())
 				{
 					<button
 						class = "combobox-button"
@@ -52,7 +50,7 @@
 				<chevron [rotation] = "chevronRotation()"/>
 			</div>
 		}
-	</div>
+	</input-base>
 	@if (isOpen())
 	{
 		<div class = "combobox-dropdown">

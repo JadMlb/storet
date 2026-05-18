@@ -9,7 +9,7 @@
 	grid-template-rows: auto auto 1fr;
 	height: 100dvh;
 	max-height: 100dvh;
-	background-color: color(from theme.$colour-primary-light srgb r g b / 0.1);
+	background-color: theme.$colour-background;
 
 	@media only screen and (min-width: theme.$break-point-tablet)
 	{

@@ -9,7 +9,7 @@
 	.stock-count
 	{
 		font-size: small;
-		color: color(from theme.$colour-gray srgb calc(r / 2) calc(g / 2) calc(b / 2));
+		color: theme.$colour-gray-dark-static;
 	}
 
 	.edit-stock
