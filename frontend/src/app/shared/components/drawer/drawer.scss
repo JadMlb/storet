@@ -138,6 +138,13 @@ $animationTime: 0.2s;
 
 	transition: transform 1s ease-in-out;
 
+	@media screen and (prefers-color-scheme: dark)
+	{
+		$border-colour: hsl(from theme.$colour-black-static h s calc(l + 5));
+		border: 1px solid $border-colour;
+		box-shadow: 0 0 5px $border-colour;
+	}
+
 	@media only screen and (min-width: theme.$break-point-tablet)
 	{
 		width: 50dvw;

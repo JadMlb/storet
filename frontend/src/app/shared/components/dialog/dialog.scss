@@ -28,7 +28,9 @@
 
 	@media screen and (prefers-color-scheme: dark)
 	{
-		border: 1px solid hsl(from theme.$colour-black-static h s calc(l + 5));
+		$border-colour: hsl(from theme.$colour-black-static h s calc(l + 5));
+		border: 1px solid $border-colour;
+		box-shadow: 0 0 5px $border-colour;
 	}
 
 	margin: 2 * theme.$spacing-large;
