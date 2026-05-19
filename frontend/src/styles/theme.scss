@@ -11,7 +11,7 @@ $colour-secondary-dark-static: #8e7245;
 $colour-error-static: #e84855;
 $colour-error-dark-static: #8a111b;
 
-$colour-background: light-dark(color(from $colour-primary-light-static srgb r g b / 0.1), color(from $colour-primary-static srgb r g b / 0.1));
+$colour-background: light-dark(color(from $colour-primary-light-static srgb r g b / 0.1), color-mix(in srgb, color(from $colour-primary-static srgb r g b / 0.35), $colour-black-static 90%));
 $colour-card-background: light-dark($colour-white-static, $colour-black-static);
 $colour-text: light-dark($colour-black-static, $colour-white-static);
 $colour-primary: light-dark($colour-primary-static, hsl(from $colour-primary-static h s calc(l + 5)));
