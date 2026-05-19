@@ -32,7 +32,7 @@ $icon-size: 30px;
   position: fixed;
   display: flex;
   flex-direction: column;
-  gap: theme.$spacing-small;
+  gap: theme.$spacing-medium;
   
   right: theme.$spacing-large;
   width: calc(100dvw - 2 * theme.$spacing-medium - 2 * theme.$spacing-large);

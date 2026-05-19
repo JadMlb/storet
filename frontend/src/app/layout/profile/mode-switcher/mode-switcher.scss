@@ -1,0 +1,56 @@
+@use "theme";
+
+form
+{
+	display: flex;
+	gap: theme.$spacing-large;
+	align-items: center;
+
+	label
+	{
+		display: flex;
+		gap: theme.$spacing-small;
+		align-items: center;
+
+		input[type = radio]
+		{
+			-webkit-appearance: none;
+			appearance: none;
+			margin: 0;
+			
+			$size: 15px;
+			width: $size;
+			height: $size;
+			border-radius: 50%;
+			border: 2px solid theme.$colour-text;
+
+			display: grid;
+			place-content: center;
+
+			transition: border-color 0.2s ease-in-out;
+
+			&:before
+			{
+				content: "";
+
+				$circle-size: $size - 8px;
+				width: $circle-size;
+				height: $circle-size;
+				border-radius: 50%;
+				box-shadow: inset 1em 1em theme.$colour-primary;
+				transform: scale(0);
+				transition: transform 0.2s ease-in-out;
+			}
+
+			&:checked
+			{
+				border-color: theme.$colour-primary;
+
+				&:before
+				{
+					transform: scale(1);
+				}
+			}
+		}
+	}
+}

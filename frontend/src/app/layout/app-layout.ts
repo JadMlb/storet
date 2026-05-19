@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Navbar } from './navbar/navbar';
 import { Contents } from './contents/contents';
+import { ThemeModeService } from '../shared/services/layout/theme-mode-service';
 
 @Component ({
   selector: 'app-layout',
@@ -10,5 +11,5 @@ import { Contents } from './contents/contents';
 })
 export class AppLayout
 {
-
+	private readonly theme = inject (ThemeModeService);
 }

@@ -1,12 +1,12 @@
 import { Component, computed, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { NavLink } from './nav-link/nav-link';
-import { Logout } from '../logout/logout';
+import { Profile } from '../profile/profile';
 import { Hamburger } from './hamburger/hamburger';
 import { ResponsiveService } from '../../shared/services/layout/responsive-service';
 
 @Component ({
 	selector: 'navbar',
-	imports: [NavLink, Logout, Hamburger],
+	imports: [NavLink, Profile, Hamburger],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.scss',
 })
