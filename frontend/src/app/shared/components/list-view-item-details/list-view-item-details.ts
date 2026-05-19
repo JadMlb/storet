@@ -5,10 +5,11 @@ import { NavigationService } from '../../services/layout/navigation-service';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ConfirmDelete } from './confirm-delete/confirm-delete';
 import { ResponsiveService } from '../../services/layout/responsive-service';
+import { TooltipDirective } from '../../directives/tooltip/tooltip';
 
 @Component ({
   selector: 'list-view-item-details',
-  imports: [Drawer, Button, ConfirmDelete],
+  imports: [Drawer, Button, ConfirmDelete, TooltipDirective],
   templateUrl: './list-view-item-details.html',
   styleUrl: './list-view-item-details.scss',
 })
@@ -19,6 +20,8 @@ export class ListViewItemDetails
   private readonly destroyRef = inject (DestroyRef);
 
   entity = input<string>();
+  instanceIdentifier = input<string | null>();
+  instanceLabel = input<string | null>();
   editing = input (false);
   creating = input (false);
   submitButtonDisabled = input (false);
@@ -30,6 +33,19 @@ export class ListViewItemDetails
 
   protected drawerOpen = signal (false);
   protected deleteDialogOpen = signal (false);
+
+  protected instance = computed (
+  	() =>
+	{
+		const id = this.instanceIdentifier();
+		const entityName = this.entity();
+		const entity = (entityName?.[0]?.toUpperCase() ?? "") + entityName?.slice (1);
+
+		if (!id)
+			return "";
+		return `${entity} (${id})`;
+	}
+  );
 
   protected buttonsPaddingBlock = computed (
   	() => this.responsiveness.isSmallScreen() ? "medium" : "xsmall"

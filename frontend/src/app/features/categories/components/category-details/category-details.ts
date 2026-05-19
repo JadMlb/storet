@@ -29,6 +29,11 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
     () => (this.categoriesStore.data()?.flatMap (CategoryMappingProfile.mapCategoryToOption) ?? [])
             .filter (o => o.value !== this.navigation.id())
   );
+
+  protected get label ()
+  {
+ 	return this.form.value.label;
+  }
   
   override executeOnInitIfNotCreating () : void
   {

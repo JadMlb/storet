@@ -21,6 +21,11 @@ export class LocationDetails extends ListViewDetailsFormLogicBase
     description: new FormControl<string | null> (null)
   });
 
+  protected get label ()
+  {
+ 	return this.form.value.name;
+  }
+
   override initialiseData (creating: boolean = false) : void
   {
     super.initialiseData (creating);

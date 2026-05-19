@@ -93,6 +93,11 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
     this.components.removeAt (index);
     this.components.markAsDirty();
   }
+
+  protected get label ()
+  {
+  	return this.form.value.name;
+  }
   
   protected override executeOnInitIfCreating (): void
   {}

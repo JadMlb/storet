@@ -8,7 +8,18 @@
 		{
 			Edit
 		}
-		{{entity()}}
+		@if (!creating())
+		{
+			<span
+				[tooltip] = "instance()"
+			>
+				{{instanceLabel()}}
+			</span>
+		}
+		@else
+		{
+			{{entity()}}
+		}
 	</h1>
 	<div body>
   	<ng-content select = "[body]"/>
