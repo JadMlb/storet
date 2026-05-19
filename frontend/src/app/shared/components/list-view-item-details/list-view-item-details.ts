@@ -38,11 +38,12 @@ export class ListViewItemDetails
   	() =>
 	{
 		const id = this.instanceIdentifier();
-		const entityName = this.entity();
-		const entity = (entityName?.[0]?.toUpperCase() ?? "") + entityName?.slice (1);
 
 		if (!id)
 			return "";
+
+		const entityName = this.entity();
+		const entity = (entityName?.[0]?.toUpperCase() ?? "") + entityName?.slice (1);
 		return `${entity} (${id})`;
 	}
   );
