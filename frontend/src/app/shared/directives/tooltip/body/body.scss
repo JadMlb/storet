@@ -1,0 +1,14 @@
+@use "theme";
+
+p
+{
+	position: fixed;
+	z-index: theme.$stacking-tooltip;
+	transform: translateX(-50%);
+
+	padding: theme.$spacing-small;
+	background-color: theme.$colour-card-background;
+	box-shadow: 0 0 10px theme.$colour-primary;
+	border: 1px solid theme.$colour-primary;
+	border-radius: theme.$spacing-small;
+}

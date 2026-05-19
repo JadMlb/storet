@@ -127,7 +127,7 @@ $animationTime: 0.2s;
 	width: 100dvw;
 	margin-top: theme.$spacing-large;
 
-	background-color: theme.$colour-card-background;
+	background-color: theme.$colour-overlay-background;
 	border-radius: 10px + theme.$spacing-xsmall + theme.$spacing-medium;
 	border-bottom-left-radius: unset;
 	border-bottom-right-radius: unset;
@@ -204,6 +204,8 @@ $animationTime: 0.2s;
 		display: flex;
 		justify-content: center;
 		align-items: center;
+
+		flex-shrink: 0;
 
 		$width: 1px;
 	

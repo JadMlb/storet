@@ -5,6 +5,8 @@ $colour-gray-dark-static: #777;
 $colour-black-static: #04151f;
 $colour-primary-static: #183a37;
 $colour-primary-light-static: #6d8885;
+$colour-background-light-static: #FAFBFB;
+$colour-background-dark-static: #0c0e0e;
 $colour-secondary-static: #efd6ac;
 $colour-secondary-light-static: #efe6d6;
 $colour-secondary-dark-static: #8e7245;
@@ -12,7 +14,8 @@ $colour-error-static: #e84855;
 $colour-error-dark-static: #8a111b;
 
 $colour-background: light-dark(color(from $colour-primary-light-static srgb r g b / 0.1), color-mix(in srgb, color(from $colour-primary-static srgb r g b / 0.35), $colour-black-static 90%));
-$colour-card-background: light-dark($colour-white-static, $colour-black-static);
+$colour-card-background: light-dark(hsl(from $colour-primary-light-static h s calc(l + 100)), $colour-black-static);
+$colour-overlay-background: light-dark($colour-background-light-static, $colour-background-dark-static);
 $colour-text: light-dark($colour-black-static, $colour-white-static);
 $colour-primary: light-dark($colour-primary-static, hsl(from $colour-primary-static h s calc(l + 5)));
 $colour-secondary: light-dark($colour-secondary-static, $colour-secondary-dark-static);
@@ -30,6 +33,7 @@ $stacking-default: 0;
 $stacking-menu: 100;
 $stacking-drawer: 200;
 $stacking-dialog: 300;
+$stacking-tooltip: 1000;
 
 // **Breakpoints**
 $break-point-tablet: 640px;
