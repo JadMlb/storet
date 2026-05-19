@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ListViewItemType } from '../../../shared/types/ListViewItem';
-import { ActionType, Service } from '../../../shared/services/service';
-import { ConvertableToOptionsArray } from '../../../shared/services/ConvertableToOptionsArray';
+import { ActionType, Service } from '../../../shared/services/data/service';
+import { ConvertableToOptionsArray } from '../../../shared/services/data/ConvertableToOptionsArray';
 import { Option } from '../../../shared/types/Option';
 import { CategoryMappingProfile } from '../models/CategoryMappingProfile';
 

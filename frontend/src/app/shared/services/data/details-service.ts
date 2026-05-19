@@ -1,6 +1,6 @@
 import { FormGroup } from "@angular/forms";
 import { ActionType, Service } from "./service";
-import { NavigationService } from "./navigation-service";
+import { NavigationService } from "../layout/navigation-service";
 
 export abstract class DetailsService<TData> extends Service<TData>
 {

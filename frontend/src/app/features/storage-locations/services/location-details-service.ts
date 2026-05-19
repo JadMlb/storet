@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DetailsService } from '../../../shared/services/details-service';
+import { DetailsService } from '../../../shared/services/data/details-service';
 import { StorageLocationDetails } from '../models/Location';
 
 @Injectable ({

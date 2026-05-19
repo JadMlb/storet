@@ -2,7 +2,7 @@ import { Component, computed, ElementRef, HostListener, inject, signal } from '@
 import { NavLink } from './nav-link/nav-link';
 import { Logout } from '../logout/logout';
 import { Hamburger } from './hamburger/hamburger';
-import { ResponsiveService } from '../../shared/services/responsive-service';
+import { ResponsiveService } from '../../shared/services/layout/responsive-service';
 
 @Component ({
 	selector: 'navbar',

@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Injectable, OnInit, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { NavigationService } from "../services/navigation-service";
+import { NavigationService } from "../services/layout/navigation-service";
 import { toObservable } from "@angular/core/rxjs-interop";
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActionType, Service } from '../../../shared/services/service';
+import { ActionType, Service } from '../../../shared/services/data/service';
 import { StockWithBounds } from '../models/Stock';
 
 @Injectable({

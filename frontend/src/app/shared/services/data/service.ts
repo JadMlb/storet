@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, signal } from "@angular/core";
-import { environment } from "../../../environments/environment";
-import { Option } from "../types/Option";
+import { environment } from "../../../../environments/environment";
+import { Option } from "../../types/Option";
 import { BehaviorSubject } from "rxjs";
 import { toObservable } from "@angular/core/rxjs-interop";
 

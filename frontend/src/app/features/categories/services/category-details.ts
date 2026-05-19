@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CategoryWithParentType } from '../models/CategoryType';
-import { DetailsService } from '../../../shared/services/details-service';
+import { DetailsService } from '../../../shared/services/data/details-service';
 
 @Injectable ({
   providedIn: 'root',

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActionType, GetPathProps, Service } from '../../../shared/services/service';
+import { ActionType, GetPathProps, Service } from '../../../shared/services/data/service';
 import { calculateTotalStockFromArray, ItemStock } from '../models/Stock';
 
 @Injectable ({

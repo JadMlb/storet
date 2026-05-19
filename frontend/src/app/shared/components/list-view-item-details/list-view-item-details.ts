@@ -1,10 +1,10 @@
 import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { Drawer } from '../drawer/drawer';
 import { Button } from '../button/button';
-import { NavigationService } from '../../services/navigation-service';
+import { NavigationService } from '../../services/layout/navigation-service';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ConfirmDelete } from './confirm-delete/confirm-delete';
-import { ResponsiveService } from '../../services/responsive-service';
+import { ResponsiveService } from '../../services/layout/responsive-service';
 
 @Component ({
   selector: 'list-view-item-details',

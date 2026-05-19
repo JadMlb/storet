@@ -1,4 +1,4 @@
-import { Option } from "../types/Option";
+import { Option } from "../../types/Option";
 
 export interface ConvertableToOptionsArray
 {

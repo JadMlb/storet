@@ -1,6 +1,6 @@
 import { Component, computed, EventEmitter, inject, output, Output } from '@angular/core';
 import { Button } from '../button/button';
-import { ResponsiveService } from '../../services/responsive-service';
+import { ResponsiveService } from '../../services/layout/responsive-service';
 import { Plus } from '../plus/plus';
 
 @Component ({

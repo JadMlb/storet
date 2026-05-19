@@ -4,7 +4,7 @@ import { TextInput } from '../../../../shared/components/text-input/text-input';
 import { PasswordInput } from '../../../../shared/components/password-input/password-input';
 import { Button } from '../../../../shared/components/button/button';
 import { Credentials } from '../../types/Credentials';
-import { ResponsiveService } from '../../../../shared/services/responsive-service';
+import { ResponsiveService } from '../../../../shared/services/layout/responsive-service';
 
 function patternValidator (regex: RegExp, error: ValidationErrors): ValidatorFn
 {

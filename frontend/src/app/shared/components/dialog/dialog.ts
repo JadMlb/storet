@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Button } from '../button/button';
 import { ButtonRole } from '../button/Role';
-import { ResponsiveService } from '../../services/responsive-service';
+import { ResponsiveService } from '../../services/layout/responsive-service';
 	
 @Component ({
 	selector: 'styled-dialog',

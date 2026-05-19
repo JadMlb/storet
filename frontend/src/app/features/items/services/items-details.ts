@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ItemCompositionType, ItemType } from '../models/ItemType';
-import { DetailsService } from '../../../shared/services/details-service';
+import { DetailsService } from '../../../shared/services/data/details-service';
 import { CategoryMetadataType } from '../../categories/models/CategoryType';
-import { ActionType } from '../../../shared/services/service';
+import { ActionType } from '../../../shared/services/data/service';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Injectable ({
