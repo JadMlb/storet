@@ -21,7 +21,7 @@ export class TooltipDirective
 
 	onMouseEnter () : void
 	{
-		if (this.component)
+		if (this.component || !this.tooltip())
 			return;
 
 		const parentBoundingBox = this.el.nativeElement.getBoundingClientRect();
