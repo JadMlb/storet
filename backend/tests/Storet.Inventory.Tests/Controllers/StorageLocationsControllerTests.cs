@@ -95,10 +95,11 @@ public class StorageLocationsControllerTests : ControllerTestsBase<StorageLocati
 		ValidateModel (insertDto);
 		mockService.Setup (l => l.InsertAsync (insertDto))
 					.ThrowsAsync (new DuplicateKeyException (nameof (StorageLocation), "Cupboard"));
-		
-		var result = await controller.Create (insertDto);
-		var conflictResult = result.Result;
-		conflictResult.Should().BeOfType<ConflictObjectResult>();
+
+		Func<Task> act = async () => await controller.Create (insertDto);
+
+		await act.Should().ThrowAsync<DuplicateKeyException>()
+							.WithMessage ($"StorageLocation with ID Cupboard already exists");
 		
 		mockService.Verify (l => l.InsertAsync (insertDto), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -151,11 +152,12 @@ public class StorageLocationsControllerTests : ControllerTestsBase<StorageLocati
 		
 		var id = Guid.NewGuid();
 		mockService.Setup (l => l.UpdateAsync (id, updateDto))
-					.ThrowsAsync (new ArgumentException ("Name cannot be empty"));
+					.ThrowsAsync (new MalformedRequestException ("Name cannot be empty"));
 		
-		var result = await controller.Update (id, updateDto);
-		var badRequestResult = result.Result;
-		badRequestResult.Should().BeOfType<BadRequestObjectResult>();
+		Func<Task> act = async () => await controller.Update (id, updateDto);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Name cannot be empty");
 		
 		mockService.Verify (l => l.UpdateAsync (id, updateDto), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -175,9 +177,10 @@ public class StorageLocationsControllerTests : ControllerTestsBase<StorageLocati
 		mockService.Setup (l => l.UpdateAsync (id, updateDto))
 					.ThrowsAsync (new DuplicateKeyException (nameof (StorageLocation), "Cupboard"));
 		
-		var result = await controller.Update (id, updateDto);
-		var conflictResult = result.Result;
-		conflictResult.Should().BeOfType<ConflictObjectResult>();
+		Func<Task> act = async () => await controller.Update (id, updateDto);
+
+		await act.Should().ThrowAsync<DuplicateKeyException>()
+							.WithMessage ("StorageLocation with ID Cupboard already exists");
 		
 		mockService.Verify (l => l.UpdateAsync (id, updateDto), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -248,8 +251,10 @@ public class StorageLocationsControllerTests : ControllerTestsBase<StorageLocati
 		mockService.Setup (l => l.DeleteAsync (id))
 					.ThrowsAsync (new EntityDependencyException (nameof (StorageLocation), id));
 		
-		var result = await controller.Delete (id);
-		result.Should().BeOfType<ConflictObjectResult>();
+		Func<Task> act = async () => await controller.Delete (id);
+
+		await act.Should().ThrowAsync<EntityDependencyException>()
+							.WithMessage ($"Cannot delete StorageLocation with ID {id} because others depend on it");
 		
 		mockService.Verify (l => l.DeleteAsync (id), Times.Once());
 		mockService.VerifyNoOtherCalls();

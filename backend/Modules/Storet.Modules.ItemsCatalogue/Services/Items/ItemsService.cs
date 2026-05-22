@@ -38,7 +38,7 @@ public class ItemsService : IItemsService
 	public async Task<PaginatedResponse<ItemResponse, string>> GetAllAsync (Query<string> query)
 	{
 		if (query.PageSize < 1)
-			throw new ArgumentException ("Invalid page size for query");
+			throw new MalformedRequestException ("Invalid page size for query");
 		
 		var data = await itemsRepository.GetAllAsync (query, user.Id);
 		var previousKey = await itemsRepository.GetPreviousKeyAsync (query, user.Id);
@@ -97,7 +97,7 @@ public class ItemsService : IItemsService
 	/// <param name = "components">The list of components to be sorted and checked</param>
 	/// <returns>A dictionnary that maps existing item ids to their quantity and unit and a list of item component models to be created in the database and added to the item</returns>
 	/// <exception cref = "EntityNotFoundException">Thrown if <paramref name = "providedExistingItemIds"/> contains one or many non existing item ids.</exception>
-	/// <exception cref = "ArgumentException">Thrown if <paramref name = "newItemsToBeCreated"/> contains an invalid model to create the item</exception>
+	/// <exception cref = "MalformedRequestException">Thrown if <paramref name = "newItemsToBeCreated"/> contains an invalid model to create the item</exception>
 	private async Task<(Dictionary<Guid, short> providedExistingItemIds, IEnumerable<ItemCompositionRequest> newItemsToBeCreated)> CheckIfComponentsExist (IEnumerable<ItemCompositionRequest>? components)
 	{
 		Dictionary<Guid, short> providedExistingItemIds = [];
@@ -124,7 +124,7 @@ public class ItemsService : IItemsService
 																|| i.Quantity < 1
 														);
 			if (invalidItemsExist)
-				throw new ArgumentException ("Non existent item component must have all required fields in order to be added correctly");
+				throw new MalformedRequestException ("Non existent item component must have all required fields in order to be added correctly");
 		}
 
 		return (providedExistingItemIds, newItemsToBeCreated);
@@ -218,9 +218,9 @@ public class ItemsService : IItemsService
 	public async Task<ItemResponseDetails?> InsertAsync (ItemInsertRequest model)
 	{
 		if (model.Categories.Count < 1)
-			throw new ArgumentException ("Item must be created with at least 1 category");
+			throw new BusinessRuleException ("Item must be created with at least 1 category");
 		if (model.Quantity <= 0)
-			throw new ArgumentException ("Item must have a positive quantity");
+			throw new MalformedRequestException ("Item must have a positive quantity");
 			
 		var allCategoriesExist = await categoriesRepository.AllExistAsync (user.Id, model.Categories);
 		if (!allCategoriesExist)

@@ -28,14 +28,14 @@ public class InventoryService : IInventoryService
 	public async Task<Dictionary<Guid, IEnumerable<InventoryResponse>>> GetAllAsync (InventoryFilterQuery query)
 	{
 		if (string.IsNullOrWhiteSpace (query.Items))
-			throw new ArgumentException ("Cannot fetch inventories for empty items list");
+			throw new MalformedRequestException ("Cannot fetch inventories for empty items list");
 		
 		var mayBeItemsIdsStrings = query.Items.Split (",", StringSplitOptions.RemoveEmptyEntries);
 		List<Guid> itemsIds = [];
 		foreach (var mayBeGuid in mayBeItemsIdsStrings)
 		{
 			if (!Guid.TryParse (mayBeGuid, out var guid))
-				throw new ArgumentException ("One or more provided ID is not a valid Guid");
+				throw new MalformedRequestException ("One or more provided ID is not a valid Guid");
 			itemsIds.Add (guid);
 		}
 		
@@ -133,11 +133,11 @@ public class InventoryService : IInventoryService
 		var realMaxQuantity = model.MaxQuantity ?? oldInventory.MaxQuantity;
 		
 		if (model.MinQuantity != null && model.MinQuantity < 0)
-			throw new ArgumentException ("Minimum quantity must be positive (>= 0)");
+			throw new MalformedRequestException ("Minimum quantity must be positive (>= 0)");
 		if (model.MaxQuantity != null && model.MaxQuantity <= 0)
-			throw new ArgumentException ("Max quantity must be positive (> 0)");
+			throw new MalformedRequestException ("Max quantity must be positive (> 0)");
 		if (model.MaxQuantity != null && model.MaxQuantity < realMinQuantity)
-			throw new ArgumentException ("Max quantity must be greater than min quantity");
+			throw new MalformedRequestException ("Max quantity must be greater than min quantity");
 
 		var itemExists = await itemsService.ExistsAsync (key);
 		if (!itemExists)

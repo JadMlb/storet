@@ -107,7 +107,7 @@ public class StorageLocationsServiceTests
 	}
 	
 	[Fact]
-	public async Task InsertWithEmptyNameShouldThrowArgumentException ()
+	public async Task InsertWithEmptyNameShouldThrowMalformedRequestException ()
 	{
 		var insertDto = new StorageLocationInsertRequest
 		{
@@ -116,14 +116,14 @@ public class StorageLocationsServiceTests
 		
 		Func<Task> act = async () => await service.InsertAsync (insertDto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Name cannot be empty");
 		
 		VerifyNoOtherCalls();
 	}
 	
 	[Fact]
-	public async Task InsertWithDuplicateNameShouldThrowArgumentException ()
+	public async Task InsertWithDuplicateNameShouldThrowMalformedRequestException ()
 	{
 		var insertDto = new StorageLocationInsertRequest
 		{
@@ -173,7 +173,7 @@ public class StorageLocationsServiceTests
 	}
 	
 	[Fact]
-	public async Task UpdateWithEmptyNameShouldThrowArgumentException ()
+	public async Task UpdateWithEmptyNameShouldThrowMalformedRequestException ()
 	{
 		var updateDto = new StorageLocationUpdateRequest
 		{
@@ -182,7 +182,7 @@ public class StorageLocationsServiceTests
 		
 		Func<Task> act = async () => await service.UpdateAsync (Guid.NewGuid(), updateDto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Name cannot be empty");
 		
 		VerifyNoOtherCalls();

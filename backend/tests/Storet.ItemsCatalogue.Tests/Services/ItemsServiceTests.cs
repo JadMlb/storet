@@ -100,7 +100,7 @@ public class ItemsServiceTests
 	}
 	
 	[Fact]
-	public async Task CreateItemWithZeroOrLessQuantityShouldThrowArgumentException ()
+	public async Task CreateItemWithZeroOrLessQuantityShouldThrowMalformedRequestException ()
 	{
 		var item = new ItemInsertRequest
 		{
@@ -111,7 +111,7 @@ public class ItemsServiceTests
 		
 		Func<Task> act = async () => await service.InsertAsync (item);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Item must have a positive quantity");
 		
 		VerifyNoOtherCalls();
@@ -265,7 +265,7 @@ public class ItemsServiceTests
 	}
 	
 	[Fact]
-	public async Task CreateItemWithInvalidNumberOfCategoriesShouldThrowArgumentException ()
+	public async Task CreateItemWithInvalidNumberOfCategoriesShouldThrowBusinessRuleException ()
 	{
 		var itemCreateDto = new ItemInsertRequest
 		{
@@ -277,7 +277,7 @@ public class ItemsServiceTests
 		
 		Func<Task> act = async () => await service.InsertAsync (itemCreateDto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<BusinessRuleException>()
 							.WithMessage ("Item must be created with at least 1 category");
 							
 		VerifyNoOtherCalls();
@@ -333,7 +333,7 @@ public class ItemsServiceTests
 		};
 		
 		Func<Task> act = async () => await service.GetAllAsync (query);
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Invalid page size for query");
 							
 		VerifyNoOtherCalls();
@@ -681,7 +681,7 @@ public class ItemsServiceTests
 	}
 	
 	[Fact]
-	public async Task UpdateItemWithNonExistingCategoryShouldThrowArgumentException ()
+	public async Task UpdateItemWithNonExistingCategoryShouldThrowEntityNotFoundException ()
 	{
 		var itemUpdateDto = new ItemUpdateRequest
 		{

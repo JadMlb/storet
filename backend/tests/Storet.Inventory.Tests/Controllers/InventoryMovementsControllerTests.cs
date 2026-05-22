@@ -30,10 +30,12 @@ public class InventoryMovementsControllerTests : ControllerTestsBase<InventoryMo
 		};
 		
 		mockService.Setup (m => m.GetAllAsync (query))
-					.ThrowsAsync (new ArgumentException ("Invalid page size for query"));
+					.ThrowsAsync (new MalformedRequestException ("Invalid page size for query"));
 		
-		var result = await controller.GetAll (query);
-		result.Result.Should().BeOfType<BadRequestObjectResult>();
+		Func<Task> act = async () => await controller.GetAll (query);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Invalid page size for query");
 		
 		mockService.Verify (m => m.GetAllAsync (query), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -293,11 +295,13 @@ public class InventoryMovementsControllerTests : ControllerTestsBase<InventoryMo
 		};
 		
 		mockService.Setup (m => m.InsertAsync (dto))
-					.ThrowsAsync (new ArgumentException ("Neither source nor destination were specified"));
+					.ThrowsAsync (new MalformedRequestException ("Neither source nor destination were specified"));
 		
 		ValidateModel (dto);
-		var result = await controller.Log (dto);
-		result.Result.Should().BeOfType<BadRequestObjectResult>();
+		Func<Task> act = async () => await controller.Log (dto);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Neither source nor destination were specified");
 		
 		mockService.Verify (m => m.InsertAsync (dto), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -320,8 +324,10 @@ public class InventoryMovementsControllerTests : ControllerTestsBase<InventoryMo
 					.ThrowsAsync (new EntityNotFoundException (nameof (StorageLocation), locationId));
 		
 		ValidateModel (dto);
-		var res = await controller.Log (dto);
-		res.Result.Should().BeOfType<NotFoundObjectResult>();
+		Func<Task> act = async () => await controller.Log (dto);
+
+		await act.Should().ThrowAsync<EntityNotFoundException>()
+							.WithMessage ($"StorageLocation with ID {locationId} was not found");
 		
 		mockService.Verify (m => m.InsertAsync (dto), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -344,8 +350,10 @@ public class InventoryMovementsControllerTests : ControllerTestsBase<InventoryMo
 					.ThrowsAsync (new EntityNotFoundException (nameof (Item), itemId));
 		
 		ValidateModel (dto);
-		var result = await controller.Log (dto);
-		result.Result.Should().BeOfType<NotFoundObjectResult>();
+		Func<Task> act = async () => await controller.Log (dto);
+
+		await act.Should().ThrowAsync<EntityNotFoundException>()
+							.WithMessage ($"Item with ID {itemId} was not found");
 		
 		mockService.Verify (m => m.InsertAsync (dto), Times.Once());
 		mockService.VerifyNoOtherCalls();

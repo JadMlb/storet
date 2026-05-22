@@ -81,7 +81,7 @@ public class InventoryMovementsServiceTests
 	}
 	
 	[Fact]
-	public async Task GetAllWithInvalidQueryShouldThrowArgumentException ()
+	public async Task GetAllWithInvalidQueryShouldThrowMalformedRequestException ()
 	{
 		var query = new Query<DateTimeOffset?>
 		{
@@ -90,7 +90,7 @@ public class InventoryMovementsServiceTests
 		
 		Func<Task> act = async () => await service.GetAllAsync (query);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Invalid page size for query");
 		
 		VerifyNoOtherCalls();
@@ -327,7 +327,7 @@ public class InventoryMovementsServiceTests
 	}
 	
 	[Fact]
-	public async Task CreateWithFutureTimestampShouldThrowArgumentException ()
+	public async Task CreateWithFutureTimestampShouldThrowMalformedRequestException ()
 	{
 		var dto = new InventoryModificationRequest
 		{
@@ -341,14 +341,14 @@ public class InventoryMovementsServiceTests
 		
 		Func<Task> act = async () => await service.InsertAsync (dto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("This transaction is set to a future date or time");
 		
 		VerifyNoOtherCalls();
 	}
 	
 	[Fact]
-	public async Task CreateWithMissingSourceAndDestinationShouldThrowArgumentException ()
+	public async Task CreateWithMissingSourceAndDestinationShouldThrowMalformedRequestException ()
 	{
 		var dto = new InventoryModificationRequest
 		{
@@ -360,7 +360,7 @@ public class InventoryMovementsServiceTests
 		
 		Func<Task> act = async () => await service.InsertAsync (dto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Neither source nor destination were specified");
 		
 		VerifyNoOtherCalls();

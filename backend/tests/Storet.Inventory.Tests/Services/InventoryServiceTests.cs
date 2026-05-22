@@ -11,7 +11,6 @@ using Storet.Modules.Inventory.Models;
 using Storet.Modules.Inventory.Queries;
 using Storet.Modules.Inventory.Repositories.Inventory;
 using Storet.Modules.Inventory.Services.Inventory;
-using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Services.Items;
 
 namespace Storet.Inventory.Tests.Services;
@@ -141,7 +140,7 @@ public class InventoryServiceTests
 	}
 	
 	[Fact]
-	public async Task GetAllWithEmptyStringShouldThrowArgumentException ()
+	public async Task GetAllWithEmptyStringShouldThrowMalformedRequestException ()
 	{
 		InventoryFilterQuery query = new ()
 		{
@@ -150,14 +149,14 @@ public class InventoryServiceTests
 		
 		Func<Task> act = async () => await service.GetAllAsync (query);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Cannot fetch inventories for empty items list");
 		
 		VerifyNoOtherCalls();
 	}
 
 	[Fact]
-	public async Task GetAllWithInvalidGuidStringShouldThrowArgumentException ()
+	public async Task GetAllWithInvalidGuidStringShouldThrowMalformedRequestException ()
 	{
 		InventoryFilterQuery query = new ()
 		{
@@ -166,7 +165,7 @@ public class InventoryServiceTests
 		
 		Func<Task> act = async () => await service.GetAllAsync (query);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("One or more provided ID is not a valid Guid");
 		
 		VerifyNoOtherCalls();
@@ -359,7 +358,7 @@ public class InventoryServiceTests
 	}
 	
 	[Fact]
-	public async Task UpdateInventoryLimitsWithMaxQuantityLessThanMinQuantityInRequestShouldThrowArgumentException ()
+	public async Task UpdateInventoryLimitsWithMaxQuantityLessThanMinQuantityInRequestShouldThrowMalformedRequestException ()
 	{
 		var itemId = Guid.NewGuid();
 		var insertDto = new InventoryUpdateRequest
@@ -383,7 +382,7 @@ public class InventoryServiceTests
 		
 		Func<Task> act = async () => await service.UpdateAsync (itemId, insertDto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Max quantity must be greater than min quantity");
 		
 		mockInventoryRepository.Verify (i => i.GetOneAsync (itemId, userId), Times.Once());
@@ -427,7 +426,7 @@ public class InventoryServiceTests
 	}
 	
 	[Fact]
-	public async Task UpdateInventoryLimitsWithInvalidMinQuantityShouldThrowArgumentException ()
+	public async Task UpdateInventoryLimitsWithInvalidMinQuantityShouldThrowMalformedRequestException ()
 	{
 		var itemId = Guid.NewGuid();
 		var updateDto = new InventoryUpdateRequest
@@ -450,7 +449,7 @@ public class InventoryServiceTests
 		
 		Func<Task> act = async () => await service.UpdateAsync (itemId, updateDto);
 		
-		await act.Should().ThrowAsync<ArgumentException>()
+		await act.Should().ThrowAsync<MalformedRequestException>()
 							.WithMessage ("Minimum quantity must be positive (>= 0)");
 		
 		mockInventoryRepository.Verify (i => i.GetOneAsync (itemId, userId), Times.Once());

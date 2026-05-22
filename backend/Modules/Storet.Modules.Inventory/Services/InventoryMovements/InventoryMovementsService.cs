@@ -38,7 +38,7 @@ public class InventoryMovementsService : IInventoryMovementsService
 	public async Task<PaginatedResponse<InventoryMovementResponse, DateTimeOffset?>> GetAllAsync (Query<DateTimeOffset?> query)
 	{
 		if (query.PageSize < 1)
-			throw new ArgumentException ("Invalid page size for query");
+			throw new MalformedRequestException ("Invalid page size for query");
 			
 		var data = await inventoryMovementsRepository.GetAllAsync (query, user.Id);
 		var previousKey = await inventoryMovementsRepository.GetPreviousKeyAsync (query, user.Id);
@@ -120,10 +120,10 @@ public class InventoryMovementsService : IInventoryMovementsService
 	public async Task<IEnumerable<InventoryMovementDetailsResponse>?> InsertAsync (InventoryModificationRequest model)
 	{
 		if (model.ExecutedAt > DateTimeOffset.Now)
-			throw new ArgumentException ("This transaction is set to a future date or time");
+			throw new MalformedRequestException ("This transaction is set to a future date or time");
 			
 		if (model.DestinationLocationId == null && model.SourceLocationId == null)
-			throw new ArgumentException ("Neither source nor destination were specified");
+			throw new MalformedRequestException ("Neither source nor destination were specified");
 		
 		if (model.SourceLocationId.HasValue)
 		{

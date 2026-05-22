@@ -1,8 +1,10 @@
+using System.Net;
+
 namespace Storet.Core.Exceptions;
 
-public class EntityNotFoundException : StoretException
+public sealed class EntityNotFoundException : EntityStoretException
 {
 	public EntityNotFoundException (string entityName, object entityId) :
-		base (entityName, entityId, $"{entityName} with ID {StringConverter.ConvertToString (entityId)} was not found")
+		base (HttpStatusCode.NotFound, entityName, entityId, $"{entityName} with ID {StringConverter.ConvertToString (entityId)} was not found")
 	{}
 }

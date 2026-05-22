@@ -2,13 +2,11 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Storet.Core.Exceptions;
-using Storet.Core.Utils;
 using Storet.Modules.Inventory.Contracts.Inventory;
 using Storet.Modules.Inventory.Controllers;
 using Storet.Modules.Inventory.Models;
 using Storet.Modules.Inventory.Queries;
 using Storet.Modules.Inventory.Services.Inventory;
-using Storet.Modules.ItemsCatalogue.Contracts.Items;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Tests.Common.Controller;
 
@@ -30,10 +28,12 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 		};
 
 		mockService.Setup (i => i.GetAllAsync (It.IsAny<InventoryFilterQuery>()))
-					.ThrowsAsync (new ArgumentException ("Cannot fetch inventories for empty items list"));
+					.ThrowsAsync (new MalformedRequestException ("Cannot fetch inventories for empty items list"));
 
-		var result = await controller.GetAll (query);
-		result.Result.Should().BeOfType<BadRequestObjectResult>();
+		Func<Task> act = async () => await controller.GetAll (query);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Cannot fetch inventories for empty items list");
 
 		mockService.Verify (i => i.GetAllAsync (query), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -48,10 +48,12 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 		};
 		
 		mockService.Setup (i => i.GetAllAsync (It.IsAny<InventoryFilterQuery>()))
-					.ThrowsAsync (new ArgumentException ("One or more provided ID is not a valid Guid"));
+					.ThrowsAsync (new MalformedRequestException ("One or more provided ID is not a valid Guid"));
 
-		var result = await controller.GetAll (query);
-		result.Result.Should().BeOfType<BadRequestObjectResult>();
+		Func<Task> act = async () => await controller.GetAll (query);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("One or more provided ID is not a valid Guid");
 
 		mockService.Verify (i => i.GetAllAsync (query), Times.Once());
 		mockService.VerifyNoOtherCalls();
@@ -207,9 +209,10 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 		mockService.Setup (i => i.UpdateAsync (itemId, updateDto))
 					.ThrowsAsync (new EntityNotFoundException (nameof (Modules.Inventory.Models.Inventory), itemId));
 		
-		var result = await controller.Update (itemId, updateDto);
-		
-		result.Result.Should().BeOfType<NotFoundObjectResult>();
+		Func<Task> act = async () => await controller.Update (itemId, updateDto);
+
+		await act.Should().ThrowAsync<EntityNotFoundException>()
+							.WithMessage ($"Inventory with ID {itemId} was not found");
 		mockService.Verify (i => i.UpdateAsync (itemId, updateDto), Times.Once());
 		mockService.VerifyNoOtherCalls();
 	}
@@ -226,11 +229,12 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 		
 		ValidateModel (updateDto);
 		mockService.Setup (i => i.UpdateAsync (itemId, updateDto))
-					.ThrowsAsync (new ArgumentException ("Max quantity must be greater than min quantity"));
+					.ThrowsAsync (new MalformedRequestException ("Max quantity must be greater than min quantity"));
 		
-		var result = await controller.Update (itemId, updateDto);
+		Func<Task> act = async () => await controller.Update (itemId, updateDto);
 		
-		result.Result.Should().BeOfType<BadRequestObjectResult>();
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Max quantity must be greater than min quantity");
 		mockService.Verify (i => i.UpdateAsync (itemId, updateDto), Times.Once());
 		mockService.VerifyNoOtherCalls();
 	}
@@ -249,9 +253,10 @@ public class InventoryControllerTests : ControllerTestsBase<InventoryController,
 		mockService.Setup (i => i.UpdateAsync (itemId, updateDto))
 					.ThrowsAsync (new EntityNotFoundException (nameof (Item), itemId));
 		
-		var result = await controller.Update (itemId, updateDto);
-		
-		result.Result.Should().BeOfType<NotFoundObjectResult>();
+		Func<Task> act = async () => await controller.Update (itemId, updateDto);
+
+		await act.Should().ThrowAsync<EntityNotFoundException>()
+							.WithMessage ($"Item with ID {itemId} was not found");
 		mockService.Verify (i => i.UpdateAsync (itemId, updateDto), Times.Once());
 		mockService.VerifyNoOtherCalls();
 	}

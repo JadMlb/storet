@@ -22,14 +22,7 @@ public class InventoryMovementsController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<PaginatedResponse<InventoryMovementResponse, DateTimeOffset?>>> GetAll ([FromQuery] Query<DateTimeOffset?> query)
 	{
-		try
-		{
-			return Ok (await service.GetAllAsync (query));
-		}
-		catch (ArgumentException e)
-		{
-			return BadRequest (e.Message);
-		}
+		return Ok (await service.GetAllAsync (query));
 	}
 	
 	[HttpGet ("{id:guid}")]
@@ -48,24 +41,9 @@ public class InventoryMovementsController : ControllerBase
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
 			
-		try
-		{
-			var inserted = await service.InsertAsync (request);
-			if (inserted == null)
-				return BadRequest();
-			return Ok (inserted);
-		}
-		catch (EntityNotFoundException e)
-		{
-			return NotFound (e.Message);
-		}
-		catch (InvalidOperationException e)
-		{
-			return Problem (e.Message);
-		}
-		catch (Exception e)
-		{
-			return BadRequest (e.Message);
-		}
+		var inserted = await service.InsertAsync (request);
+		if (inserted == null)
+			return BadRequest();
+		return Ok (inserted);
 	}
 }

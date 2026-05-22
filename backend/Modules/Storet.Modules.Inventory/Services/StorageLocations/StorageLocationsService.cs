@@ -40,7 +40,7 @@ public class StorageLocationsService : IStorageLocationsService
 	public async Task<StorageLocationDetailsResponse?> InsertAsync (StorageLocationInsertRequest model)
 	{
 		if (string.IsNullOrWhiteSpace (model.Name))
-			throw new ArgumentException ("Name cannot be empty");
+			throw new MalformedRequestException ("Name cannot be empty");
 		
 		try
 		{
@@ -62,7 +62,7 @@ public class StorageLocationsService : IStorageLocationsService
 	public async Task<StorageLocationDetailsResponse?> UpdateAsync (Guid key, StorageLocationUpdateRequest model)
 	{
 		if (string.IsNullOrWhiteSpace (model.Name))
-			throw new ArgumentException ("Name cannot be empty");
+			throw new MalformedRequestException ("Name cannot be empty");
 			
 		var existing = await storageLocationsRepository.GetOneAsync (key, user.Id);
 		if (existing == null)

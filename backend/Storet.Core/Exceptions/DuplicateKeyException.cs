@@ -1,8 +1,10 @@
+using System.Net;
+
 namespace Storet.Core.Exceptions;
 
-public class DuplicateKeyException : StoretException
+public sealed class DuplicateKeyException : EntityStoretException
 {
 	public DuplicateKeyException (string entityName, object entityId) :
-		base (entityName, entityId, $"{entityName} with ID {StringConverter.ConvertToString (entityId)} already exists")
+		base (HttpStatusCode.Conflict, entityName, entityId, $"{entityName} with ID {StringConverter.ConvertToString (entityId)} already exists")
 	{}
 }

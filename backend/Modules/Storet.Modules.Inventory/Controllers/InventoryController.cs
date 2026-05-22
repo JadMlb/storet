@@ -23,14 +23,7 @@ public class InventoryController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<IEnumerable<InventoryResponse>>> GetAll ([FromQuery] InventoryFilterQuery query)
 	{
-		try
-		{	
-			return Ok (await service.GetAllAsync (query));
-		}
-		catch (ArgumentException e)
-		{
-			return BadRequest (e.Message);
-		}
+		return Ok (await service.GetAllAsync (query));
 	}
 
 	[HttpGet ("{id:guid}")]
@@ -48,20 +41,9 @@ public class InventoryController : ControllerBase
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
 			
-		try
-		{
-			var updated = await service.UpdateAsync (id, updateRequest);
-			if (updated == null)
-				return NotFound();
-			return Ok (updated);
-		}
-		catch (EntityNotFoundException e)
-		{
-			return NotFound (e.Message);
-		}
-		catch (Exception e)
-		{
-			return BadRequest (e.Message);
-		}
+		var updated = await service.UpdateAsync (id, updateRequest);
+		if (updated == null)
+			return NotFound();
+		return Ok (updated);
 	}
 }

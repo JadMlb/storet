@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Storet.API.Authorization;
+using Storet.API.ErrorHandling;
 using Storet.Core.Authorization;
 using Storet.Modules.Inventory.EventsHandlers;
 using Storet.Modules.Inventory.Setup;
@@ -15,6 +17,8 @@ DotNetEnv.Env.Load();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -53,6 +57,8 @@ builder.Services.AddAuthentication (JwtBearerDefaults.AuthenticationScheme)
 					}
 				);
 
+builder.Services.AddTransient<ProblemDetailsFactory, GlobalProblemDetailsFactory>();
+
 builder.Services.AddMediatR (
 	cfg =>
 	{
@@ -67,7 +73,7 @@ builder.Services.AddMediatR (
 
 var connectionString = Environment.GetEnvironmentVariable ("CONNECTION_STRING") ??
 						throw new InvalidOperationException ("Connection string is not configured");
-						
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddItemsCatalogueModule (connectionString);
@@ -85,6 +91,7 @@ app.UseCors ("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
