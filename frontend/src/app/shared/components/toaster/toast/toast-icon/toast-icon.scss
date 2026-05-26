@@ -1,0 +1,51 @@
+@use "theme";
+
+$size: 25px;
+
+::host
+{
+	width: $size;
+	height: $size;
+}
+
+svg
+{
+	width: $size;
+	height: $size;
+
+	display: grid;
+	place-content: center;
+}
+
+.red
+{
+	path
+	{
+		fill: theme.$colour-error-static;
+		stroke: transparent;
+	}
+}
+
+.green
+{
+	path
+	{
+		fill: theme.$colour-green-static;
+	}
+}
+
+.orange
+{
+	path
+	{
+		stroke: theme.$colour-orange-static;
+	}
+}
+
+.blue
+{
+	line, circle
+	{
+		stroke: theme.$colour-blue-static;
+	}
+}

@@ -1,0 +1,31 @@
+@if (!contents().clearing)
+{
+	<div
+		class = "toast"
+		[class.with-description] = "hasDescription()"
+		[class.info] = "!contents().type || contents().type === 'info'"
+		[class.warning] = "contents().type === 'warning'"
+		[class.success] = "contents().type === 'success'"
+		[class.failure] = "contents().type === 'failure'"
+		animate.enter = "slide-in"
+		animate.leave = "slide-out"
+	>
+		<div class = "icon">
+			<toast-icon [type] = "type()"/>
+		</div>
+		<div class = "title">{{contents().title}}</div>
+		@if (hasDescription())
+		{
+			<div class = "description">{{contents().description}}</div>
+		}
+		<div class = "close">
+			<button (click) = "handleClearRequest ($event)"></button>
+		</div>
+		<div class = "progress">
+			@if (hasCountDown())
+			{
+				<toast-progress [value] = "progress$ | async"/>
+			}
+		</div>
+	</div>
+}

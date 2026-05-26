@@ -1,0 +1,166 @@
+@use "theme";
+@use "sass:math";
+
+.toast
+{
+	height: 50px;
+	position: relative;
+	
+	display: grid;
+	grid-template-areas: "icon title close"
+						"icon description close";
+	grid-template-rows: 50px 0;
+	grid-template-columns: 35px 1fr 30px;
+	align-items: center;
+	column-gap: theme.$spacing-small;
+
+	border: 1px solid theme.$colour-gray;
+	border-radius: theme.$spacing-small;
+	backdrop-filter: blur(10px);
+	
+	&.with-description
+	{
+		grid-template-rows: 25px 25px;
+
+		.title
+		{
+			margin-top: theme.$spacing-small;
+		}
+
+		.description
+		{
+			margin-bottom: theme.$spacing-small;
+			grid-area: description;
+			color: theme.$colour-gray-dark-static;
+		}
+	}
+
+	&.info
+	{
+		background-color: color(from theme.$colour-blue-static srgb r g b / 0.2);
+		border-color: theme.$colour-blue-static;
+	}
+
+	&.warning
+	{
+		background-color: color(from theme.$colour-orange-static srgb r g b / 0.2);
+		border-color: theme.$colour-orange-static;
+	}
+
+	&.success
+	{
+		background-color: color(from theme.$colour-green-static srgb r g b / 0.2);
+		border-color: theme.$colour-green-static;
+	}
+
+	&.failure
+	{
+		background-color: color(from theme.$colour-error-static srgb r g b / 0.2);
+		border-color: theme.$colour-error-static;
+	}
+
+	.icon
+	{
+		grid-area: icon;
+		place-content: center;
+		margin: auto;
+		margin-left: theme.$spacing-small;
+		width: 25px;
+		height: 25px;
+	}
+
+	.title
+	{
+		grid-area: title;
+		font-weight: bold;
+	}
+
+	.close
+	{
+		grid-area: close;
+
+		button
+		{
+			all: unset;
+			width: 20px;
+			height: 20px;
+			border-radius: 10px;
+
+			position: relative;
+			display: grid;
+			place-items: center;
+
+			&:before, &:after
+			{
+				content: "";
+				display: block;
+				position: absolute;
+				background-color: theme.$colour-text;
+				width: 15px;
+				height: 2px;
+			}
+
+			&:before
+			{
+				transform: rotate(45deg);
+			}
+
+			&:after
+			{
+				transform: rotate(-45deg);
+			}
+
+			&:hover
+			{
+				background-color: theme.$colour-error;
+
+				&:before, &:after
+				{
+					background-color: theme.$colour-white-static;
+				}
+			}
+		}
+	}
+
+	.progress
+	{
+		position: absolute;
+		bottom: 0;
+		left: math.div(theme.$spacing-small, 2);
+		width: calc(100% - math.div(theme.$spacing-small, 2));
+	}
+}
+
+@keyframes slideInLeft
+{
+	from
+	{
+		transform: translateX(100%);
+	}
+	to
+	{
+		transform: translateX(0);
+	}
+}
+
+@keyframes slideOutLeft
+{
+	from
+	{
+		transform: translateX(0);
+	}
+	to
+	{
+		transform: translateX(100%);
+	}
+}
+
+.slide-in
+{
+	animation: slideInLeft 0.3s ease-in-out;
+}
+
+.slide-out
+{
+	animation: slideOutLeft 0.3s ease-in-out;
+}

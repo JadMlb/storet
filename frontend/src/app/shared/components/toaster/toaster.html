@@ -1,0 +1,6 @@
+<div class = "container">
+	@for (toast of toastService.toasts(); track toast.id)
+	{
+		<toast [contents] = "toast" (onClear) = "clearToast ($event)"/>
+	}
+</div>

@@ -1,0 +1,8 @@
+@use "theme";
+
+div
+{
+	height: 3px;
+	background-color: theme.$colour-text;
+	border-radius: 3px;
+}

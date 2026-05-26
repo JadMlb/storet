@@ -21,19 +21,19 @@
 
   &.green
   {
-    background-color: #33673b;
+    background-color: theme.$colour-green-static;
     color: theme.$colour-white-static;
   }
 
   &.orange
   {
-    background-color: #ef946c;
+    background-color: theme.$colour-orange-static;
     color: theme.$colour-white-static;
   }
 
   &.yellow
   {
-    background-color: #f7ee7f;
+    background-color: theme.$colour-yellow-static;
     color: theme.$colour-black-static;
   }
 }

@@ -1,0 +1,21 @@
+@use "theme";
+
+.container
+{
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column-reverse;
+	gap: theme.$spacing-large;
+
+	padding: theme.$spacing-large;
+	width: calc(100dvw - 2 * theme.$spacing-large);
+
+	z-index: theme.$stacking-tooltip + 1;
+
+	@media only screen and (min-width: theme.$break-point-tablet)
+	{
+		width: 300px;
+	}
+}
