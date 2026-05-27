@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ActionType, Service } from '../../../shared/services/data/service';
+import { ActionType } from '../../../shared/services/data/service';
+import { UpdatableService } from '../../../shared/services/data/updatable-service';
 import { StockWithBounds } from '../models/Stock';
 
 @Injectable({
   providedIn: 'root',
 })
-export class InventoryDetailsService extends Service<StockWithBounds[]>
+export class InventoryDetailsService extends UpdatableService<StockWithBounds[]>
 {
   constructor ()
   {

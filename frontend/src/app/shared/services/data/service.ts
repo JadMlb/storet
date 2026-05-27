@@ -1,60 +1,52 @@
 import { HttpClient } from "@angular/common/http";
-import { inject, signal } from "@angular/core";
+import { DestroyRef, inject, signal } from "@angular/core";
 import { environment } from "../../../../environments/environment";
-import { Option } from "../../types/Option";
-import { BehaviorSubject } from "rxjs";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
+import { Subject } from "rxjs";
+import { isError } from "../../types/Error";
+import { GetPathProps } from "../../types/PathProps";
+import { ServiceEvent } from "../../types/ServiceEvent";
 
 export type ServiceStateType = "loading" | "idle";
-export type ErrorType = {
-	id?: string;
-	statusCode: number;
-	message: string;
-};
-
-export type PathProps = {
-	path?: string | null;
-};
-
-export type GetPathProps = PathProps & {
-	params?: Record<string, string>;
-};
-
-export type PostPathProps = PathProps & {
-	body: any;
-};
 
 export type ActionType = "GET" | "POST" | "PUT" | "DELETE";
 
 export abstract class Service<TData>
 {
-	protected http = inject (HttpClient);
+	private readonly destroyRef = inject (DestroyRef);
+	protected readonly http = inject (HttpClient);
 	protected apiBasePath: string;
 	protected apiPath: string;
 	
 	protected dataSignal = signal<TData | null> (null);
 	protected stateSignal = signal<ServiceStateType> ("idle");
-	protected errorSignal = signal<ErrorType | null> (null);
+	protected eventsSubject = new Subject<ServiceEvent>();
 
 	constructor (controllerName: string)
 	{
 		this.apiBasePath = `${environment.backendServerUrl}/api`;
 		this.apiPath = `${this.apiBasePath}/${controllerName}`;
+		this.destroyRef.onDestroy (
+			() => this.eventsSubject.complete()
+		);
 	}
 
 	public readonly data = this.dataSignal.asReadonly();
 	public readonly state = this.stateSignal.asReadonly();
-	public readonly error = this.errorSignal.asReadonly();
 	public readonly data$ = toObservable (this.dataSignal);
+	public readonly events$ = this.eventsSubject.asObservable().pipe (takeUntilDestroyed (this.destroyRef));
 
 	public beforeRequest ()
 	{
 		this.stateSignal.set ("loading");
 	}
 
-	public handleSuccess (_: ActionType, response: TData | null)
+	public handleSuccess (actionType: ActionType, response: TData | null)
 	{
 		this.dataSignal.set (response);
+		if (actionType === "GET")
+			return;
+		this.eventsSubject.next ({type: "success"});
 	}
 
 	public afterSuccess (_: ActionType, __: TData | null)
@@ -64,10 +56,9 @@ export abstract class Service<TData>
 
 	public handleError (_: ActionType, error: any)
 	{
-		this.errorSignal.set ({
-			statusCode: 500,
-			message: `${error}`
-		});
+		let err = error.error;
+		if (!err || isError (err))
+			this.eventsSubject.next ({type: "error", error: err ?? null});
 	}
 
 	public afterError (_: ActionType, __: any)
@@ -86,7 +77,7 @@ export abstract class Service<TData>
 	{
 		if (!path)
 			return this.apiBasePath;
-			return `${this.apiBasePath}/${path}`;
+		return `${this.apiBasePath}/${path}`;
 	}
 
 	public get (props?: GetPathProps)
@@ -106,60 +97,6 @@ export abstract class Service<TData>
 						{
 							this.handleError ("GET", error);
 							this.afterError ("GET", error);
-						}
-					});
-	}
-
-	public post ({path, body}: PostPathProps)
-	{
-		this.beforeRequest();
-		this.http.post<TData> (this.appendToPath (path), body)
-					.subscribe ({
-						next: response =>
-						{
-							this.handleSuccess ("POST", response);
-							this.afterSuccess ("POST", response);
-						},
-						error: (error) =>
-						{
-							this.handleError ("POST", error);
-							this.afterError ("POST", error);
-						}
-					});
-	}
-	
-	public put ({path, body}: PostPathProps)
-	{
-		this.beforeRequest();
-		this.http.put<TData> (this.appendToPath (path), body)
-					.subscribe ({
-						next: response =>
-						{
-							this.handleSuccess ("PUT", response);
-							this.afterSuccess ("PUT", response);
-						},
-						error: (error) =>
-						{
-							this.handleError ("PUT", error);
-							this.afterError ("PUT", error);
-						}
-					});
-	}
-
-	public delete ({path}: PathProps)
-	{
-		this.beforeRequest();
-		this.http.delete (this.appendToPath (path))
-					.subscribe ({
-						next: () =>
-						{
-							this.handleSuccess ("DELETE", null);
-							this.afterSuccess ("DELETE", null);
-						},
-						error: (error) =>
-						{
-							this.handleError ("DELETE", error);
-							this.afterError ("DELETE", error);
 						}
 					});
 	}

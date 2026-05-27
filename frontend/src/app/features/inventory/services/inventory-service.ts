@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ActionType, GetPathProps, Service } from '../../../shared/services/data/service';
+import { ActionType, Service } from '../../../shared/services/data/service';
 import { calculateTotalStockFromArray, ItemStock } from '../models/Stock';
+import { GetPathProps } from '../../../shared/types/PathProps';
 
 @Injectable ({
   providedIn: 'root',

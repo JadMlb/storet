@@ -2,17 +2,21 @@ import { DestroyRef, inject, Injectable, OnInit, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { NavigationService } from "../services/layout/navigation-service";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { ToastService } from "../services/layout/toast-service";
+import { ServiceEvent } from "../types/ServiceEvent";
+import { toastFromEvent } from "./toastFromEventMapper";
 
 @Injectable()
 export abstract class ListViewDetailsFormLogicBase implements OnInit
 {
   protected destroyRef = inject (DestroyRef);
+  protected readonly toastService = inject (ToastService);
   protected readonly creating = signal (false);
   protected readonly editing = signal (false);
   protected editsHappened = false;
-  
+
   protected readonly navigation = inject (NavigationService);
-  
+
   protected form!: FormGroup;
 
   constructor ()
@@ -29,19 +33,19 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
           this.form.reset();
           return;
         }
-        
+
         const isCreating = value === "new";
         this.creating.set (isCreating);
         this.initialiseData (isCreating);
       }
     );
   }
-  
+
   ngOnInit () : void
   {
     this.subscribeToFormChanges();
   }
-  
+
   private subscribeToFormChanges (): void
   {
     this.form.valueChanges
@@ -59,6 +63,13 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
               );
   }
 
+  protected handleEvent (event: ServiceEvent) : void
+  {
+ 	const toast = toastFromEvent (event);
+	if (toast)
+		this.toastService.enqueueToast (toast);
+  }
+
   public initialiseData (creating: boolean = false) : void
   {
     if (creating)
@@ -72,19 +83,19 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
       this.form.disable();
     }
   }
-  
+
   protected abstract executeOnInitIfNotCreating () : void;
   protected abstract executeOnInitIfCreating () : void;
   protected abstract shouldMarkFormAsPristine (value: any) : boolean;
-  
+
   onEditingEnabled ()
   {
     this.form.enable();
     this.editing.set (true);
   }
-  
+
   protected abstract resetFormOnCancelEditing () : void;
-  
+
   onCancel () : void
   {
     if (this.creating())
@@ -97,21 +108,21 @@ export abstract class ListViewDetailsFormLogicBase implements OnInit
     this.form.disable();
     this.editing.set (false);
   }
-  
+
   navBack (): void
   {
     this.navigation.navigateBack ({refresh: this.editsHappened, timestamp: Date.now()});
   }
-  
+
   onFormSubmit ()
   {
     if (!this.form.valid)
       return;
-      
+
     this.handleFormSubmission();
   }
-  
+
   protected abstract handleFormSubmission() : void;
-  
+
   public abstract onItemDelete () : void;
 }
