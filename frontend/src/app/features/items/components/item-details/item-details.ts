@@ -15,6 +15,7 @@ import { ItemComponents } from './item-components/item-components';
 import { FieldLabel } from '../../../../shared/components/field-label/field-label';
 import { StockInfo } from '../../../inventory/components/stock-info/stock-info';
 import { positiveValueValidator } from '../../../../shared/validation/positive-value';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component ({
   selector: 'item-details',
@@ -67,6 +68,15 @@ export class ItemDetails extends ListViewDetailsFormLogicBase
   public get components ()
   {
     return this.form.get ("components") as FormArray;
+  }
+
+  constructor ()
+  {
+  	super();
+
+   	this.itemsDetailsStore.events$
+							.pipe (takeUntilDestroyed (this.destroyRef))
+							.subscribe (event => this.handleEvent (event));
   }
   
   public addExistingComponent ()

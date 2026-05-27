@@ -8,6 +8,7 @@ import { CategoriesService } from '../../services/categories';
 import { ListViewItemDetails } from '../../../../shared/components/list-view-item-details/list-view-item-details';
 import { ListViewDetailsFormLogicBase } from '../../../../shared/logic/ListViewDetailsFormLogicBase';
 import { CategoryMappingProfile } from '../../models/CategoryMappingProfile';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component ({
   selector: 'category-details',
@@ -33,6 +34,15 @@ export class CategoryDetails extends ListViewDetailsFormLogicBase
   protected get label ()
   {
  	return this.form.value.label;
+  }
+
+  constructor ()
+  {
+  	super();
+
+   	this.categoriesDetailsStore.events$
+								.pipe (takeUntilDestroyed (this.destroyRef))
+								.subscribe (event => this.handleEvent (event));
   }
   
   override executeOnInitIfNotCreating () : void

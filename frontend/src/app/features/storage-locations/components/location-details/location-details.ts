@@ -5,6 +5,7 @@ import { LocationDetailsService } from '../../services/location-details-service'
 import { ListViewItemDetails } from '../../../../shared/components/list-view-item-details/list-view-item-details';
 import { Suspense } from '../../../../shared/components/suspense/suspense';
 import { TextInput } from '../../../../shared/components/text-input/text-input';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component ({
   selector: 'location-details',
@@ -24,6 +25,15 @@ export class LocationDetails extends ListViewDetailsFormLogicBase
   protected get label ()
   {
  	return this.form.value.name;
+  }
+
+  constructor ()
+  {
+  	super();
+
+   	this.locationDetailsStore.events$
+							.pipe (takeUntilDestroyed (this.destroyRef))
+							.subscribe (event => this.handleEvent (event));
   }
 
   override initialiseData (creating: boolean = false) : void
