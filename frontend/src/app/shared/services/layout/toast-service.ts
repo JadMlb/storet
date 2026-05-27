@@ -85,7 +85,7 @@ export class ToastService
 								);
 		const sortedContentsStr = JSON.stringify (sortedContents);
 
-		return this.hash (sortedContentsStr);
+		return this.hash (sortedContentsStr) + Date.now().toString();
 	}
 
 	public enqueueToast (toast: ToastContentsInputType, autoClearDurationMs: number | null = 5000) : string
@@ -100,7 +100,7 @@ export class ToastService
 			...toastWithAutoClearsValue,
 			id: this.generateIdFromHash (toastWithAutoClearsValue)
 		};
-		this.toastsSignal.update (old => {old.push (toastWithId); return old;});
+		this.toastsSignal.update (old => [...old, toastWithId]);
 
 		if (autoClearDurationMs)
 			this.scheduleAutoClearToast (toastWithId.id, autoClearDurationMs);

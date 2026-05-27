@@ -9,4 +9,4 @@ export type ToastContentsType = {
 	clearing: boolean;
 };
 
-export type ToastContentsInputType = Omit<ToastContentsType, "id" | "autoClears" | "clearing"> & Partial<Pick<ToastContentsType, "autoClears">>;
+export type ToastContentsInputType = Omit<ToastContentsType, "id" | "autoClears" | "clearing">;

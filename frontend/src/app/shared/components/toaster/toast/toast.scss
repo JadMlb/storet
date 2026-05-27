@@ -1,6 +1,11 @@
 @use "theme";
 @use "sass:math";
 
+:host:first-of-type .toast
+{
+	margin-bottom: theme.$spacing-large;
+}
+
 .toast
 {
 	height: 50px;
@@ -14,6 +19,7 @@
 	align-items: center;
 	column-gap: theme.$spacing-small;
 
+	margin: math.div(theme.$spacing-large, 2) theme.$spacing-large;
 	border: 1px solid theme.$colour-gray;
 	border-radius: theme.$spacing-small;
 	backdrop-filter: blur(10px);
