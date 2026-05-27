@@ -1,5 +1,6 @@
 using AutoMapper;
 using Storet.Core.Authorization;
+using Storet.Core.Exceptions;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Models;
 using Storet.Modules.ItemsCatalogue.Repositories.Categories;
@@ -78,6 +79,8 @@ public class CategoriesService : ICategoriesService
 
 	public async Task<CategoryResponseWithParent?> UpdateAsync (int key, CategoryUpdateRequest model)
 	{
+		if (model.Label != null && string.IsNullOrWhiteSpace (model.Label))
+			throw new MalformedRequestException ("Label cannot be empty");
 		var existingCategory = await repository.GetOneAsync (key, user.Id);
 		if (existingCategory == null)
 			return null;
@@ -97,17 +100,6 @@ public class CategoriesService : ICategoriesService
 
 	public async Task<bool> DeleteAsync (int key)
 	{
-		try
-		{
-			return await repository.DeleteAsync (key, user.Id);
-		}
-		catch (InvalidOperationException)
-		{
-			throw;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		return await repository.DeleteAsync (key, user.Id);
 	}
 }

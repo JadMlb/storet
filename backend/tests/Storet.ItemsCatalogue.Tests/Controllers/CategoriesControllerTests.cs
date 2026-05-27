@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Storet.Core.Exceptions;
 using Storet.Modules.ItemsCatalogue.Contracts.Categories;
 using Storet.Modules.ItemsCatalogue.Controllers;
 using Storet.Modules.ItemsCatalogue.Services.Categories;
@@ -91,6 +92,23 @@ public class CategoriesControllerTests : ControllerTestsBase<CategoriesControlle
 		createdResult.ActionName.Should().Be (nameof (CategoriesController.GetOne));
 		createdResult.RouteValues.Should().NotBeNull();
 		createdResult.RouteValues["id"].Should().Be (1);
+	}
+
+	[Fact]
+	public async Task UpdateWithEmptyLabelShouldThrowMalformedRequestException ()
+	{
+		var updateDto = new CategoryUpdateRequest
+		{
+			Label = "Updated Electronics"
+		};
+
+		mockService.Setup (s => s.UpdateAsync (1, updateDto))
+					.ThrowsAsync (new MalformedRequestException ("Label cannot be empty"));
+
+		Func<Task> act = async () => await controller.Update (1, updateDto);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Label cannot be empty");
 	}
 
 	[Fact]

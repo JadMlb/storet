@@ -292,6 +292,31 @@ public class CategoriesServiceTests
 	}
 
 	[Fact]
+	public async Task UpdateCategoryAsyncWithEmptyLabelShouldThrowMalformedRequestException ()
+	{
+		var userId = Guid.NewGuid();
+		var category = new Category
+		{
+			Id = 1,
+			Label = "Phones",
+			UserId = userId
+		};
+
+		var updateDto = new CategoryUpdateRequest
+		{
+			Label = ""
+		};
+
+		Func<Task> act = async () => await service.UpdateAsync (1, updateDto);
+
+		await act.Should().ThrowAsync<MalformedRequestException>()
+							.WithMessage ("Label cannot be empty");
+
+		mockRepository.VerifyNoOtherCalls();
+		mockCurrentUser.VerifyNoOtherCalls();
+	}
+
+	[Fact]
 	public async Task UpdateCategoryAsyncWithValidDataShouldUpdateCategory ()
 	{
 		var userId = Guid.NewGuid();

@@ -95,16 +95,9 @@ public class CategoriesRepository : BaseRepository<StoretItemsCatalogueDbContext
 
 		if (old.SubCategories.Count > 0)
 			throw new EntityDependencyException (nameof (Category), key);
-		
-		try
-		{
-			context.Categories.Remove (old);
-			await context.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+
+		context.Categories.Remove (old);
+		await context.SaveChangesAsync();
+		return true;
 	}
 }

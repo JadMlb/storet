@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Storet.Core.Exceptions;
 using Storet.Modules.Inventory.Contracts.StorageLocation;
 using Storet.Modules.Inventory.Services.StorageLocations;
 
@@ -39,21 +38,10 @@ public class StorageLocationsController : ControllerBase
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
 
-		try
-		{
-			var inserted = await storageLocationsService.InsertAsync (location);
-			if (inserted == null)
-				return Problem ("Something went wrong while inserting the storage location");
-			return CreatedAtAction (nameof (GetOne), new {inserted.Id}, inserted);
-		}
-		catch (DuplicateKeyException e)
-		{
-			return Conflict (e.Message);
-		}
-		catch (Exception e)
-		{
-			return BadRequest (e.Message);
-		}
+		var inserted = await storageLocationsService.InsertAsync (location);
+		if (inserted == null)
+			return Problem ("Something went wrong while inserting the storage location");
+		return CreatedAtAction (nameof (GetOne), new {inserted.Id}, inserted);
 	}
 	
 	[HttpPut ("{id:guid}")]
@@ -62,36 +50,18 @@ public class StorageLocationsController : ControllerBase
 		if (!ModelState.IsValid)
 			return BadRequest (ModelState);
 
-		try
-		{
-			var updated = await storageLocationsService.UpdateAsync (id, location);
-			if (updated == null)
-				return NotFound();
-			return Ok (updated);
-		}
-		catch (DuplicateKeyException e)
-		{
-			return Conflict (e.Message);
-		}
-		catch (Exception e)
-		{
-			return BadRequest (e.Message);
-		}
+		var updated = await storageLocationsService.UpdateAsync (id, location);
+		if (updated == null)
+			return NotFound();
+		return Ok (updated);
 	}
 	
 	[HttpDelete ("{id:guid}")]
 	public async Task<ActionResult> Delete ([FromRoute] Guid id)
 	{
-		try
-		{
-			var deleted = await storageLocationsService.DeleteAsync (id);
-			if (!deleted)
-				return NotFound();
-			return NoContent();
-		}
-		catch (EntityDependencyException e)
-		{
-			return Conflict (e.Message);
-		}
+		var deleted = await storageLocationsService.DeleteAsync (id);
+		if (!deleted)
+			return NotFound();
+		return NoContent();
 	}
 }

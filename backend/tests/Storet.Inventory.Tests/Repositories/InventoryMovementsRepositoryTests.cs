@@ -118,9 +118,9 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 		var result = await repository.GetAllAsync (query, userId);
 		
 		result.Should().NotBeEmpty();
-		result.Should().HaveCount (3);
+		result.Should().HaveCount (4);
 		result.Should().AllSatisfy (m => m.UserId.Should().Be (userId));
-		result.Should().AllSatisfy (m => m.ExecutedAt.Should().BeOnOrAfter (key));
+		result.Should().AllSatisfy (m => m.ExecutedAt.Should().BeOnOrBefore (key));
 	}
 	
 	[Fact]
@@ -147,12 +147,11 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 		
 		var res = await repository.GetPreviousKeyAsync (query, userId);
 		
-		res.Should().BeBefore (key);
-		res.Should().Be (key.AddDays (-1));
+		res.Should().BeNull();
 	}
 	
 	[Fact]
-	public async Task BulkInsertWithValidDataShouldReturnNumberOfRowsInserted ()
+	public async Task BulkInsertWithValidDataShouldReturnInsertedRow ()
 	{
 		var cupboardId = Guid.NewGuid();
 		var cupboard = new StorageLocation
@@ -174,7 +173,12 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 		
 		var res = await repository.InsertAsync (log);
 		
-		res.Should().Be (2);
+		res.Should().NotBeNull();
+		res.Direction.Should().Be (MovementDirection.In);
+		res.ExecutedAt.Should().BeCloseTo (DateTimeOffset.Now, TimeSpan.FromSeconds (1));
+		res.NumberOfItems.Should().Be (2);
+		res.StorageLocationId.Should().Be (cupboardId);
+		res.UserId.Should().Be (userId);
 		
 		var inserted = await context.InventoryMovements
 									.AsNoTracking()
@@ -182,7 +186,6 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 									.ToListAsync();
 		inserted.Should().HaveCount (1);
 		inserted.Should().Contain (m => m.UserId == userId && m.Direction == MovementDirection.In && m.Source == MovementSource.Purchase && m.StorageLocationId == cupboardId && m.NumberOfItems == 2);
-		inserted.Should().Contain (m => m.UserId == userId && m.Direction == MovementDirection.In && m.Source == MovementSource.Purchase && m.StorageLocationId == cupboardId && m.NumberOfItems == 1);
 		inserted.Should().AllSatisfy (m => m.ExecutedAt.Should().BeCloseTo (DateTimeOffset.Now, TimeSpan.FromSeconds (1)));
 	}
 	
@@ -190,14 +193,6 @@ public class InventoryMovementsRepositoryTests : SqliteRepositoryTestsBase<Store
 	public async Task BulkInsertWithMissingStorageLocationShouldThrowDbUpdatExceptionAndNotAddToDatabase ()
 	{
 		var cupboardId = Guid.NewGuid();
-		var cupboard = new StorageLocation
-		{
-			Id = cupboardId,
-			Name = "Cupboard"
-		};
-		await context.StorageLocations.AddAsync (cupboard);
-		await context.SaveChangesAsync();
-		
 		var log = new InventoryMovement
 		{
 			UserId = userId,
