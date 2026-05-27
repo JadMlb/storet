@@ -3,10 +3,11 @@ import { NavLink } from './nav-link/nav-link';
 import { Profile } from '../profile/profile';
 import { Hamburger } from './hamburger/hamburger';
 import { ResponsiveService } from '../../shared/services/layout/responsive-service';
+import { AppVersion } from './app-version/app-version';
 
 @Component ({
 	selector: 'navbar',
-	imports: [NavLink, Profile, Hamburger],
+	imports: [NavLink, Profile, Hamburger, Navbar, AppVersion],
 	templateUrl: './navbar.html',
 	styleUrl: './navbar.scss',
 })

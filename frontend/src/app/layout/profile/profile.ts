@@ -37,11 +37,6 @@ export class Profile
 		this.menuOpen.update (old => !old);
 	}
 	
-	changeMode () : void
-	{
-		
-	}
-	
 	logout () : void
 	{
 		this.authService.signOut();

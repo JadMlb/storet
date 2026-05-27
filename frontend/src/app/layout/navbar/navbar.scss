@@ -26,9 +26,18 @@ aside
 		border-bottom: unset;
 	}
 
-	h1
+	.app-meta
 	{
-		margin: unset;
+		h1
+		{
+			margin: unset;
+		}
+
+		display: flex;
+		align-items: baseline;
+		gap: theme.$spacing-xsmall;
+
+		user-select: none;
 		
 		@media only screen and (min-width: theme.$break-point-tablet)
 		{
